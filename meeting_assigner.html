@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Meeting Assigner</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* CSS Variables for theming */
+        :root {
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f9fafb;
+            --bg-hover: #f3f4f6;
+            --bg-blue: #eff6ff;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --border-blue: #bfdbfe;
+            --text-primary: #111827;
+            --text-secondary: #1f2937;
+            --text-tertiary: #374151;
+            --text-muted: #6b7280;
+            --text-light: #4b5563;
+            --btn-primary: #2563eb;
+            --btn-primary-hover: #1d4ed8;
+            --btn-success: #16a34a;
+            --btn-success-hover: #15803d;
+            --btn-secondary: #e5e7eb;
+            --btn-secondary-hover: #d1d5db;
+            --btn-small: #f3f4f6;
+            --btn-small-hover: #e5e7eb;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --bg-hover: #4b5563;
+            --bg-blue: #1e3a5f;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --border-blue: #1e40af;
+            --text-primary: #f9fafb;
+            --text-secondary: #f3f4f6;
+            --text-tertiary: #e5e7eb;
+            --text-muted: #9ca3af;
+            --text-light: #d1d5db;
+            --btn-primary: #3b82f6;
+            --btn-primary-hover: #2563eb;
+            --btn-success: #10b981;
+            --btn-success-hover: #059669;
+            --btn-secondary: #374151;
+            --btn-secondary-hover: #4b5563;
+            --btn-small: #374151;
+            --btn-small-hover: #4b5563;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            min-height: 100vh;
+            padding: 3rem 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .container {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            max-width: 56rem;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--btn-small);
+            border: 1px solid var(--border-primary);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        .dark-mode-toggle:hover {
+            background: var(--btn-small-hover);
+        }
+        .dark-mode-toggle svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: var(--text-muted);
+        }
+        
+        h1 { font-size: 1.875rem; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem; }
+        h3 { font-size: 1.125rem; font-weight: 600; color: var(--text-secondary); }
+        h4 { font-size: 1.125rem; font-weight: 600; color: var(--text-secondary); }
+        p { color: var(--text-light); line-height: 1.5; }
+        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 1.5rem; }
+        .section { margin-top: 1.5rem; }
+        .hidden { display: none !important; }
+        
+        /* Role configuration box */
+        .role-config {
+            background: var(--bg-blue);
+            border: 2px solid var(--border-blue);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .role-config label.block { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; }
+        .role-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-primary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .role-option:hover { background: var(--bg-hover); }
+        .role-option input[type="radio"] {
+            margin-top: 0.25rem;
+            margin-right: 0.75rem;
+            width: 1rem;
+            height: 1rem;
+        }
+        .role-option-content { flex: 1; }
+        .role-option-title { font-weight: 500; color: var(--text-primary); }
+        .role-option-desc { font-size: 0.75rem; color: var(--text-light); margin-top: 0.125rem; }
+        
+        /* Form elements */
+        label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-secondary);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        textarea { resize: vertical; font-family: inherit; }
+        
+        select {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-secondary);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1rem; }
+        @media (min-width: 640px) {
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 768px) {
+            .grid-days { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .grid-days { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* Buttons */
+        button {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.875rem;
+        }
+        .btn-primary {
+            background: var(--btn-primary);
+            color: white;
+            width: 100%;
+            padding: 0.75rem;
+            box-shadow: var(--shadow-md);
+        }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-success {
+            background: var(--btn-success);
+            color: white;
+            width: 100%;
+            box-shadow: var(--shadow-md);
+        }
+        .btn-success:hover { background: var(--btn-success-hover); }
+        .btn-secondary {
+            background: var(--btn-secondary);
+            color: var(--text-secondary);
+            width: 100%;
+        }
+        .btn-secondary:hover { background: var(--btn-secondary-hover); }
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            background: var(--btn-small);
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+        .btn-small:hover { background: var(--btn-small-hover); }
+        .btn-danger {
+            color: #dc2626;
+            background: transparent;
+            padding: 0;
+            font-size: 0.875rem;
+        }
+        .btn-danger:hover { color: #991b1b; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        
+        /* Messages */
+        .message {
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            min-height: 1.25rem;
+        }
+        .text-error { color: #dc2626; }
+        .text-success { color: #16a34a; }
+        
+        /* Exemption cards */
+        .exemption-card, .day-card {
+            border: 1px solid var(--border-primary);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .card-header {
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .card-body {
+            padding: 1rem;
+            border-top: 1px solid var(--border-primary);
+        }
+        .card-body p { font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .checkbox-group { font-size: 0.875rem; }
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 0.75rem;
+            cursor: pointer;
+            color: var(--text-tertiary);
+        }
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 0.375rem;
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        thead {
+            background: var(--bg-tertiary);
+            text-align: left;
+        }
+        th {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td {
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+        }
+        tbody tr { border-top: 1px solid var(--border-primary); background: var(--bg-secondary); }
+        tbody tr:nth-child(even) { background: var(--bg-tertiary); }
+        td:first-child { font-weight: 500; color: var(--text-primary); }
+        td:last-child { font-weight: 600; color: var(--text-primary); }
+        
+        .table-wrapper {
+            border: 1px solid var(--border-primary);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        /* Assignment items */
+        .assignment-item {
+            padding: 1rem;
+            border-top: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .assignment-item:hover { background: var(--bg-hover); }
+        .assignment-name { font-weight: 500; color: var(--text-secondary); flex: 1; margin-bottom: 0.5rem; }
+        .badge-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-purple { background: #e9d5ff; color: #6b21a8; }
+        .badge-orange { background: #fed7aa; color: #9a3412; }
+        .badge-pink { background: #fce7f3; color: #9f1239; }
+        
+        [data-theme="dark"] .badge-blue { background: #1e3a5f; color: #93c5fd; }
+        [data-theme="dark"] .badge-green { background: #064e3b; color: #6ee7b7; }
+        [data-theme="dark"] .badge-purple { background: #581c87; color: #d8b4fe; }
+        [data-theme="dark"] .badge-orange { background: #7c2d12; color: #fdba74; }
+        [data-theme="dark"] .badge-pink { background: #831843; color: #f9a8d4; }
+        
+        @media (min-width: 640px) {
+            .assignment-item { flex-wrap: nowrap; }
+            .assignment-name { margin-bottom: 0; }
+        }
+        
+        /* History */
+        details {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-secondary);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+        summary {
+            padding: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        summary:hover { background: var(--bg-hover); }
+        details[open] summary { border-bottom: 1px solid var(--border-primary); }
+        .history-content { padding: 1rem; }
+        .arrow-down {
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: transform 0.2s;
+            fill: var(--text-muted);
+        }
+        details[open] .arrow-down { transform: rotate(180deg); }
+        
+        /* Collapsible pin section in exemption UI */
+        details.pin-section {
+            background: var(--bg-blue);
+            border: 1px solid var(--border-blue);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        details.pin-section summary {
+            padding: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: none;
+        }
+        details.pin-section summary:hover {
+            background: var(--bg-hover);
+            border-radius: 0.5rem;
+        }
+        details.pin-section[open] summary {
+            border-bottom: 1px solid var(--border-blue);
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        details.pin-section .pin-content {
+            padding: 0.75rem;
+        }
+        details.pin-section .pin-arrow {
+            width: 1rem;
+            height: 1rem;
+            transition: transform 0.2s;
+            fill: var(--text-muted);
+        }
+        details.pin-section[open] .pin-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-xl);
+            max-width: 24rem;
+            width: 100%;
+            margin: 1rem;
+        }
+        .modal-title { font-size: 1.125rem; font-weight: 500; color: var(--text-primary); }
+        .modal-text { margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-light); }
+        .modal-buttons { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; }
+        
+        hr { border: none; border-top: 1px solid var(--border-primary); margin: 1.5rem 0; }
+        .space-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-gray { color: var(--text-muted); }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .absolute { position: absolute; }
+        .-left-full { left: -9999px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Dark Mode Toggle -->
+        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
+            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+            </svg>
+            <svg id="moonIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"/>
+            </svg>
+        </button>
+        
+        <!-- Header -->
+        <div>
+            <h1>Weekly Meeting Assigner</h1>
+            <p class="subtitle">
+                Assigns meeting roles randomly and equally across your team. <span style="font-size: 0.75rem; color: var(--text-muted);">v3.5.0</span>
+            </p>
+        </div>
+
+        <!-- Role Configuration -->
+        <div class="role-config">
+            <label class="block">Meeting Role Structure</label>
+            <div>
+                <label class="role-option">
+                    <input type="radio" name="roleMode" value="1" checked>
+                    <div class="role-option-content">
+                        <div class="role-option-title">1 Person Per Meeting</div>
+                        <div class="role-option-desc">One person handles prep, presentation, notes, and follow-up</div>
+                    </div>
+                </label>
+                <label class="role-option">
+                    <input type="radio" name="roleMode" value="2">
+                    <div class="role-option-content">
+                        <div class="role-option-title">2 People Per Meeting</div>
+                        <div class="role-option-desc">One person preps and presents, another takes notes and follows up</div>
+                    </div>
+                </label>
+                <label class="role-option">
+                    <input type="radio" name="roleMode" value="3">
+                    <div class="role-option-content">
+                        <div class="role-option-title">3 People Per Meeting</div>
+                        <div class="role-option-desc">One person preps, another presents, another takes notes and follows up</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Form Inputs -->
+        <div id="inputsContainer" class="section">
+            <h2>Step 1: Add Meetings</h2>
+            <!-- Team Members -->
+            <div class="mb-3">
+                <label for="member1">Team Members</label>
+                <div class="grid-3">
+                    <input type="text" id="member1" placeholder="Team Member 1">
+                    <input type="text" id="member2" placeholder="Team Member 2">
+                    <input type="text" id="member3" placeholder="Team Member 3">
+                </div>
+            </div>
+
+            <!-- Daily Meeting Lists -->
+            <div>
+                <label>Meeting List by Day</label>
+                <p class="text-sm text-gray mb-3">Paste meetings into the corresponding day. Leave days blank if there are no meetings.</p>
+                <div class="grid-days" style="display: grid; gap: 1rem;">
+                    <div>
+                        <label for="meetings-mon" class="text-xs">Monday</label>
+                        <textarea id="meetings-mon" rows="5" class="mt-1" placeholder="Customer 1 - Account Review&#10;Customer 2 - Security Touch Point (SPiDR Name)"></textarea>
+                    </div>
+                    <div>
+                        <label for="meetings-tue" class="text-xs">Tuesday</label>
+                        <textarea id="meetings-tue" rows="5" class="mt-1"></textarea>
+                    </div>
+                    <div>
+                        <label for="meetings-wed" class="text-xs">Wednesday</label>
+                        <textarea id="meetings-wed" rows="5" class="mt-1"></textarea>
+                    </div>
+                    <div>
+                        <label for="meetings-thu" class="text-xs">Thursday</label>
+                        <textarea id="meetings-thu" rows="5" class="mt-1"></textarea>
+                    </div>
+                    <div>
+                        <label for="meetings-fri" class="text-xs">Friday</label>
+                        <textarea id="meetings-fri" rows="5" class="mt-1"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error/Success Message -->
+            <div id="message-area-step1" class="message mt-2"></div>
+
+            <!-- Button -->
+            <div class="mt-4">
+                <button id="reviewButton" class="btn-primary">
+                    Step 1: Review & Set Exemptions
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Exemptions -->
+        <div id="exemptionContainer" class="hidden section">
+            <h2>Step 2: Set Exemptions</h2>
+            <p class="text-sm text-gray mb-3" id="exemptionText">Uncheck any team member who should be <strong style="color: #dc2626;">excluded</strong> from a specific meeting. At least <span id="minRequired">2</span> members must be available for each meeting.</p>
+            
+            <div id="exemptionList">
+                <!-- Exemption list will be injected here -->
+            </div>
+
+            <!-- Error/Success Message -->
+            <div id="message-area-step2" class="message mt-2"></div>
+
+            <div class="grid-2 mt-4">
+                <button id="cancelButton" class="btn-secondary">
+                    Cancel (Back to Step 1)
+                </button>
+                <button id="confirmAssignButton" class="btn-success">
+                    Step 2: Confirm & Assign
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsContainer" class="hidden section">
+            <hr>
+            <!-- Tally -->
+            <div>
+                <div class="space-between">
+                    <h2 style="margin-bottom: 0;">Assignment Tally</h2>
+                    <button id="copyTallyButton" class="btn-small">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+                <div id="tallyOutput" class="table-wrapper">
+                    <!-- Tally table will be injected here -->
+                </div>
+            </div>
+            
+            <!-- Assignments -->
+            <div class="mt-4">
+                <div class="space-between">
+                    <h2 style="margin-bottom: 0;">Assignments</h2>
+                    <button id="copyAssignmentsButton" class="btn-small">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+                <div id="assignmentsOutput">
+                    <!-- Assignments will be injected here -->
+                </div>
+            </div>
+
+            <!-- Export to .txt Button -->
+            <div class="mt-4">
+                <button id="exportTxtButton" class="btn-success">
+                    Export Week to .txt File
+                </button>
+            </div>
+
+            <!-- Export to Calendar -->
+            <div class="mt-4">
+                <div class="mb-2">
+                    <label for="calendarExportSelect">Export to Calendar (iCal/Outlook)</label>
+                    <select id="calendarExportSelect">
+                        <option value="all">All Team Members (Combined)</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="meetingDuration">Meeting Duration</label>
+                    <select id="meetingDuration">
+                        <option value="15">15 minutes</option>
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60" selected>1 hour</option>
+                    </select>
+                </div>
+                <button id="exportCalendarButton" class="btn-success">
+                    Export to Calendar (.ics)
+                </button>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div id="historyContainer" class="section">
+            <hr>
+            <div class="space-between">
+                <h2 style="margin-bottom: 0;">History</h2>
+                <button id="clearHistoryButton" class="btn-danger">
+                    Clear All History
+                </button>
+            </div>
+            <div id="historyOutput" style="margin-top: 0.75rem;">
+                <!-- History items will be injected here -->
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Hidden textarea for copy-paste fallback -->
+    <textarea id="copy-helper" class="absolute -left-full"></textarea>
+
+    <!-- Modal for Clear History -->
+    <div id="confirmModal" class="hidden modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Are you sure?</h3>
+            <p class="modal-text">
+                Are you sure you want to clear all assignment history? This action cannot be undone.
+            </p>
+            <div class="modal-buttons">
+                <button id="cancelClearButton" class="btn-secondary" style="width: auto; padding: 0.5rem 1rem;">
+                    Cancel
+                </button>
+                <button id="confirmClearButton" class="btn-danger" style="background: #dc2626; color: white; padding: 0.5rem 1rem;">
+                    Clear History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DARK MODE ---
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        
+        if (currentTheme === 'dark') {
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+        
+        darkModeToggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (newTheme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        });
+        
+        // --- GLOBALS ---
+        const inputsContainer = document.getElementById('inputsContainer');
+        const reviewButton = document.getElementById('reviewButton');
+        const messageAreaStep1 = document.getElementById('message-area-step1');
+        
+        const exemptionContainer = document.getElementById('exemptionContainer');
+        const exemptionList = document.getElementById('exemptionList');
+        const exemptionText = document.getElementById('exemptionText');
+        const minRequired = document.getElementById('minRequired');
+        const messageAreaStep2 = document.getElementById('message-area-step2');
+        const cancelButton = document.getElementById('cancelButton');
+        const confirmAssignButton = document.getElementById('confirmAssignButton');
+
+        const resultsContainer = document.getElementById('resultsContainer');
+        const assignmentsOutput = document.getElementById('assignmentsOutput');
+        const tallyOutput = document.getElementById('tallyOutput');
+        
+        const historyContainer = document.getElementById('historyContainer');
+        const historyOutput = document.getElementById('historyOutput');
+        const clearHistoryButton = document.getElementById('clearHistoryButton');
+
+        const copyTallyButton = document.getElementById('copyTallyButton');
+        const copyAssignmentsButton = document.getElementById('copyAssignmentsButton');
+        const copyHelper = document.getElementById('copy-helper');
+        const exportTxtButton = document.getElementById('exportTxtButton');
+        const exportCalendarButton = document.getElementById('exportCalendarButton');
+        const calendarExportSelect = document.getElementById('calendarExportSelect');
+        const meetingDuration = document.getElementById('meetingDuration');
+
+        // --- Modal Globals ---
+        const confirmModal = document.getElementById('confirmModal');
+        const cancelClearButton = document.getElementById('cancelClearButton');
+        const confirmClearButton = document.getElementById('confirmClearButton');
+
+        const dayPrefixes = {
+            'meetings-mon': 'Mon',
+            'meetings-tue': 'Tue',
+            'meetings-wed': 'Wed',
+            'meetings-thu': 'Thu',
+            'meetings-fri': 'Fri',
+        };
+        const dayIds = ['meetings-mon', 'meetings-tue', 'meetings-wed', 'meetings-thu', 'meetings-fri'];
+        
+        // To store current state between steps
+        let currentResults = null;
+        let state = {
+            members: [],
+            allMeetings: [],
+            roleMode: 1,
+            ptoStatus: {} // Map of meeting.id -> [ptoMember1, ptoMember2, ...]
+        };
+
+        // Role configuration
+        function getRoleMode() {
+            const selected = document.querySelector('input[name="roleMode"]:checked');
+            return parseInt(selected.value);
+        }
+
+        function getRoleLabels(mode) {
+            switch(mode) {
+                case 1: return ['Owner'];
+                case 2: return ['Presenter', 'Follow-up'];
+                case 3: return ['Prep', 'Presenter', 'Follow-up'];
+                default: return ['Owner'];
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        window.addEventListener('load', loadHistory);
+
+        reviewButton.addEventListener('click', () => {
+            // 1. Get Inputs
+            state.roleMode = getRoleMode();
+            state.members = [
+                document.getElementById('member1').value.trim(),
+                document.getElementById('member2').value.trim(),
+                document.getElementById('member3').value.trim()
+            ];
+
+            let allMeetings = [];
+            let meetingIdCounter = 0;
+            dayIds.forEach(id => {
+                const day = dayPrefixes[id];
+                const meetingsInput = document.getElementById(id).value.trim();
+                if (meetingsInput) {
+                    const meetingsForDay = meetingsInput.split('\n').filter(m => m.trim() !== '');
+                    meetingsForDay.forEach(m => {
+                        allMeetings.push({
+                            id: meetingIdCounter++,
+                            day: day,
+                            name: m.trim(),
+                            original: `${day}: ${m.trim()}`
+                        });
+                    });
+                }
+            });
+            state.allMeetings = allMeetings;
+            
+            // 2. Validate Inputs
+            if (state.members.some(m => m === '')) {
+                showMessage('Please fill in all 3 team member names.', 'error', 'step1');
+                return;
+            }
+            if (state.allMeetings.length === 0) {
+                 showMessage('Please add at least one meeting to any day.', 'error', 'step1');
+                 return;
+            }
+            showMessage('', 'clear', 'step1'); // Clear error
+            
+            // 3. Update exemption text based on role mode
+            minRequired.textContent = state.roleMode;
+            
+            // 4. Render Exemption UI
+            renderExemptionUI(state.allMeetings, state.members);
+
+            // 5. Switch Views
+            inputsContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            exemptionContainer.classList.remove('hidden');
+            exemptionContainer.classList.add('fade-in');
+            messageAreaStep2.innerHTML = '';
+        });
+
+        cancelButton.addEventListener('click', () => {
+            exemptionContainer.classList.add('hidden');
+            inputsContainer.classList.remove('hidden');
+            inputsContainer.classList.add('fade-in');
+            messageAreaStep1.innerHTML = '';
+        });
+
+        confirmAssignButton.addEventListener('click', () => {
+            // 1. Get Exemptions, PTO status, and Pinned Assignments
+            const exemptions = {}; // Map of meeting.id -> [exemptedMember1, ...]
+            const ptoStatus = {};  // Map of meeting.id -> [ptoMember1, ...]
+            const pinnedAssignments = {}; // Map of meeting.id -> { role: member }
+            
+            // Collect pinned assignments
+            const pinSelects = document.querySelectorAll('.pin-assignment');
+            pinSelects.forEach(select => {
+                if (select.value) { // If a person is selected
+                    const meetingId = select.dataset.meetingId;
+                    const role = select.dataset.role;
+                    if (!pinnedAssignments[meetingId]) {
+                        pinnedAssignments[meetingId] = {};
+                    }
+                    pinnedAssignments[meetingId][role] = select.value;
+                }
+            });
+            
+            // Collect availability (unchecked = exempted)
+            const availabilityBoxes = document.querySelectorAll('.availability-checkbox');
+            availabilityBoxes.forEach(checkbox => {
+                const meetingId = checkbox.dataset.meetingId;
+                const memberName = checkbox.value;
+                if (!checkbox.checked) {
+                    if (!exemptions[meetingId]) {
+                        exemptions[meetingId] = [];
+                    }
+                    exemptions[meetingId].push(memberName);
+                }
+            });
+            
+            // Collect PTO status (checked = on PTO for this meeting)
+            const ptoBoxes = document.querySelectorAll('.pto-checkbox');
+            ptoBoxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const meetingId = checkbox.dataset.meetingId;
+                    const memberName = checkbox.value;
+                    if (!ptoStatus[meetingId]) {
+                        ptoStatus[meetingId] = [];
+                    }
+                    ptoStatus[meetingId].push(memberName);
+                }
+            });
+            
+            state.ptoStatus = ptoStatus;
+
+            // 2. Start Assignment Logic
+            const roleLabels = getRoleLabels(state.roleMode);
+            const assignments = [];
+            const tally = {};
+            
+            state.members.forEach(member => {
+                tally[member] = { 'Total': 0 };
+                roleLabels.forEach(role => {
+                    tally[member][role] = 0;
+                });
+            });
+
+            // --- Core Assignment Algorithm with Pinned Assignments ---
+            const shuffledMeetings = shuffleArray(state.allMeetings);
+
+            for (const meeting of shuffledMeetings) {
+                const meetingExemptions = exemptions[meeting.id] || [];
+                const meetingPTO = new Set(ptoStatus[meeting.id] || []);
+                const meetingPinned = pinnedAssignments[meeting.id] || {};
+                const availableMembers = state.members.filter(m => !meetingExemptions.includes(m));
+
+                // Validate pinned assignments are available
+                for (const [role, pinnedMember] of Object.entries(meetingPinned)) {
+                    if (!availableMembers.includes(pinnedMember)) {
+                        showMessage(`Error on meeting "${escapeHTML(meeting.name)}": ${escapeHTML(pinnedMember)} is pinned to ${role} but marked as unavailable.`, 'error', 'step2');
+                        return;
+                    }
+                }
+
+                // VALIDATE: Check if enough members are available
+                if (availableMembers.length < state.roleMode) {
+                    showMessage(`Error on meeting "${escapeHTML(meeting.name)}": Not enough available members. At least ${state.roleMode} must be selected.`, 'error', 'step2');
+                    return;
+                }
+                
+                // Assign roles based on mode
+                const assignedRoles = {};
+                const usedMembers = new Set();
+
+                for (const role of roleLabels) {
+                    // Check if this role is pinned
+                    if (meetingPinned[role]) {
+                        const pinnedMember = meetingPinned[role];
+                        
+                        // Check if already used in another role for this meeting
+                        if (usedMembers.has(pinnedMember)) {
+                            showMessage(`Error on meeting "${escapeHTML(meeting.name)}": ${escapeHTML(pinnedMember)} is pinned to multiple roles. Each person can only have one role per meeting.`, 'error', 'step2');
+                            return;
+                        }
+                        
+                        assignedRoles[role] = pinnedMember;
+                        usedMembers.add(pinnedMember);
+                        tally[pinnedMember][role]++;
+                        tally[pinnedMember].Total++;
+                        continue;
+                    }
+                    
+                    // No pin - use normal assignment logic
+                    const candidates = availableMembers.filter(m => !usedMembers.has(m));
+                    
+                    if (candidates.length === 0) {
+                        showMessage(`Error on meeting "${escapeHTML(meeting.name)}": Could not assign all roles.`, 'error', 'step2');
+                        return;
+                    }
+
+                    // Sort by role count, then by total count
+                    // BUT: Prefer non-PTO members for balancing
+                    // Use alphabetical tiebreaker for stable, deterministic results
+                    const sorted = candidates.sort((a, b) => {
+                        const aIsPTO = meetingPTO.has(a);
+                        const bIsPTO = meetingPTO.has(b);
+                        
+                        // If one is on PTO and one isn't, prefer the non-PTO member
+                        if (aIsPTO && !bIsPTO) return 1;
+                        if (!aIsPTO && bIsPTO) return -1;
+                        
+                        // If both have same PTO status, use normal balancing
+                        const diff = tally[a][role] - tally[b][role];
+                        if (diff !== 0) return diff;
+                        
+                        const totalDiff = tally[a].Total - tally[b].Total;
+                        if (totalDiff !== 0) return totalDiff;
+                        
+                        // Alphabetical tiebreaker for stable, deterministic results
+                        return a.localeCompare(b);
+                    });
+
+                    const chosen = sorted[0];
+                    assignedRoles[role] = chosen;
+                    usedMembers.add(chosen);
+                    
+                    // Update tally
+                    tally[chosen][role]++;
+                    tally[chosen].Total++;
+                }
+
+                assignments.push({
+                    day: meeting.day,
+                    name: meeting.name,
+                    original: meeting.original,
+                    roles: assignedRoles,
+                    pinned: meetingPinned // Store which roles were pinned
+                });
+            }
+            
+            // Calculate overall PTO members (anyone with PTO checked for any meeting)
+            const allPTOMembers = new Set();
+            Object.values(ptoStatus).forEach(memberList => {
+                memberList.forEach(member => allPTOMembers.add(member));
+            });
+            
+            // 4. Store, Render, and Show Results
+            currentResults = {
+                id: new Date().toISOString(),
+                date: new Date().toLocaleString(),
+                tally: tally,
+                assignments: assignments,
+                members: state.members,
+                roleMode: state.roleMode,
+                roleLabels: roleLabels,
+                ptoMembers: Array.from(allPTOMembers),
+                ptoStatus: ptoStatus
+            };
+            
+            showMessage('', 'clear', 'step2');
+            renderTally(tally, state.members, roleLabels, Array.from(allPTOMembers));
+            renderAssignments(assignments, roleLabels);
+            
+            // 5. Switch Views
+            exemptionContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            resultsContainer.classList.add('fade-in');
+
+            // 6. Update calendar export options
+            updateCalendarExportOptions();
+
+            // 7. Automatically Save to History
+            if (!currentResults) return;
+            
+            const history = getHistory();
+            if (!history.find(item => item.id === currentResults.id)) {
+                history.unshift(currentResults); // Add to beginning
+                localStorage.setItem('meetingHistory', JSON.stringify(history));
+                renderHistory(history); // Re-render the history list
+                showMessage('Assignments generated and saved to history.', 'success', 'step1');
+            } else {
+                showMessage('Assignments generated.', 'success', 'step1');
+            }
+            
+            // Go back to step 1
+            inputsContainer.classList.remove('hidden');
+        });
+
+        clearHistoryButton.addEventListener('click', () => {
+            confirmModal.classList.remove('hidden');
+        });
+
+        cancelClearButton.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+        });
+
+        confirmClearButton.addEventListener('click', () => {
+            localStorage.removeItem('meetingHistory');
+            historyOutput.innerHTML = '<p class="text-gray-500 text-center">History cleared.</p>';
+            confirmModal.classList.add('hidden');
+        });
+        
+        copyTallyButton.addEventListener('click', () => {
+            if (!currentResults) return;
+            const roleLabels = currentResults.roleLabels;
+            const ptoSet = new Set(currentResults.ptoMembers || []);
+            
+            let text = "📊 *ASSIGNMENT TALLY*\n\n";
+            
+            currentResults.members.forEach(member => {
+                const stats = currentResults.tally[member];
+                const isPTO = ptoSet.has(member);
+                text += `*${member}${isPTO ? ' 🏖️ (OOO)' : ''}:* `;
+                roleLabels.forEach((role, idx) => {
+                    text += `${role}: ${stats[role]}`;
+                    if (idx < roleLabels.length - 1) text += ", ";
+                });
+                text += ` (Total: ${stats.Total})\n`;
+            });
+            
+            copyToClipboard(text, 'Tally copied to clipboard!');
+        });
+        
+        copyAssignmentsButton.addEventListener('click', () => {
+            if (!currentResults) return;
+            const roleLabels = currentResults.roleLabels;
+            
+            let text = "📅 *WEEKLY MEETING ASSIGNMENTS*\n\n";
+            
+            const assignmentsByDay = groupAssignmentsByDay(currentResults.assignments);
+            
+            const dayEmojis = {
+                'Mon': '📅',
+                'Tue': '📅',
+                'Wed': '📅',
+                'Thu': '📅',
+                'Fri': '📅'
+            };
+            
+            const roleEmojis = {
+                'Owner': '👤',
+                'Prep': '📋',
+                'Presenter': '🎤',
+                'Follow-up': '✅'
+            };
+            
+            Object.keys(dayPrefixes).forEach(dayKey => {
+                const day = dayPrefixes[dayKey];
+                if (assignmentsByDay[day] && assignmentsByDay[day].length > 0) {
+                    text += `${dayEmojis[day]} *${day.toUpperCase()}*\n`;
+                    assignmentsByDay[day].forEach(item => {
+                        text += `• *${item.name}*\n`;
+                        roleLabels.forEach(role => {
+                            const emoji = roleEmojis[role] || '•';
+                            const isPinned = item.pinned && item.pinned[role] ? ' 📌' : '';
+                            text += `  ${emoji} ${role}: ${item.roles[role]}${isPinned}\n`;
+                        });
+                    });
+                    text += '\n';
+                }
+            });
+
+            copyToClipboard(text, 'Assignments copied to clipboard!');
+        });
+
+        exportTxtButton.addEventListener('click', () => {
+            if (!currentResults) {
+                showMessage('No results to export. Please assign meetings first.', 'error', 'step1');
+                return;
+            }
+            
+            const roleLabels = currentResults.roleLabels;
+            let text = "========================================\n";
+            text += "   📊 ASSIGNMENT TALLY\n";
+            text += "========================================\n\n";
+
+            // Build Tally Text
+            currentResults.members.forEach(member => {
+                const stats = currentResults.tally[member];
+                text += `${member}: `;
+                roleLabels.forEach((role, idx) => {
+                    text += `${role}: ${stats[role]}`;
+                    if (idx < roleLabels.length - 1) text += ", ";
+                });
+                text += ` (Total: ${stats.Total})\n`;
+            });
+            
+            text += "\n========================================\n";
+            text += "   📅 MEETING ASSIGNMENTS\n";
+            text += "========================================\n\n";
+
+            // Build Assignments Text
+            const assignmentsByDay = groupAssignmentsByDay(currentResults.assignments);
+            
+            const dayEmojis = {
+                'Mon': '📅',
+                'Tue': '📅', 
+                'Wed': '📅',
+                'Thu': '📅',
+                'Fri': '📅'
+            };
+            
+            const roleEmojis = {
+                'Owner': '👤',
+                'Prep': '📋',
+                'Presenter': '🎤',
+                'Follow-up': '✅'
+            };
+            
+            Object.keys(dayPrefixes).forEach(dayKey => {
+                const day = dayPrefixes[dayKey];
+                if (assignmentsByDay[day] && assignmentsByDay[day].length > 0) {
+                    text += `${dayEmojis[day]} ${day.toUpperCase()}\n`;
+                    text += "----------------------------------------\n";
+                    assignmentsByDay[day].forEach(item => {
+                        text += `\n• ${item.name}\n`;
+                        roleLabels.forEach(role => {
+                            const emoji = roleEmojis[role] || '  •';
+                            const isPinned = item.pinned && item.pinned[role] ? ' 📌' : '';
+                            text += `  ${emoji} ${role}: ${item.roles[role]}${isPinned}\n`;
+                        });
+                    });
+                    text += '\n';
+                }
+            });
+
+            // Create and trigger download
+            const a = document.createElement('a');
+            a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `meeting_assignments_${dateStr}.txt`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showMessage('Results exported to .txt file.', 'success', 'step1');
+        });
+
+        exportCalendarButton.addEventListener('click', () => {
+            if (!currentResults) {
+                showMessage('No results to export. Please assign meetings first.', 'error', 'step1');
+                return;
+            }
+
+            const selectedMember = calendarExportSelect.value;
+            exportToCalendar(selectedMember);
+        });
+
+        function updateCalendarExportOptions() {
+            if (!currentResults) return;
+            
+            calendarExportSelect.innerHTML = '<option value="all">All Team Members (Combined)</option>';
+            
+            currentResults.members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                calendarExportSelect.appendChild(option);
+            });
+        }
+
+        function exportToCalendar(memberFilter) {
+            const roleLabels = currentResults.roleLabels;
+            const assignmentsByDay = groupAssignmentsByDay(currentResults.assignments);
+            const duration = parseInt(meetingDuration.value); // Get selected duration
+            
+            // iCalendar format
+            let icsContent = 'BEGIN:VCALENDAR\r\n';
+            icsContent += 'VERSION:2.0\r\n';
+            icsContent += 'PRODID:-//Meeting Assigner//EN\r\n';
+            icsContent += 'CALSCALE:GREGORIAN\r\n';
+            icsContent += 'METHOD:PUBLISH\r\n';
+            
+            // Get current week's Monday
+            const today = new Date();
+            const currentDay = today.getDay();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+            monday.setHours(9, 0, 0, 0); // Default to 9 AM
+            
+            const dayMapping = {
+                'Mon': 0,
+                'Tue': 1,
+                'Wed': 2,
+                'Thu': 3,
+                'Fri': 4
+            };
+            
+            Object.keys(dayPrefixes).forEach(dayKey => {
+                const day = dayPrefixes[dayKey];
+                if (assignmentsByDay[day] && assignmentsByDay[day].length > 0) {
+                    assignmentsByDay[day].forEach((item, index) => {
+                        // Check if this meeting involves the selected member
+                        const involvedMembers = Object.values(item.roles);
+                        const includesMember = memberFilter === 'all' || involvedMembers.includes(memberFilter);
+                        
+                        if (!includesMember) return;
+                        
+                        // Calculate the date for this meeting
+                        const meetingDate = new Date(monday);
+                        meetingDate.setDate(monday.getDate() + dayMapping[day]);
+                        meetingDate.setHours(9 + index, 0, 0, 0); // Stagger meetings by hour
+                        
+                        const endDate = new Date(meetingDate);
+                        endDate.setMinutes(meetingDate.getMinutes() + duration); // Use selected duration
+                        
+                        // Format dates for iCal (YYYYMMDDTHHMMSS)
+                        const formatDate = (date) => {
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const dayNum = String(date.getDate()).padStart(2, '0');
+                            const hours = String(date.getHours()).padStart(2, '0');
+                            const minutes = String(date.getMinutes()).padStart(2, '0');
+                            const seconds = String(date.getSeconds()).padStart(2, '0');
+                            return `${year}${month}${dayNum}T${hours}${minutes}${seconds}`;
+                        };
+                        
+                        const uid = `${formatDate(meetingDate)}-${item.name.replace(/[^a-zA-Z0-9]/g, '')}@meetingassigner`;
+                        const dtstamp = formatDate(new Date());
+                        
+                        // Build description with role assignments
+                        let description = 'Role Assignments:\\n';
+                        roleLabels.forEach(role => {
+                            const person = item.roles[role];
+                            const isPinned = item.pinned && item.pinned[role] ? ' (pinned)' : '';
+                            description += `${role}: ${person}${isPinned}\\n`;
+                        });
+                        
+                        // Highlight user's role if filtering by member
+                        let summary = item.name;
+                        if (memberFilter !== 'all') {
+                            const userRoles = [];
+                            roleLabels.forEach(role => {
+                                if (item.roles[role] === memberFilter) {
+                                    userRoles.push(role);
+                                }
+                            });
+                            if (userRoles.length > 0) {
+                                summary += ` [${userRoles.join(', ')}]`;
+                            }
+                        }
+                        
+                        icsContent += 'BEGIN:VEVENT\r\n';
+                        icsContent += `UID:${uid}\r\n`;
+                        icsContent += `DTSTAMP:${dtstamp}\r\n`;
+                        icsContent += `DTSTART:${formatDate(meetingDate)}\r\n`;
+                        icsContent += `DTEND:${formatDate(endDate)}\r\n`;
+                        icsContent += `SUMMARY:${summary}\r\n`;
+                        icsContent += `DESCRIPTION:${description}\r\n`;
+                        icsContent += 'STATUS:CONFIRMED\r\n';
+                        icsContent += 'END:VEVENT\r\n';
+                    });
+                }
+            });
+            
+            icsContent += 'END:VCALENDAR\r\n';
+            
+            // Create download
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const filename = memberFilter === 'all' 
+                ? 'meeting-assignments-all.ics'
+                : `meeting-assignments-${memberFilter.replace(/\s+/g, '-').toLowerCase()}.ics`;
+            
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            const memberText = memberFilter === 'all' ? 'all team members' : memberFilter;
+            showMessage(`Calendar exported for ${memberText}!`, 'success', 'step1');
+        }
+
+        // --- RENDER FUNCTIONS ---
+        
+        function renderExemptionUI(allMeetings, members) {
+            exemptionList.innerHTML = ''; // Clear old list
+            const meetingsByDay = groupAssignmentsByDay(allMeetings);
+
+            Object.keys(dayPrefixes).forEach(dayKey => {
+                const day = dayPrefixes[dayKey];
+                if (meetingsByDay[day] && meetingsByDay[day].length > 0) {
+                    
+                    const dayContainer = document.createElement('div');
+                    dayContainer.className = 'exemption-card';
+                    
+                    let dayHtml = `<h3 class="card-header">${day.toUpperCase()}</h3>`;
+                    
+                    meetingsByDay[day].forEach(meeting => {
+                        dayHtml += `
+                            <div class="card-body">
+                                <p style="margin-bottom: 1rem;"><strong>${escapeHTML(meeting.name)}</strong></p>
+                                
+                                <!-- Pin Assignment Section (Collapsible) -->
+                                <details class="pin-section">
+                                    <summary>
+                                        <span>📌 Pin Assignment (Optional)</span>
+                                        <svg class="pin-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </summary>
+                                    <div class="pin-content">
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; font-style: italic;">
+                                            Lock a specific person to a specific role for this meeting
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                        `;
+                        
+                        const roleLabels = getRoleLabels(state.roleMode);
+                        roleLabels.forEach(role => {
+                            dayHtml += `
+                                <div>
+                                    <label style="font-size: 0.875rem; font-weight: 500; color: var(--text-tertiary); display: block; margin-bottom: 0.25rem;">
+                                        ${escapeHTML(role)}:
+                                    </label>
+                                    <select class="pin-assignment" 
+                                            data-meeting-id="${meeting.id}" 
+                                            data-role="${escapeHTML(role)}"
+                                            style="width: 100%; padding: 0.375rem 0.5rem; border: 1px solid var(--border-secondary); border-radius: 0.375rem; font-size: 0.875rem; background: var(--bg-secondary); color: var(--text-primary);">
+                                        <option value="">-- Auto Assign --</option>
+                            `;
+                            
+                            members.forEach(member => {
+                                dayHtml += `<option value="${escapeHTML(member)}">${escapeHTML(member)}</option>`;
+                            });
+                            
+                            dayHtml += `
+                                    </select>
+                                </div>
+                            `;
+                        });
+                        
+                        dayHtml += `
+                                        </div>
+                                    </div>
+                                </details>
+                                
+                                <!-- Availability Section -->
+                                <div style="margin-bottom: 1rem;">
+                                    <div class="checkbox-group">
+                                        <span style="font-weight: 500; margin-right: 0.5rem; color: var(--text-tertiary);">Available:</span>
+                        `;
+                        
+                        members.forEach(member => {
+                            dayHtml += `
+                                <label class="checkbox-label">
+                                    <input type="checkbox" 
+                                           class="availability-checkbox"
+                                           data-meeting-id="${meeting.id}" 
+                                           value="${escapeHTML(member)}" 
+                                           checked>
+                                    <span>${escapeHTML(member)}</span>
+                                </label>
+                            `;
+                        });
+
+                        dayHtml += `
+                                    </div>
+                                </div>
+                                
+                                <!-- PTO Section -->
+                                <div>
+                                    <div class="checkbox-group">
+                                        <span style="font-weight: 500; margin-right: 0.5rem; color: #f59e0b;">🏖️ Out of Office:</span>
+                        `;
+                        
+                        members.forEach(member => {
+                            dayHtml += `
+                                <label class="checkbox-label" style="color: #f59e0b;">
+                                    <input type="checkbox" 
+                                           class="pto-checkbox"
+                                           data-meeting-id="${meeting.id}" 
+                                           value="${escapeHTML(member)}">
+                                    <span>${escapeHTML(member)}</span>
+                                </label>
+                            `;
+                        });
+
+                        dayHtml += `
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; font-style: italic;">
+                                        Check if on PTO - they can still be assigned but won't be balanced against others
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    dayContainer.innerHTML += dayHtml;
+                    exemptionList.appendChild(dayContainer);
+                }
+            });
+        }
+
+        function renderTally(tally, members, roleLabels, ptoMembers = []) {
+            tallyOutput.innerHTML = ''; // Clear old tally
+            
+            const ptoSet = new Set(ptoMembers || []);
+            
+            let table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+            `;
+            
+            roleLabels.forEach(role => {
+                table += `<th>${escapeHTML(role)}</th>`;
+            });
+            
+            table += `
+                            <th>Total Meetings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            members.forEach(member => {
+                const stats = tally[member];
+                const isPTO = ptoSet.has(member);
+                table += `
+                    <tr>
+                        <td>${escapeHTML(member)}${isPTO ? ' <span style="color: #f59e0b; font-size: 0.75rem;">🏖️ OOO</span>' : ''}</td>
+                `;
+                
+                roleLabels.forEach(role => {
+                    table += `<td>${stats[role]}</td>`;
+                });
+                
+                table += `
+                        <td>${stats['Total']}</td>
+                    </tr>
+                `;
+            });
+
+            table += `</tbody></table>`;
+            tallyOutput.innerHTML = table;
+        }
+
+        function groupAssignmentsByDay(assignments) {
+            const grouped = {};
+            assignments.forEach(item => {
+                if (!grouped[item.day]) {
+                    grouped[item.day] = [];
+                }
+                grouped[item.day].push(item);
+            });
+            
+            // Sort meetings within each day by their original name
+            Object.keys(grouped).forEach(day => {
+                grouped[day].sort((a, b) => a.name.localeCompare(b.name));
+            });
+            return grouped;
+        }
+
+
+        function renderAssignments(assignments, roleLabels) {
+            assignmentsOutput.innerHTML = ''; // Clear old assignments
+            
+            const assignmentsByDay = groupAssignmentsByDay(assignments);
+
+            let hasAssignments = false;
+            Object.keys(dayPrefixes).forEach(dayKey => {
+                const day = dayPrefixes[dayKey];
+                if (assignmentsByDay[day] && assignmentsByDay[day].length > 0) {
+                    hasAssignments = true;
+                    const dayContainer = document.createElement('div');
+                    dayContainer.className = 'day-card';
+                    
+                    let dayHtml = `
+                        <h3 class="card-header">${day.toUpperCase()}</h3>
+                        <div>
+                    `;
+                    
+                    assignmentsByDay[day].forEach(item => {
+                        dayHtml += `
+                            <div class="assignment-item">
+                                <p class="assignment-name">${escapeHTML(item.name)}</p>
+                                <div class="badge-group">
+                        `;
+                        
+                        const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+                        const pinnedRoles = item.pinned || {};
+                        
+                        roleLabels.forEach((role, idx) => {
+                            const color = colors[idx % colors.length];
+                            const isPinned = pinnedRoles[role] ? ' 📌' : '';
+                            dayHtml += `
+                                <span class="badge badge-${color}">
+                                    ${escapeHTML(role)}: ${escapeHTML(item.roles[role])}${isPinned}
+                                </span>
+                            `;
+                        });
+                        
+                        dayHtml += `
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    dayHtml += `</div>`;
+                    dayContainer.innerHTML = dayHtml;
+                    assignmentsOutput.appendChild(dayContainer);
+                }
+            });
+
+            if (!hasAssignments) {
+                assignmentsOutput.innerHTML = `<p style="padding: 1rem; color: #6b7280;">No meetings were assigned.</p>`;
+            }
+        }
+
+        // --- HISTORY FUNCTIONS ---
+        
+        function getHistory() {
+            const history = localStorage.getItem('meetingHistory');
+            return history ? JSON.parse(history) : [];
+        }
+
+        function loadHistory() {
+            const history = getHistory();
+            renderHistory(history);
+        }
+
+        function renderHistory(history) {
+            historyOutput.innerHTML = ''; // Clear old history
+            if (history.length === 0) {
+                historyOutput.innerHTML = '<p class="text-gray text-center">No saved history.</p>';
+                return;
+            }
+
+            const mainTallyOutput = document.getElementById('tallyOutput');
+            const mainAssignmentsOutput = document.getElementById('assignmentsOutput');
+
+            history.forEach(item => {
+                const historyItem = document.createElement('details');
+                
+                const roleModeName = item.roleMode === 1 ? '1-person' : item.roleMode === 2 ? '2-people' : '3-people';
+                let summaryHtml = `
+                    <summary>
+                        <span>Assignments from <strong>${escapeHTML(item.date)}</strong> <span style="font-size: 0.75rem; color: #6b7280;">(${roleModeName} mode)</span></span>
+                        <svg class="arrow-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </summary>
+                `;
+                
+                let contentHtml = '<div class="history-content">';
+                
+                // Render Tally
+                contentHtml += '<h4 style="margin-bottom: 0.5rem;">Tally</h4>';
+                const tallyDiv = document.createElement('div');
+                tallyDiv.className = 'table-wrapper';
+                renderTally(item.tally, item.members, item.roleLabels, item.ptoMembers || []);
+                tallyDiv.innerHTML = mainTallyOutput.innerHTML;
+                contentHtml += tallyDiv.outerHTML;
+
+                // Render Assignments
+                contentHtml += '<h4 style="margin-top: 1rem; margin-bottom: 0.5rem;">Assignments</h4>';
+                const assignmentsDiv = document.createElement('div');
+                renderAssignments(item.assignments, item.roleLabels);
+                assignmentsDiv.innerHTML = mainAssignmentsOutput.innerHTML;
+                contentHtml += assignmentsDiv.outerHTML;
+                
+                contentHtml += '</div>';
+                historyItem.innerHTML = summaryHtml + contentHtml;
+                historyOutput.appendChild(historyItem);
+            });
+            
+            // Clear main display *if* it's not showing the current results
+            if (!currentResults || history[0].id !== currentResults.id) {
+                 mainTallyOutput.innerHTML = '';
+                 mainAssignmentsOutput.innerHTML = '';
+                 resultsContainer.classList.add('hidden');
+            } else {
+                // re-render current results
+                renderTally(currentResults.tally, currentResults.members, currentResults.roleLabels, currentResults.ptoMembers || []);
+                renderAssignments(currentResults.assignments, currentResults.roleLabels);
+            }
+        }
+
+        
+        // --- HELPER FUNCTIONS ---
+
+        function showMessage(message, type = 'success', step = 'step1') {
+            const area = (step === 'step1') ? messageAreaStep1 : messageAreaStep2;
+            area.innerHTML = message; // Use innerHTML to render escaped HTML
+            area.classList.remove('text-error', 'text-success');
+            
+            if (type === 'error') {
+                area.classList.add('text-error');
+            } else if (type === 'success') {
+                area.classList.add('text-success');
+            }
+            // Clear message after 3 seconds
+            if (type === 'success' && step === 'step1') {
+                setTimeout(() => showMessage('', 'clear', 'step1'), 3000);
+            }
+        }
+        
+        // Fisher-Yates Shuffle
+        function shuffleArray(array) {
+            let newArr = [...array]; // Create a copy
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        // Prevent XSS
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+        
+        // Copy to clipboard fallback for iFrames
+        function copyToClipboard(text, successMessage) {
+            try {
+                // Use modern API if available (might fail in sandboxed iframe)
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage(successMessage, 'success', 'step1');
+                }).catch(err => {
+                    // Fallback to execCommand
+                    fallbackCopyTextToClipboard(text, successMessage);
+                });
+            } catch (err) {
+                // Fallback if navigator.clipboard is not available
+                fallbackCopyTextToClipboard(text, successMessage);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text, successMessage) {
+            copyHelper.value = text;
+            copyHelper.select();
+            try {
+                document.execCommand('copy');
+                showMessage(successMessage, 'success', 'step1');
+            } catch (err) {
+                showMessage('Failed to copy text. Please copy manually.', 'error', 'step1');
+            }
+        }
+
+    </script>
+</body>
+</html>

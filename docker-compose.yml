@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  meeting-assigner:
+  cst-meeting-assigner:
     build: .
-    container_name: meeting-assigner
+    container_name: cst-meeting-assigner
     ports:
       - "80:80"
     restart: unless-stopped

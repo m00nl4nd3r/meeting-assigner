@@ -1,94 +1,57 @@
 #!/bin/bash
-
-# Meeting Assigner - Deployment Script
-# https://github.com/m00nl4nd3r/meeting-assigner
-
 set -e
 
 echo "=================================="
-echo "Meeting Assigner v3.5.0"
+echo "CST Meeting Assigner v4.0.0"
 echo "=================================="
-echo ""
 
-# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
-    echo "❌ Error: Docker is not installed."
-    echo "Please install Docker first: https://docs.docker.com/get-docker/"
+    echo "❌ Docker not installed. Get it at https://docs.docker.com/get-docker/"
     exit 1
 fi
-echo "✓ Docker is installed"
 
-# Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
-    echo "❌ Error: Docker is not running."
-    echo "Please start Docker and try again."
+    echo "❌ Docker not running. Start Docker and try again."
     exit 1
 fi
-echo "✓ Docker is running"
 
-# Detect Docker Compose command
+echo "✓ Docker ready"
+
 if docker compose version &> /dev/null 2>&1; then
-    COMPOSE_CMD="docker compose"
-    echo "✓ Docker Compose (plugin) detected"
+    COMPOSE="docker compose"
 elif command -v docker-compose &> /dev/null; then
-    COMPOSE_CMD="docker-compose"
-    echo "✓ Docker Compose (standalone) detected"
+    COMPOSE="docker-compose"
 else
-    COMPOSE_CMD=""
-    echo "⚠ Docker Compose not found, using plain Docker"
+    COMPOSE=""
 fi
 
-echo ""
 echo "Deploying..."
-echo ""
 
-if [ -n "$COMPOSE_CMD" ]; then
-    # Docker Compose deployment
-    $COMPOSE_CMD down 2>/dev/null || true
-    $COMPOSE_CMD build --no-cache
-    $COMPOSE_CMD up -d
-    
-    CONTAINER_NAME="meeting-assigner"
-    LOG_CMD="$COMPOSE_CMD logs -f"
-    STOP_CMD="$COMPOSE_CMD down"
+if [ -n "$COMPOSE" ]; then
+    $COMPOSE down 2>/dev/null || true
+    $COMPOSE build --no-cache
+    $COMPOSE up -d
+    CONTAINER="cst-meeting-assigner"
 else
-    # Plain Docker deployment
-    docker stop meeting-assigner 2>/dev/null || true
-    docker rm meeting-assigner 2>/dev/null || true
-    docker build --no-cache -t meeting-assigner .
-    docker run -d -p 80:80 --name meeting-assigner --restart unless-stopped meeting-assigner
-    
-    CONTAINER_NAME="meeting-assigner"
-    LOG_CMD="docker logs -f meeting-assigner"
-    STOP_CMD="docker stop meeting-assigner && docker rm meeting-assigner"
+    docker stop cst-meeting-assigner 2>/dev/null || true
+    docker rm cst-meeting-assigner 2>/dev/null || true
+    docker build --no-cache -t cst-meeting-assigner .
+    docker run -d -p 80:80 --name cst-meeting-assigner --restart unless-stopped cst-meeting-assigner
+    CONTAINER="cst-meeting-assigner"
 fi
 
-# Wait for container to be ready
-echo ""
-echo "Waiting for container..."
 sleep 3
 
-# Verify deployment
-if docker ps | grep -q "$CONTAINER_NAME"; then
+if docker ps | grep -q "$CONTAINER"; then
     echo ""
     echo "=================================="
-    echo "✓ Deployment Successful!"
+    echo "✓ Success!"
     echo "=================================="
     echo ""
-    echo "Access the application at:"
-    echo "  → http://localhost"
+    echo "Open: http://localhost"
     echo ""
-    echo "Container status:"
-    docker ps --filter name="$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-    echo ""
-    echo "Useful commands:"
-    echo "  → View logs: $LOG_CMD"
-    echo "  → Stop: $STOP_CMD"
-    echo ""
+    docker ps --filter name="$CONTAINER" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 else
-    echo ""
-    echo "❌ Deployment may have failed"
-    echo "Checking logs..."
-    docker logs "$CONTAINER_NAME" 2>&1 | tail -20
+    echo "❌ Failed. Check: docker logs $CONTAINER"
     exit 1
 fi

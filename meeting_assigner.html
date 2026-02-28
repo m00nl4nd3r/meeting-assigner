@@ -1,797 +1,1798 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CST Meeting Assigner</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        :root {
-            --bg-primary: #f3f4f6;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --bg-hover: #f3f4f6;
-            --bg-blue: #eff6ff;
-            --bg-orange: #fff7ed;
-            --border-primary: #e5e7eb;
-            --border-secondary: #d1d5db;
-            --border-blue: #bfdbfe;
-            --border-orange: #fed7aa;
-            --text-primary: #111827;
-            --text-secondary: #1f2937;
-            --text-tertiary: #374151;
-            --text-muted: #6b7280;
-            --text-light: #4b5563;
-            --text-orange: #c2410c;
-            --btn-primary: #2563eb;
-            --btn-primary-hover: #1d4ed8;
-            --btn-success: #16a34a;
-            --btn-success-hover: #15803d;
-            --btn-secondary: #e5e7eb;
-            --btn-secondary-hover: #d1d5db;
-            --btn-small: #f3f4f6;
-            --btn-small-hover: #e5e7eb;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow-md: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
-        }
-        
-        [data-theme="dark"] {
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --bg-tertiary: #374151;
-            --bg-hover: #4b5563;
-            --bg-blue: #1e3a5f;
-            --bg-orange: #431407;
-            --border-primary: #374151;
-            --border-secondary: #4b5563;
-            --border-blue: #1e40af;
-            --border-orange: #9a3412;
-            --text-primary: #f9fafb;
-            --text-secondary: #f3f4f6;
-            --text-tertiary: #e5e7eb;
-            --text-muted: #9ca3af;
-            --text-light: #d1d5db;
-            --text-orange: #fdba74;
-            --btn-primary: #3b82f6;
-            --btn-primary-hover: #2563eb;
-            --btn-success: #10b981;
-            --btn-success-hover: #059669;
-            --btn-secondary: #374151;
-            --btn-secondary-hover: #4b5563;
-            --btn-small: #374151;
-            --btn-small-hover: #4b5563;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 1px 3px rgba(0,0,0,0.4);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
-            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6);
-        }
-        
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif; background-color: var(--bg-primary); min-height: 100vh; padding: 2rem 1rem; }
-        .container { background: var(--bg-secondary); padding: 2rem; border-radius: 0.75rem; box-shadow: var(--shadow-lg); max-width: 56rem; margin: 0 auto; position: relative; }
-        .dark-mode-toggle { position: absolute; top: 1rem; right: 1rem; background: var(--btn-small); border: 1px solid var(--border-primary); border-radius: 0.5rem; padding: 0.5rem; cursor: pointer; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; }
-        .dark-mode-toggle:hover { background: var(--btn-small-hover); }
-        .dark-mode-toggle svg { width: 1.25rem; height: 1.25rem; fill: var(--text-muted); }
-        
-        h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem; }
-        h3 { font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
-        p { color: var(--text-light); line-height: 1.5; }
-        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 1.5rem; }
-        .section { margin-top: 1.5rem; }
-        .hidden { display: none !important; }
-        
-        .role-config { background: var(--bg-blue); border: 2px solid var(--border-blue); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem; }
-        .role-config label.block { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
-        .role-option { display: flex; align-items: flex-start; padding: 0.625rem; background: var(--bg-secondary); border: 2px solid var(--border-primary); border-radius: 0.5rem; cursor: pointer; margin-bottom: 0.375rem; }
-        .role-option:hover { background: var(--bg-hover); }
-        .role-option input[type="radio"] { margin-top: 0.125rem; margin-right: 0.5rem; }
-        .role-option-content { flex: 1; }
-        .role-option-title { font-weight: 500; color: var(--text-primary); font-size: 0.875rem; }
-        .role-option-desc { font-size: 0.7rem; color: var(--text-light); margin-top: 0.125rem; }
-        
-        label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-tertiary); margin-bottom: 0.5rem; }
-        input[type="text"], textarea { width: 100%; padding: 0.5rem; border: 1px solid var(--border-secondary); border-radius: 0.5rem; font-size: 0.875rem; background: var(--bg-secondary); color: var(--text-primary); }
-        input[type="text"]:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        textarea { resize: vertical; font-family: inherit; }
-        select { padding: 0.5rem; border: 1px solid var(--border-secondary); border-radius: 0.5rem; font-size: 0.875rem; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
-        select:focus { outline: none; border-color: #3b82f6; }
-        
-        .team-member-row { display: flex; gap: 0.5rem; align-items: center; }
-        .team-member-row input[type="text"] { flex: 1; }
-        .team-member-row select { width: 85px; }
-        
-        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 0.75rem; }
-        @media (min-width: 640px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
-        .grid-days { display: grid; gap: 0.75rem; }
-        @media (min-width: 768px) { .grid-days { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { .grid-days { grid-template-columns: repeat(3, 1fr); } }
-        
-        button { padding: 0.625rem 1rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 0.875rem; }
-        .btn-primary { background: var(--btn-primary); color: white; width: 100%; box-shadow: var(--shadow-md); }
-        .btn-primary:hover { background: var(--btn-primary-hover); }
-        .btn-success { background: var(--btn-success); color: white; width: 100%; box-shadow: var(--shadow-md); }
-        .btn-success:hover { background: var(--btn-success-hover); }
-        .btn-secondary { background: var(--btn-secondary); color: var(--text-secondary); width: 100%; }
-        .btn-secondary:hover { background: var(--btn-secondary-hover); }
-        .btn-small { padding: 0.375rem 0.75rem; background: var(--btn-small); color: var(--text-tertiary); }
-        .btn-small:hover { background: var(--btn-small-hover); }
-        .btn-danger { color: #dc2626; background: transparent; padding: 0; }
-        .btn-danger:hover { color: #991b1b; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-        
-        .message { text-align: center; font-size: 0.875rem; font-weight: 500; min-height: 1.25rem; }
-        .text-error { color: #dc2626; }
-        .text-success { color: #16a34a; }
-        
-        .containment-badge { display: inline-block; padding: 0.125rem 0.5rem; background: #fef3c7; color: #92400e; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem; }
-        [data-theme="dark"] .containment-badge { background: #78350f; color: #fcd34d; }
-        
-        .exemption-card, .day-card { border: 1px solid var(--border-primary); border-radius: 0.5rem; margin-bottom: 0.75rem; overflow: hidden; }
-        .card-header { background: var(--bg-tertiary); padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; }
-        .card-body { padding: 0.75rem; border-top: 1px solid var(--border-primary); }
-        .checkbox-group { font-size: 0.8rem; }
-        .checkbox-label { display: inline-flex; align-items: center; margin-right: 0.625rem; cursor: pointer; color: var(--text-tertiary); }
-        .checkbox-label input[type="checkbox"] { margin-right: 0.25rem; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        thead { background: var(--bg-tertiary); text-align: left; }
-        th { padding: 0.5rem; font-size: 0.7rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
-        td { padding: 0.5rem; color: var(--text-muted); }
-        tbody tr { border-top: 1px solid var(--border-primary); background: var(--bg-secondary); }
-        tbody tr:nth-child(even) { background: var(--bg-tertiary); }
-        td:first-child { font-weight: 500; color: var(--text-primary); }
-        .table-wrapper { border: 1px solid var(--border-primary); border-radius: 0.5rem; overflow: hidden; }
-        
-        .assignment-item { padding: 0.75rem; border-top: 1px solid var(--border-primary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-        .assignment-item:hover { background: var(--bg-hover); }
-        .assignment-item.containment-test { border-left: 4px solid #f59e0b; }
-        .assignment-name { font-weight: 500; color: var(--text-secondary); flex: 1; font-size: 0.875rem; }
-        .badge-group { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-        .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-        .badge-green { background: #dcfce7; color: #166534; }
-        .badge-purple { background: #e9d5ff; color: #6b21a8; }
-        .badge-orange { background: #fed7aa; color: #9a3412; }
-        [data-theme="dark"] .badge-blue { background: #1e3a5f; color: #93c5fd; }
-        [data-theme="dark"] .badge-green { background: #064e3b; color: #6ee7b7; }
-        [data-theme="dark"] .badge-purple { background: #581c87; color: #d8b4fe; }
-        [data-theme="dark"] .badge-orange { background: #7c2d12; color: #fdba74; }
-        
-        details { background: var(--bg-secondary); border: 1px solid var(--border-secondary); border-radius: 0.5rem; margin-bottom: 0.5rem; }
-        summary { padding: 0.75rem; cursor: pointer; font-weight: 500; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; }
-        summary:hover { background: var(--bg-hover); }
-        details[open] summary { border-bottom: 1px solid var(--border-primary); }
-        .history-content { padding: 0.75rem; }
-        .arrow-down { width: 1rem; height: 1rem; transition: transform 0.2s; fill: var(--text-muted); }
-        details[open] .arrow-down { transform: rotate(180deg); }
-        
-        details.pin-section { background: var(--bg-blue); border: 1px solid var(--border-blue); border-radius: 0.5rem; margin-bottom: 0.75rem; }
-        details.pin-section summary { padding: 0.5rem 0.75rem; font-weight: 600; font-size: 0.8rem; border-bottom: none; }
-        details.pin-section[open] summary { border-bottom: 1px solid var(--border-blue); }
-        details.pin-section .pin-content { padding: 0.5rem 0.75rem; }
-        
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .modal-content { background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.5rem; box-shadow: var(--shadow-xl); max-width: 24rem; width: 100%; margin: 1rem; }
-        .modal-title { font-size: 1rem; font-weight: 500; color: var(--text-primary); }
-        .modal-text { margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-light); }
-        .modal-buttons { margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.75rem; }
-        
-        hr { border: none; border-top: 1px solid var(--border-primary); margin: 1.5rem 0; }
-        .space-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .text-gray { color: var(--text-muted); }
-        .text-center { text-align: center; }
-        .mt-1 { margin-top: 0.25rem; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-3 { margin-bottom: 0.75rem; }
-        
-        .cse-badge { font-size: 0.6rem; padding: 0.0625rem 0.25rem; border-radius: 0.25rem; font-weight: 600; margin-left: 0.125rem; }
-        .cse-badge-2 { background: #e0e7ff; color: #3730a3; }
-        .cse-badge-3 { background: #d1fae5; color: #065f46; }
-        .cse-badge-4 { background: #fef3c7; color: #92400e; }
-        [data-theme="dark"] .cse-badge-2 { background: #3730a3; color: #c7d2fe; }
-        [data-theme="dark"] .cse-badge-3 { background: #065f46; color: #6ee7b7; }
-        [data-theme="dark"] .cse-badge-4 { background: #78350f; color: #fcd34d; }
-        
-        .absolute { position: absolute; }
-        .-left-full { left: -9999px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CST Meeting Assigner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   DESIGN SYSTEM
+   ══════════════════════════════════════════ */
+:root {
+    --font: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --ease: cubic-bezier(.4, 0, .2, 1);
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --r-xl: 20px;
+}
+
+[data-theme="light"] {
+    --bg-0: #f4f3f0;
+    --bg-1: #ffffff;
+    --bg-2: #f8f7f5;
+    --bg-3: #f0efec;
+    --bg-elevated: #ffffff;
+    --border: #e4e2dd;
+    --border-subtle: #ece9e4;
+    --text-0: #1a1815;
+    --text-1: #3d3a35;
+    --text-2: #6e6a63;
+    --text-3: #9e9a93;
+    --accent: #c45d35;
+    --accent-soft: #fdf0eb;
+    --accent-text: #9e3c1a;
+    --blue: #3366cc;
+    --blue-soft: #eef2fb;
+    --green: #2d8a4e;
+    --green-soft: #edf7f0;
+    --purple: #7c5cbf;
+    --purple-soft: #f3eefa;
+    --red: #c43535;
+    --red-soft: #fdeaea;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.08);
+    --shadow-glow: 0 0 0 3px rgba(196,93,53,.12);
+}
+
+[data-theme="dark"] {
+    --bg-0: #111110;
+    --bg-1: #1a1918;
+    --bg-2: #222120;
+    --bg-3: #2a2928;
+    --bg-elevated: #1e1d1c;
+    --border: #333231;
+    --border-subtle: #2a2928;
+    --text-0: #ededec;
+    --text-1: #c8c7c5;
+    --text-2: #8a8884;
+    --text-3: #5e5c58;
+    --accent: #e07850;
+    --accent-soft: #2d1f18;
+    --accent-text: #e9a88e;
+    --blue: #6699ee;
+    --blue-soft: #172035;
+    --green: #5cb87a;
+    --green-soft: #14261a;
+    --purple: #a88de0;
+    --purple-soft: #1c1630;
+    --red: #e05555;
+    --red-soft: #2d1414;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.2);
+    --shadow-md: 0 2px 8px rgba(0,0,0,.3);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.4);
+    --shadow-glow: 0 0 0 3px rgba(224,120,80,.15);
+}
+
+/* ══════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+    font-family: var(--font);
+    background: var(--bg-0);
+    color: var(--text-0);
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════════ */
+.header {
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+}
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.header-brand h1 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+.header-brand .tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+}
+.header-actions { display: flex; gap: 6px; }
+
+/* ══════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════ */
+.wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    animation: cardIn .35s var(--ease) both;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } }
+
+.card-head {
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.card-head .step-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    width: 22px; height: 22px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.card-head h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.card-body { padding: 16px 24px 24px; }
+.hidden { display: none !important; }
+
+/* ══════════════════════════════════════════
+   FORM ELEMENTS
+   ══════════════════════════════════════════ */
+.label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+.hint {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin-bottom: 10px;
+}
+
+input[type="text"], select, textarea {
+    font-family: var(--font);
+    font-size: 0.88rem;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--bg-2);
+    color: var(--text-0);
+    width: 100%;
+    transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--shadow-glow);
+}
+textarea {
+    resize: vertical;
+    min-height: 110px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.7;
+}
+select { cursor: pointer; }
+input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px; height: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════ */
+.btn {
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 9px 18px;
+    border: none;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s var(--ease);
+    white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { filter: brightness(1.1); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { filter: brightness(1.1); }
+.btn-ghost {
+    background: var(--bg-3);
+    color: var(--text-1);
+    border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg-2); border-color: var(--text-3); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { filter: brightness(1.1); }
+.btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+.btn-icon {
+    width: 34px; height: 34px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--r-sm);
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .15s var(--ease);
+}
+.btn-icon:hover { background: var(--bg-2); color: var(--text-0); }
+
+/* ══════════════════════════════════════════
+   ROLE MODE SELECTOR
+   ══════════════════════════════════════════ */
+.mode-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.mode-opt {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: all .2s var(--ease);
+    background: var(--bg-2);
+    text-align: center;
+}
+.mode-opt:hover { border-color: var(--text-3); }
+.mode-opt.active { border-color: var(--accent); background: var(--accent-soft); }
+.mode-opt strong { display: block; font-size: 0.92rem; margin-bottom: 2px; }
+.mode-opt span { font-size: 0.75rem; color: var(--text-2); }
+.mode-opt.active span { color: var(--accent-text); }
+.info-strip {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: var(--accent-text);
+    opacity: .85;
+}
+
+/* ══════════════════════════════════════════
+   TEAM MEMBER ROWS
+   ══════════════════════════════════════════ */
+.members-list { display: flex; flex-direction: column; gap: 6px; }
+.member-row {
+    display: grid;
+    grid-template-columns: 1fr 90px 34px;
+    gap: 6px;
+    align-items: center;
+    animation: fadeIn .25s var(--ease) both;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } }
+.member-row .remove-btn {
+    width: 34px; height: 34px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--r-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-3);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all .15s;
+}
+.member-row .remove-btn:hover { background: var(--red-soft); color: var(--red); border-color: var(--red); }
+.add-member-btn {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    padding: 8px;
+    width: 100%;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 600;
+    transition: all .15s;
+}
+.add-member-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+/* ══════════════════════════════════════════
+   DAYS GRID
+   ══════════════════════════════════════════ */
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+@media (max-width: 680px) { .days-grid { grid-template-columns: repeat(2, 1fr); } }
+.days-grid .day-col label {
+    display: block;
+    text-align: center;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    margin-bottom: 6px;
+}
+
+/* ══════════════════════════════════════════
+   STEP 2 MEETING CARDS
+   ══════════════════════════════════════════ */
+.day-separator {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    padding: 14px 0 6px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 8px;
+}
+.day-separator:first-child { padding-top: 0; }
+
+.mtg-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    transition: border-color .2s;
+}
+.mtg-card.is-ct { border-left: 3px solid var(--accent); }
+.mtg-card-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+    flex-wrap: wrap;
+}
+.cb-row .cb-label {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--text-3);
+    min-width: 65px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.cb-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-1);
+    margin: 0;
+}
+.pin-area { margin-top: 8px; }
+.pin-toggle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color .15s;
+}
+.pin-toggle:hover { color: var(--text-1); }
+.pin-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.pin-grid > div { flex: 1; min-width: 100px; }
+.pin-grid label { font-size: 0.72rem; color: var(--text-3); display: block; margin-bottom: 3px; }
+.pin-grid select { font-size: 0.8rem; padding: 5px 8px; }
+
+/* ══════════════════════════════════════════
+   BADGES
+   ══════════════════════════════════════════ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.badge-blue { background: var(--blue-soft); color: var(--blue); }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-purple { background: var(--purple-soft); color: var(--purple); }
+.badge-muted { background: var(--bg-3); color: var(--text-3); }
+.badge-accent { background: var(--accent-soft); color: var(--accent); }
+
+/* ══════════════════════════════════════════
+   FORMAT SELECTOR
+   ══════════════════════════════════════════ */
+.fmt-bar {
+    display: inline-flex;
+    gap: 2px;
+    background: var(--bg-3);
+    padding: 3px;
+    border-radius: var(--r-sm);
+    margin-bottom: 16px;
+}
+.fmt-btn {
+    padding: 5px 14px;
+    border: none;
+    border-radius: calc(var(--r-sm) - 1px);
+    background: transparent;
+    color: var(--text-3);
+    font-family: var(--font);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.fmt-btn.active {
+    background: var(--bg-elevated);
+    color: var(--text-0);
+    box-shadow: var(--shadow-sm);
+}
+.fmt-btn:hover:not(.active) { color: var(--text-1); }
+
+/* ══════════════════════════════════════════
+   RESULT BLOCKS
+   ══════════════════════════════════════════ */
+.res-block {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.res-block-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+.res-block-body { padding: 16px; }
+
+/* ══════════════════════════════════════════
+   TALLY
+   ══════════════════════════════════════════ */
+.tally-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.tally-row:last-of-type { border-bottom: none; }
+.tally-name {
+    font-weight: 700;
+    font-size: 0.88rem;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tally-stats {
+    font-size: 0.8rem;
+    color: var(--text-1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.tally-stats .val {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--text-0);
+}
+.tally-daily {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-3);
+    margin-top: 2px;
+}
+.tally-pairs {
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--text-2);
+}
+.tally-pairs strong { color: var(--text-0); }
+.pair-matrix { margin-top: 10px; overflow-x: auto; }
+.pair-matrix table { font-family: var(--mono); font-size: 0.72rem; border-collapse: collapse; }
+.pair-matrix th, .pair-matrix td {
+    padding: 4px 10px;
+    border: 1px solid var(--border-subtle);
+    text-align: center;
+}
+.pair-matrix th { background: var(--bg-3); color: var(--text-3); font-weight: 600; }
+.pair-matrix td:first-child { font-weight: 600; text-align: left; color: var(--text-1); }
+
+/* ══════════════════════════════════════════
+   ASSIGNMENT CARDS
+   ══════════════════════════════════════════ */
+.asgn-day { margin-bottom: 16px; }
+.asgn-day-head {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-3);
+    padding: 4px 0 6px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 8px;
+}
+.asgn-item {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    background: var(--bg-2);
+    transition: box-shadow .2s;
+}
+.asgn-item:hover { box-shadow: var(--shadow-md); }
+.asgn-item.is-ct { border-left: 3px solid var(--accent); }
+.asgn-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.asgn-name { font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+.role-row {
+    font-size: 0.82rem;
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.role-row .r-icon { width: 20px; text-align: center; flex-shrink: 0; }
+.role-row .r-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-3);
+    min-width: 72px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.role-row .r-name { font-weight: 600; }
+
+/* Edit mode */
+.asgn-item.editing .role-row { display: none; }
+.asgn-item .edit-panel { display: none; }
+.asgn-item.editing .edit-panel { display: block; }
+.asgn-item.editing .edit-trigger { display: none; }
+.edit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-size: 0.82rem;
+}
+.edit-row label { font-size: 0.78rem; min-width: 72px; font-weight: 600; color: var(--text-2); margin: 0; }
+.edit-row select { width: auto; flex: 1; font-size: 0.8rem; padding: 5px 8px; }
+.edit-err { color: var(--red); font-size: 0.75rem; margin-top: 4px; font-weight: 500; }
+.edit-btns { display: flex; gap: 5px; margin-top: 8px; }
+
+/* ══════════════════════════════════════════
+   EXPORT ROW
+   ══════════════════════════════════════════ */
+.export-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.cal-row {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+}
+.cal-row > div { flex: 1; min-width: 110px; }
+.cal-row label { font-size: 0.72rem; color: var(--text-3); display: block; margin-bottom: 3px; }
+.cal-row select { font-size: 0.82rem; }
+
+/* ══════════════════════════════════════════
+   HISTORY
+   ══════════════════════════════════════════ */
+.hist-item {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 6px;
+    overflow: hidden;
+}
+.hist-head {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: background .15s;
+}
+.hist-head:hover { background: var(--bg-3); }
+.hist-head .arrow { color: var(--text-3); transition: transform .2s; }
+.hist-item.open .hist-head .arrow { transform: rotate(90deg); }
+.hist-body {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-2);
+    display: none;
+}
+.hist-item.open .hist-body { display: block; }
+.hist-body pre {
+    white-space: pre-wrap;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-2);
+    margin-bottom: 8px;
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════ */
+.toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+.toast {
+    padding: 10px 18px;
+    border-radius: var(--r-md);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 6px;
+    box-shadow: var(--shadow-lg);
+    animation: tIn .3s var(--ease), tOut .3s var(--ease) 2.7s forwards;
+}
+.toast-ok { background: var(--green); }
+.toast-err { background: var(--red); }
+@keyframes tIn { from { transform: translateX(30px); opacity: 0; } }
+@keyframes tOut { to { opacity: 0; transform: translateY(6px); } }
+
+/* ══════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════ */
+.modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .2s;
+}
+.modal-box {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+}
+.modal-box h3 { font-size: 1rem; margin-bottom: 6px; }
+.modal-box p { color: var(--text-2); font-size: 0.88rem; margin-bottom: 18px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ══════════════════════════════════════════
+   NAV
+   ══════════════════════════════════════════ */
+.nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
+.empty-state { color: var(--text-3); font-size: 0.82rem; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode">
-            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/></svg>
-            <svg id="moonIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"/></svg>
-        </button>
-        
-        <div>
-            <h1>CST Meeting Assigner</h1>
-            <p class="subtitle">Fair meeting role assignment for Concierge Security Teams <span style="font-size:0.7rem;color:var(--text-muted);">v4.0.0</span></p>
-        </div>
 
-        <div class="role-config">
-            <label class="block">Default Meeting Structure</label>
-            <div>
-                <label class="role-option">
-                    <input type="radio" name="roleMode" value="1">
-                    <div class="role-option-content">
-                        <div class="role-option-title">1 Person</div>
-                        <div class="role-option-desc">One owner handles everything</div>
-                    </div>
-                </label>
-                <label class="role-option">
-                    <input type="radio" name="roleMode" value="2" checked>
-                    <div class="role-option-content">
-                        <div class="role-option-title">2 People</div>
-                        <div class="role-option-desc">Presenter + Follow-up</div>
-                    </div>
-                </label>
-                <label class="role-option">
-                    <input type="radio" name="roleMode" value="3">
-                    <div class="role-option-content">
-                        <div class="role-option-title">3 People</div>
-                        <div class="role-option-desc">Prep + Presenter + Follow-up</div>
-                    </div>
-                </label>
-            </div>
-            <p class="text-xs text-gray mt-1">Containment Tests always use Lead + Follow-up with CSE3+ as Lead</p>
-        </div>
+<header class="header">
+    <div class="header-brand">
+        <h1>CST Meeting Assigner</h1>
+        <span class="tag">v4.5.0</span>
+    </div>
+    <div class="header-actions">
+        <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    </div>
+</header>
 
-        <div id="inputsContainer" class="section">
-            <h2>Step 1: Team & Meetings</h2>
-            <div class="mb-3">
-                <label>CST Team Members</label>
-                <p class="text-xs text-gray mb-2">Enter names with CSE level. CSE3+ required for Containment Test lead.</p>
-                <div class="grid-3">
-                    <div class="team-member-row">
-                        <input type="text" id="member1" placeholder="Member 1">
-                        <select id="level1"><option value="2">CSE2</option><option value="3" selected>CSE3</option><option value="4">CSE4</option></select>
-                    </div>
-                    <div class="team-member-row">
-                        <input type="text" id="member2" placeholder="Member 2">
-                        <select id="level2"><option value="2" selected>CSE2</option><option value="3">CSE3</option><option value="4">CSE4</option></select>
-                    </div>
-                    <div class="team-member-row">
-                        <input type="text" id="member3" placeholder="Member 3">
-                        <select id="level3"><option value="2" selected>CSE2</option><option value="3">CSE3</option><option value="4">CSE4</option></select>
-                    </div>
-                </div>
-            </div>
+<div class="wrap">
 
-            <div>
-                <label>Meetings by Day</label>
-                <p class="text-xs text-gray mb-2">One meeting per line. Mark containment tests in Step 2.</p>
-                <div class="grid-days">
-                    <div><label class="text-xs">Monday</label><textarea id="meetings-mon" rows="4" placeholder="Customer - Review&#10;Customer - Containment Test"></textarea></div>
-                    <div><label class="text-xs">Tuesday</label><textarea id="meetings-tue" rows="4"></textarea></div>
-                    <div><label class="text-xs">Wednesday</label><textarea id="meetings-wed" rows="4"></textarea></div>
-                    <div><label class="text-xs">Thursday</label><textarea id="meetings-thu" rows="4"></textarea></div>
-                    <div><label class="text-xs">Friday</label><textarea id="meetings-fri" rows="4"></textarea></div>
-                </div>
+    <!-- ROLE MODE -->
+    <div class="card">
+        <div class="card-head"><h2>Role Mode</h2></div>
+        <div class="card-body">
+            <div class="mode-row">
+                <div class="mode-opt" data-m="1" onclick="setRoleMode(1)"><strong>Solo</strong><span>Presenter only</span></div>
+                <div class="mode-opt active" data-m="2" onclick="setRoleMode(2)"><strong>2 People</strong><span>Presenter + Follow-up</span></div>
+                <div class="mode-opt" data-m="3" onclick="setRoleMode(3)"><strong>3 People</strong><span>Presenter + Notes + Follow-up</span></div>
             </div>
-            
-            <div id="message-area-step1" class="message mt-2"></div>
-            <div class="mt-4"><button id="reviewButton" class="btn-primary">Review & Set Exemptions →</button></div>
-        </div>
-
-        <div id="exemptionContainer" class="hidden section">
-            <h2>Step 2: Exemptions & Containment Tests</h2>
-            <p class="text-xs text-gray mb-3">Mark containment tests (🔒), availability, and PTO. At least <span id="minRequired">2</span> available per meeting.</p>
-            <div id="exemptionList"></div>
-            <div id="message-area-step2" class="message mt-2"></div>
-            <div class="grid-2 mt-4">
-                <button id="cancelButton" class="btn-secondary">← Back</button>
-                <button id="confirmAssignButton" class="btn-success">Confirm & Assign →</button>
-            </div>
-        </div>
-
-        <div id="resultsContainer" class="hidden section">
-            <hr>
-            <div>
-                <div class="space-between"><h2 style="margin-bottom:0;">Tally</h2><button id="copyTallyButton" class="btn-small">📋 Copy</button></div>
-                <div id="tallyOutput" class="table-wrapper"></div>
-            </div>
-            <div class="mt-4">
-                <div class="space-between"><h2 style="margin-bottom:0;">Assignments</h2><button id="copyAssignmentsButton" class="btn-small">📋 Copy</button></div>
-                <div id="assignmentsOutput"></div>
-            </div>
-            <div class="mt-4"><button id="exportTxtButton" class="btn-success">Export to .txt</button></div>
-            <div class="mt-4">
-                <div class="mb-2"><label>Calendar Export</label><select id="calendarExportSelect" style="width:100%;"><option value="all">All Members</option></select></div>
-                <div class="mb-2"><select id="meetingDuration" style="width:100%;"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
-                <button id="exportCalendarButton" class="btn-success">Export .ics</button>
-            </div>
-        </div>
-
-        <div id="historyContainer" class="section">
-            <hr>
-            <div class="space-between"><h2 style="margin-bottom:0;">History</h2><button id="clearHistoryButton" class="btn-danger">Clear</button></div>
-            <div id="historyOutput" style="margin-top:0.5rem;"></div>
+            <div class="info-strip">🔒 Containment Tests always use 3 people regardless of mode. CSE3+ required as Presenter. Individual meetings can be overridden to Solo in Step 2.</div>
         </div>
     </div>
-    
-    <textarea id="copy-helper" class="absolute -left-full"></textarea>
 
-    <div id="confirmModal" class="hidden modal">
-        <div class="modal-content">
-            <h3 class="modal-title">Clear History?</h3>
-            <p class="modal-text">This cannot be undone.</p>
-            <div class="modal-buttons">
-                <button id="cancelClearButton" class="btn-secondary" style="width:auto;padding:0.5rem 1rem;">Cancel</button>
-                <button id="confirmClearButton" style="background:#dc2626;color:white;padding:0.5rem 1rem;">Clear</button>
+    <!-- STEP 1 -->
+    <div class="card" id="step1">
+        <div class="card-head"><span class="step-num">1</span><h2>Team &amp; Meetings</h2></div>
+        <div class="card-body">
+            <div class="label">Team Members</div>
+            <div class="hint">Add your team. CSE3+ can present Containment Tests.</div>
+            <div class="members-list" id="membersList"></div>
+            <button class="add-member-btn" onclick="addMember()">+ Add member</button>
+
+            <div style="margin-top:20px;">
+                <div class="label">Meetings by Day</div>
+                <div class="hint">One meeting per line. Mark containment tests and solo meetings in Step 2.</div>
+                <div class="days-grid">
+                    <div class="day-col"><label>Mon</label><textarea id="inputMon" placeholder="Customer A&#10;Customer B"></textarea></div>
+                    <div class="day-col"><label>Tue</label><textarea id="inputTue"></textarea></div>
+                    <div class="day-col"><label>Wed</label><textarea id="inputWed"></textarea></div>
+                    <div class="day-col"><label>Thu</label><textarea id="inputThu"></textarea></div>
+                    <div class="day-col"><label>Fri</label><textarea id="inputFri"></textarea></div>
+                </div>
+            </div>
+            <div class="nav-row"><div></div><button class="btn btn-accent" onclick="goToStep2()">Review &amp; Adjust →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card hidden" id="step2">
+        <div class="card-head"><span class="step-num">2</span><h2>Review &amp; Adjust</h2></div>
+        <div class="card-body">
+            <div class="hint" style="margin-bottom:14px;">Set containment tests, solo meetings, availability, PTO, and pin assignments.</div>
+            <div id="step2Body"></div>
+            <div class="nav-row">
+                <button class="btn btn-ghost" onclick="goToStep1()">← Back</button>
+                <button class="btn btn-green" onclick="generateAssignments()">Confirm &amp; Assign →</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const $ = id => document.getElementById(id);
-        const $$ = sel => document.querySelectorAll(sel);
-        
-        // Dark mode
-        const html = document.documentElement;
-        const theme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', theme);
-        if (theme === 'dark') { $('sunIcon').classList.add('hidden'); $('moonIcon').classList.remove('hidden'); }
-        
-        $('darkModeToggle').onclick = () => {
-            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            $('sunIcon').classList.toggle('hidden');
-            $('moonIcon').classList.toggle('hidden');
-        };
-        
-        const dayPrefixes = {'meetings-mon':'Mon','meetings-tue':'Tue','meetings-wed':'Wed','meetings-thu':'Thu','meetings-fri':'Fri'};
-        const dayIds = Object.keys(dayPrefixes);
-        const dayOrder = ['Mon','Tue','Wed','Thu','Fri'];
-        
-        let currentResults = null;
-        let state = { members: [], memberLevels: {}, allMeetings: [], roleMode: 2, ptoStatus: {}, containmentTests: {} };
-        
-        const getRoleMode = () => parseInt(document.querySelector('input[name="roleMode"]:checked').value);
-        const getRoleLabels = (mode, isCT) => isCT ? ['Lead','Follow-up'] : mode === 1 ? ['Owner'] : mode === 2 ? ['Presenter','Follow-up'] : ['Prep','Presenter','Follow-up'];
-        const getMemberLevel = m => state.memberLevels[m] || 2;
-        const isCSE3Plus = m => getMemberLevel(m) >= 3;
-        const cseBadge = lvl => `<span class="cse-badge cse-badge-${lvl}">CSE${lvl}</span>`;
-        const escapeHTML = s => typeof s !== 'string' ? '' : s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]);
-        const shuffle = arr => { let a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-        
-        const showMsg = (msg, type, step) => {
-            const el = step === 'step2' ? $('message-area-step2') : $('message-area-step1');
-            el.innerHTML = msg;
-            el.className = 'message mt-2' + (type === 'error' ? ' text-error' : type === 'success' ? ' text-success' : '');
-            if (type === 'success') setTimeout(() => { el.innerHTML = ''; }, 3000);
-        };
-        
-        const groupByDay = arr => {
-            const g = {};
-            arr.forEach(i => { if (!g[i.day]) g[i.day] = []; g[i.day].push(i); });
-            dayOrder.forEach(d => { if (g[d]) g[d].sort((a, b) => a.name.localeCompare(b.name)); });
-            return g;
-        };
-        
-        const copyText = (text, msg) => {
-            navigator.clipboard.writeText(text).then(() => showMsg(msg, 'success', 'step1')).catch(() => {
-                $('copy-helper').value = text;
-                $('copy-helper').select();
-                document.execCommand('copy');
-                showMsg(msg, 'success', 'step1');
+    <!-- RESULTS -->
+    <div class="card hidden" id="results">
+        <div class="card-head"><span class="step-num">3</span><h2>Results</h2></div>
+        <div class="card-body">
+            <div class="fmt-bar">
+                <button class="fmt-btn active" data-f="slack" onclick="setFmt('slack')">💬 Slack</button>
+                <button class="fmt-btn" data-f="onenote" onclick="setFmt('onenote')">📓 OneNote</button>
+                <button class="fmt-btn" data-f="markdown" onclick="setFmt('markdown')">📝 Markdown</button>
+            </div>
+            <div class="res-block">
+                <div class="res-block-head"><span>📅 Assignments</span><button class="btn btn-sm btn-ghost" onclick="cpAsgn()">Copy</button></div>
+                <div class="res-block-body" id="asgnOut"></div>
+            </div>
+            <div class="res-block">
+                <div class="res-block-head"><span>📊 Stats</span><button class="btn btn-sm btn-ghost" onclick="cpTally()">Copy</button></div>
+                <div class="res-block-body" id="tallyOut"></div>
+            </div>
+            <div class="export-row">
+                <button class="btn btn-accent" onclick="cpAll()">📋 Copy All</button>
+                <button class="btn btn-ghost" onclick="expTxt()">💾 Export .txt</button>
+            </div>
+            <div class="cal-row">
+                <div><label>Filter</label><select id="calSel"><option value="all">All Members</option></select></div>
+                <div><label>Duration</label><select id="calDur"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+                <div style="flex:0"><label>&nbsp;</label><button class="btn btn-green" onclick="expICS()">📆 .ics</button></div>
+            </div>
+            <div style="margin-top:16px"><button class="btn btn-ghost" onclick="goToStep1()">← New Assignment</button></div>
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card" id="histCard">
+        <div class="card-head" style="padding-bottom:0;">
+            <h2 style="flex:1">History</h2>
+            <button class="btn btn-sm btn-danger" id="clrHistBtn" onclick="showClearModal()" style="display:none">Clear</button>
+        </div>
+        <div class="card-body" id="histOut"><span class="empty-state">No assignment history yet.</span></div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+<div id="modalRoot"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════════════════════
+
+var $ = function(id) { return document.getElementById(id); };
+var $$ = function(sel) { return document.querySelectorAll(sel); };
+
+function esc(s) {
+    if (typeof s !== 'string') return '';
+    return s.replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];
+    });
+}
+
+function shuffle(arr) {
+    var r = arr.slice();
+    for (var i = r.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = r[i]; r[i] = r[j]; r[j] = tmp;
+    }
+    return r;
+}
+
+function toast(msg, type) {
+    var el = document.createElement('div');
+    el.className = 'toast ' + (type === 'error' ? 'toast-err' : 'toast-ok');
+    el.textContent = msg;
+    $('toasts').appendChild(el);
+    setTimeout(function() { el.remove(); }, 3200);
+}
+
+function cpText(text, msg) {
+    navigator.clipboard.writeText(text).then(function() { toast(msg); }).catch(function() {
+        var t = document.createElement('textarea');
+        t.value = text; t.style.position = 'fixed'; t.style.left = '-9999px';
+        document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(t);
+        toast(msg);
+    });
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════════════
+
+var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+var DAY_FULL = { Mon:'Monday', Tue:'Tuesday', Wed:'Wednesday', Thu:'Thursday', Fri:'Friday' };
+var DAY_IDS = ['inputMon', 'inputTue', 'inputWed', 'inputThu', 'inputFri'];
+var ALL_ROLES = ['Presenter', 'Notes', 'Follow-up'];
+
+function roleLabelsFor(mode, isCT, isSolo) {
+    if (isSolo && !isCT) return ['Presenter'];
+    if (isCT) return ['Presenter', 'Notes', 'Follow-up'];
+    if (mode === 1) return ['Presenter'];
+    return mode === 3 ? ['Presenter', 'Notes', 'Follow-up'] : ['Presenter', 'Follow-up'];
+}
+function rIcon(r) { return r === 'Presenter' ? '🎤' : r === 'Notes' ? '📝' : '✅'; }
+function cseBadge(lvl) { return lvl >= 4 ? 'badge-purple' : lvl >= 3 ? 'badge-blue' : 'badge-muted'; }
+function isCSE3(name) { return (state.memberLevels[name] || 2) >= 3; }
+function isCSE3R(name, levels) { return (levels[name] || 2) >= 3; }
+
+function groupByDay(arr) {
+    var g = {};
+    arr.forEach(function(a) { if (!g[a.day]) g[a.day] = []; g[a.day].push(a); });
+    DAYS.forEach(function(d) { if (g[d]) g[d].sort(function(a, b) { return a.id - b.id; }); });
+    return g;
+}
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+
+var state = {
+    members: [],
+    memberLevels: {},
+    meetings: [],
+    roleMode: 2,
+    ct: {},
+    solo: {},
+    savedAv: {},
+    savedPTO: {},
+    savedPins: {}
+};
+var R = null;
+var fmt = 'slack';
+var memberIdCounter = 0;
+
+// ════════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════════
+
+function toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    $('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('cst-theme', next);
+}
+(function() {
+    var s = localStorage.getItem('cst-theme');
+    if (s) {
+        document.documentElement.setAttribute('data-theme', s);
+        if ($('themeBtn')) $('themeBtn').textContent = s === 'dark' ? '🌙' : '☀️';
+    }
+})();
+
+// ════════════════════════════════════════════════════════════════
+// ROLE MODE
+// ════════════════════════════════════════════════════════════════
+
+function setRoleMode(m) {
+    state.roleMode = m;
+    $$('.mode-opt').forEach(function(el) { el.classList.toggle('active', parseInt(el.dataset.m) === m); });
+}
+
+// ════════════════════════════════════════════════════════════════
+// DYNAMIC TEAM MEMBERS
+// ════════════════════════════════════════════════════════════════
+
+var memberRows = [];
+
+function addMember(name, level) {
+    var id = ++memberIdCounter;
+    memberRows.push({ id: id, name: name || '', level: level || 2 });
+    renderMembers();
+}
+
+function removeMember(id) {
+    if (memberRows.length <= 1) return toast('Need at least 1 team member.', 'error');
+    memberRows = memberRows.filter(function(r) { return r.id !== id; });
+    renderMembers();
+}
+
+function renderMembers() {
+    var list = $('membersList');
+    // Save current values before re-render
+    memberRows.forEach(function(row) {
+        var nameEl = document.getElementById('mn-' + row.id);
+        var levelEl = document.getElementById('ml-' + row.id);
+        if (nameEl) row.name = nameEl.value;
+        if (levelEl) row.level = parseInt(levelEl.value);
+    });
+
+    var html = '';
+    memberRows.forEach(function(row, i) {
+        html += '<div class="member-row" style="animation-delay:' + (i * 30) + 'ms">';
+        html += '<input type="text" id="mn-' + row.id + '" value="' + esc(row.name) + '" placeholder="Member ' + (i + 1) + '">';
+        html += '<select id="ml-' + row.id + '">';
+        html += '<option value="2"' + (row.level === 2 ? ' selected' : '') + '>CSE2</option>';
+        html += '<option value="3"' + (row.level === 3 ? ' selected' : '') + '>CSE3</option>';
+        html += '<option value="4"' + (row.level === 4 ? ' selected' : '') + '>CSE4</option>';
+        html += '</select>';
+        html += '<button class="remove-btn" onclick="removeMember(' + row.id + ')" title="Remove">×</button>';
+        html += '</div>';
+    });
+    list.innerHTML = html;
+}
+
+// Initialize with 3 default members
+addMember('Preston', 3);
+addMember('Kaden', 2);
+addMember('Max', 2);
+
+// ════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════
+
+function goToStep1() {
+    $('step1').classList.remove('hidden');
+    $('step2').classList.add('hidden');
+    $('results').classList.add('hidden');
+}
+
+function goToStep2() {
+    // Gather members from dynamic rows
+    var members = [];
+    var levels = {};
+    memberRows.forEach(function(row) {
+        var nameEl = document.getElementById('mn-' + row.id);
+        var levelEl = document.getElementById('ml-' + row.id);
+        var name = nameEl ? nameEl.value.trim() : '';
+        var level = levelEl ? parseInt(levelEl.value) : 2;
+        if (name) {
+            if (members.includes(name)) return; // skip duplicates
+            members.push(name);
+            levels[name] = level;
+        }
+    });
+
+    if (members.length < 1) return toast('Need at least 1 team member.', 'error');
+
+    // Check role mode compatibility
+    if (state.roleMode === 3 && members.length < 3) {
+        return toast('3-person mode requires at least 3 members.', 'error');
+    }
+    if (state.roleMode === 2 && members.length < 2) {
+        return toast('2-person mode requires at least 2 members.', 'error');
+    }
+
+    state.members = members;
+    state.memberLevels = levels;
+
+    // Parse meetings
+    var all = [];
+    var nextId = 0;
+    DAY_IDS.forEach(function(inputId, i) {
+        var lines = $(inputId).value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+        lines.forEach(function(name) {
+            all.push({ id: nextId++, day: DAYS[i], name: name });
+        });
+    });
+    if (!all.length) return toast('Enter at least one meeting.', 'error');
+
+    state.meetings = all;
+    state.ct = {};
+    state.solo = {};
+    state.savedAv = {};
+    state.savedPTO = {};
+    state.savedPins = {};
+
+    renderStep2();
+    $('step1').classList.add('hidden');
+    $('step2').classList.remove('hidden');
+    $('results').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════════════════════════
+// STEP 2 RENDER
+// ════════════════════════════════════════════════════════════════
+
+function saveStep2State() {
+    $$('.av-cb').forEach(function(cb) {
+        var mid = cb.dataset.mid;
+        if (!state.savedAv[mid]) state.savedAv[mid] = {};
+        state.savedAv[mid][cb.dataset.mem] = cb.checked;
+    });
+    $$('.pto-cb').forEach(function(cb) {
+        var mid = cb.dataset.mid;
+        if (!state.savedPTO[mid]) state.savedPTO[mid] = {};
+        state.savedPTO[mid][cb.dataset.mem] = cb.checked;
+    });
+    $$('.pin-sel').forEach(function(sel) {
+        var mid = sel.dataset.mid;
+        if (!state.savedPins[mid]) state.savedPins[mid] = {};
+        state.savedPins[mid][sel.dataset.role] = sel.value;
+    });
+}
+
+function renderStep2() {
+    var mtgs = state.meetings;
+    var mems = state.members;
+    var lvls = state.memberLevels;
+    var mode = state.roleMode;
+    var gr = {};
+    mtgs.forEach(function(m) { if (!gr[m.day]) gr[m.day] = []; gr[m.day].push(m); });
+
+    var html = '';
+    DAYS.forEach(function(day) {
+        if (!gr[day] || !gr[day].length) return;
+        html += '<div class="day-separator">' + DAY_FULL[day] + '</div>';
+        gr[day].sort(function(a, b) { return a.id - b.id; }).forEach(function(mtg) {
+            var id = String(mtg.id);
+            var isCT = !!state.ct[id];
+            var isSolo = !!state.solo[id];
+            var roles = roleLabelsFor(mode, isCT, isSolo);
+
+            html += '<div class="mtg-card' + (isCT ? ' is-ct' : '') + '">';
+            html += '<div class="mtg-card-title">' + esc(mtg.name) + ' <span class="badge badge-muted">' + day + '</span></div>';
+
+            // CT toggle
+            html += '<div class="cb-row"><span class="cb-label">🔒 CT</span>';
+            html += '<label><input type="checkbox" id="ct-' + id + '" ' + (isCT ? 'checked' : '') + ' onchange="handleCT(\'' + id + '\')"> Containment Test</label></div>';
+
+            // Solo toggle (hidden if CT is on, since CT overrides)
+            if (!isCT) {
+                html += '<div class="cb-row"><span class="cb-label">👤 Solo</span>';
+                html += '<label><input type="checkbox" id="solo-' + id + '" ' + (isSolo ? 'checked' : '') + ' onchange="handleSolo(\'' + id + '\')"> Solo (Presenter only)</label></div>';
+            }
+
+            // Available
+            html += '<div class="cb-row"><span class="cb-label">Avail</span>';
+            mems.forEach(function(m) {
+                var sv = state.savedAv[id];
+                var ck = sv ? (sv[m] !== false) : true;
+                html += '<label><input type="checkbox" class="av-cb" data-mid="' + id + '" data-mem="' + esc(m) + '" ' + (ck ? 'checked' : '') + '> ' + esc(m) + ' <span class="badge ' + cseBadge(lvls[m]) + '">CSE' + lvls[m] + '</span></label>';
             });
-        };
-        
-        window.onload = () => renderHistory(JSON.parse(localStorage.getItem('meetingHistory') || '[]'));
-        
-        $('reviewButton').onclick = () => {
-            state.roleMode = getRoleMode();
-            state.members = [$('member1').value.trim(), $('member2').value.trim(), $('member3').value.trim()];
-            state.memberLevels = { [state.members[0]]: +$('level1').value, [state.members[1]]: +$('level2').value, [state.members[2]]: +$('level3').value };
-            
-            let meetings = [], id = 0;
-            dayIds.forEach(dayId => {
-                const day = dayPrefixes[dayId];
-                const input = $(dayId).value.trim();
-                if (input) input.split('\n').filter(m => m.trim()).forEach(m => meetings.push({ id: id++, day, name: m.trim() }));
+            html += '</div>';
+
+            // PTO
+            html += '<div class="cb-row"><span class="cb-label">🏖️ PTO</span>';
+            mems.forEach(function(m) {
+                var sv = state.savedPTO[id];
+                var ck = sv ? (sv[m] === true) : false;
+                html += '<label><input type="checkbox" class="pto-cb" data-mid="' + id + '" data-mem="' + esc(m) + '" ' + (ck ? 'checked' : '') + '> ' + esc(m) + '</label>';
             });
-            state.allMeetings = meetings;
-            
-            if (state.members.some(m => !m)) return showMsg('Fill in all 3 team member names.', 'error', 'step1');
-            if (!meetings.length) return showMsg('Add at least one meeting.', 'error', 'step1');
-            
-            $('minRequired').textContent = state.roleMode;
-            renderExemptionUI();
-            $('inputsContainer').classList.add('hidden');
-            $('resultsContainer').classList.add('hidden');
-            $('exemptionContainer').classList.remove('hidden');
-        };
-        
-        $('cancelButton').onclick = () => {
-            $('exemptionContainer').classList.add('hidden');
-            $('inputsContainer').classList.remove('hidden');
-        };
-        
-        $('confirmAssignButton').onclick = () => {
-            const exemptions = {}, ptoStatus = {}, pinned = {}, containmentTests = {};
-            
-            $$('.containment-checkbox').forEach(cb => { if (cb.checked) containmentTests[cb.dataset.meetingId] = true; });
-            $$('.pin-assignment').forEach(sel => { if (sel.value) { const mid = sel.dataset.meetingId; if (!pinned[mid]) pinned[mid] = {}; pinned[mid][sel.dataset.role] = sel.value; } });
-            $$('.availability-checkbox').forEach(cb => { if (!cb.checked) { const mid = cb.dataset.meetingId; if (!exemptions[mid]) exemptions[mid] = []; exemptions[mid].push(cb.value); } });
-            $$('.pto-checkbox').forEach(cb => { if (cb.checked) { const mid = cb.dataset.meetingId; if (!ptoStatus[mid]) ptoStatus[mid] = []; ptoStatus[mid].push(cb.value); } });
-            
-            state.ptoStatus = ptoStatus;
-            state.containmentTests = containmentTests;
-            
-            // Validate CT has CSE3+
-            for (const m of state.allMeetings) {
-                if (containmentTests[m.id]) {
-                    const avail = state.members.filter(mem => !(exemptions[m.id] || []).includes(mem));
-                    const availCSE3 = avail.filter(mem => isCSE3Plus(mem) && !(ptoStatus[m.id] || []).includes(mem));
-                    if (!availCSE3.length) {
-                        const anyCSE3 = avail.filter(isCSE3Plus);
-                        if (!anyCSE3.length) return showMsg(`"${escapeHTML(m.name)}" is a Containment Test but no CSE3+ available. Pull in help from another CST team.`, 'error', 'step2');
+            html += '</div>';
+
+            // Pins
+            html += '<div class="pin-area"><div class="pin-toggle" onclick="this.nextElementSibling.classList.toggle(\'hidden\')">📌 Pin ▸</div>';
+            html += '<div class="pin-grid hidden">';
+            roles.forEach(function(role) {
+                var sv = state.savedPins[id];
+                var val = sv ? (sv[role] || '') : '';
+                html += '<div><label>' + role + '</label><select class="pin-sel" data-mid="' + id + '" data-role="' + role + '">';
+                html += '<option value="">Auto</option>';
+                mems.forEach(function(m) {
+                    html += '<option value="' + esc(m) + '"' + (val === m ? ' selected' : '') + '>' + esc(m) + ' (CSE' + lvls[m] + ')</option>';
+                });
+                html += '</select></div>';
+            });
+            html += '</div></div></div>';
+        });
+    });
+    $('step2Body').innerHTML = html;
+}
+
+function handleCT(id) {
+    saveStep2State();
+    state.ct[id] = !!document.getElementById('ct-' + id).checked;
+    // CT overrides solo
+    if (state.ct[id]) state.solo[id] = false;
+    renderStep2();
+}
+
+function handleSolo(id) {
+    saveStep2State();
+    state.solo[id] = !!document.getElementById('solo-' + id).checked;
+    renderStep2();
+}
+
+// ════════════════════════════════════════════════════════════════
+// COLLECT STEP 2 DATA
+// ════════════════════════════════════════════════════════════════
+
+function collectS2() {
+    var ex = {}, pto = {}, pin = {};
+    $$('.av-cb').forEach(function(cb) {
+        if (!cb.checked) {
+            var mid = cb.dataset.mid;
+            if (!ex[mid]) ex[mid] = [];
+            ex[mid].push(cb.dataset.mem);
+        }
+    });
+    $$('.pto-cb').forEach(function(cb) {
+        if (cb.checked) {
+            var mid = cb.dataset.mid;
+            if (!pto[mid]) pto[mid] = [];
+            pto[mid].push(cb.dataset.mem);
+        }
+    });
+    $$('.pin-sel').forEach(function(sel) {
+        if (sel.value) {
+            var mid = sel.dataset.mid;
+            if (!pin[mid]) pin[mid] = {};
+            pin[mid][sel.dataset.role] = sel.value;
+        }
+    });
+    return { ex: ex, pto: pto, pin: pin, ct: JSON.parse(JSON.stringify(state.ct)), solo: JSON.parse(JSON.stringify(state.solo)) };
+}
+
+// ════════════════════════════════════════════════════════════════
+// ASSIGNMENT ALGORITHM
+// ════════════════════════════════════════════════════════════════
+
+function generateAssignments() {
+    var mems = state.members;
+    var lvls = state.memberLevels;
+    var mtgs = state.meetings;
+    var mode = state.roleMode;
+    var s2 = collectS2();
+
+    // Init tallies
+    var tally = {}, daily = {}, pair = {};
+    mems.forEach(function(m) {
+        tally[m] = { Total: 0 };
+        ALL_ROLES.forEach(function(r) { tally[m][r] = 0; });
+        daily[m] = {};
+        DAYS.forEach(function(d) { daily[m][d] = 0; });
+        pair[m] = {};
+        mems.forEach(function(o) { if (m !== o) pair[m][o] = 0; });
+    });
+
+    // Group + shuffle within each day
+    var byDay = {};
+    mtgs.forEach(function(m) { if (!byDay[m.day]) byDay[m.day] = []; byDay[m.day].push(m); });
+    DAYS.forEach(function(d) { if (byDay[d]) byDay[d] = shuffle(byDay[d]); });
+
+    var asgns = [];
+    var errs = [];
+
+    DAYS.forEach(function(day) {
+        if (!byDay[day]) return;
+        byDay[day].forEach(function(mtg) {
+            var id = String(mtg.id);
+            var mEx = s2.ex[id] || [];
+            var mPTO = new Set(s2.pto[id] || []);
+            var mPin = s2.pin[id] || {};
+            var isCT = !!s2.ct[id];
+            var isSolo = !!s2.solo[id];
+            var avail = mems.filter(function(m) { return !mEx.includes(m); });
+            var roles = roleLabelsFor(mode, isCT, isSolo);
+
+            if (avail.length < roles.length) {
+                errs.push('Not enough available for "' + mtg.name + '"');
+                return;
+            }
+
+            var assigned = {};
+            var used = new Set();
+
+            roles.forEach(function(role) {
+                // Pinned?
+                if (mPin[role]) {
+                    var pm = mPin[role];
+                    if (used.has(pm)) { errs.push('"' + mtg.name + '": ' + pm + ' pinned to multiple roles'); return; }
+                    if (!avail.includes(pm)) { errs.push('"' + mtg.name + '": Pinned ' + pm + ' unavailable'); return; }
+                    if (isCT && role === 'Presenter' && !isCSE3R(pm, lvls)) { errs.push('"' + mtg.name + '": CT Presenter must be CSE3+'); return; }
+                    assigned[role] = pm;
+                    used.forEach(function(u) { pair[pm][u]++; pair[u][pm]++; });
+                    used.add(pm);
+                    tally[pm][role]++;
+                    tally[pm].Total++;
+                    daily[pm][day]++;
+                    return;
+                }
+
+                var cands = avail.filter(function(m) { return !used.has(m); });
+
+                // CT Presenter constraint
+                if (isCT && role === 'Presenter') {
+                    var s3np = cands.filter(function(m) { return isCSE3R(m, lvls) && !mPTO.has(m); });
+                    if (s3np.length) cands = s3np;
+                    else {
+                        var s3a = cands.filter(function(m) { return isCSE3R(m, lvls); });
+                        if (s3a.length) cands = s3a;
+                        else { errs.push('"' + mtg.name + '": No CSE3+ for CT Presenter'); return; }
                     }
                 }
+                if (!cands.length) { errs.push('"' + mtg.name + '": No one for ' + role); return; }
+
+                // Multi-factor sort
+                cands.sort(function(a, b) {
+                    if (mPTO.has(a) !== mPTO.has(b)) return mPTO.has(a) ? 1 : -1;
+                    if (daily[a][day] !== daily[b][day]) return daily[a][day] - daily[b][day];
+                    var ap = 0, bp = 0;
+                    used.forEach(function(u) { ap += (pair[a][u] || 0); bp += (pair[b][u] || 0); });
+                    if (ap !== bp) return ap - bp;
+                    if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
+                    if (tally[a].Total !== tally[b].Total) return tally[a].Total - tally[b].Total;
+                    return a.localeCompare(b);
+                });
+
+                var ch = cands[0];
+                assigned[role] = ch;
+                used.forEach(function(u) { pair[ch][u]++; pair[u][ch]++; });
+                used.add(ch);
+                tally[ch][role]++;
+                tally[ch].Total++;
+                daily[ch][day]++;
+            });
+
+            asgns.push({
+                id: mtg.id, day: day, name: mtg.name,
+                roles: assigned, roleLabels: roles,
+                isContainmentTest: isCT,
+                isSolo: isSolo,
+                pinned: JSON.parse(JSON.stringify(mPin)),
+                edited: {}
+            });
+        });
+    });
+
+    if (errs.length) { errs.forEach(function(e) { toast(e, 'error'); }); if (!asgns.length) return; }
+
+    // PTO members for display
+    var ptoMems = [];
+    mems.forEach(function(m) {
+        for (var mid in s2.pto) { if ((s2.pto[mid] || []).includes(m)) { ptoMems.push(m); break; } }
+    });
+
+    var usedRoles = [];
+    var rs = new Set();
+    asgns.forEach(function(a) { a.roleLabels.forEach(function(r) { if (!rs.has(r)) { rs.add(r); usedRoles.push(r); } }); });
+
+    R = {
+        id: 'r_' + Date.now(),
+        date: new Date().toISOString().slice(0, 10),
+        members: mems.slice(),
+        memberLevels: JSON.parse(JSON.stringify(lvls)),
+        roleMode: mode,
+        roleLabels: usedRoles,
+        assignments: asgns,
+        tally: tally,
+        dailyTally: daily,
+        pairingTally: pair,
+        ptoMembers: ptoMems,
+        containmentTests: JSON.parse(JSON.stringify(s2.ct)),
+        soloMeetings: JSON.parse(JSON.stringify(s2.solo))
+    };
+
+    saveHist();
+    renderResults();
+    updCal();
+    $('step1').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('results').classList.remove('hidden');
+    toast('Assignments generated!');
+}
+
+// ════════════════════════════════════════════════════════════════
+// RECALCULATE
+// ════════════════════════════════════════════════════════════════
+
+function recalc() {
+    var a = R.assignments, mm = R.members, rl = R.roleLabels;
+    var t = {}, d = {}, p = {};
+    mm.forEach(function(m) {
+        t[m] = { Total: 0 };
+        rl.forEach(function(r) { t[m][r] = 0; });
+        d[m] = {};
+        DAYS.forEach(function(dy) { d[m][dy] = 0; });
+        p[m] = {};
+        mm.forEach(function(o) { if (m !== o) p[m][o] = 0; });
+    });
+    a.forEach(function(asgn) {
+        var ms = Object.values(asgn.roles);
+        Object.entries(asgn.roles).forEach(function(e) {
+            if (t[e[1]]) { t[e[1]][e[0]] = (t[e[1]][e[0]] || 0) + 1; t[e[1]].Total++; d[e[1]][asgn.day]++; }
+        });
+        for (var i = 0; i < ms.length; i++) for (var j = i + 1; j < ms.length; j++) {
+            if (p[ms[i]] && p[ms[i]][ms[j]] !== undefined) { p[ms[i]][ms[j]]++; p[ms[j]][ms[i]]++; }
+        }
+    });
+    R.tally = t; R.dailyTally = d; R.pairingTally = p;
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENDER RESULTS
+// ════════════════════════════════════════════════════════════════
+
+function renderResults() { renderTally(); renderAsgn(); }
+
+function renderTally() {
+    var mm = R.members, lv = R.memberLevels, t = R.tally, d = R.dailyTally, p = R.pairingTally, pto = R.ptoMembers || [], rl = R.roleLabels;
+    var h = '';
+    mm.forEach(function(m) {
+        var isPTO = pto.includes(m);
+        h += '<div class="tally-row"><div class="tally-name">' + esc(m) + ' <span class="badge ' + cseBadge(lv[m]) + '">CSE' + lv[m] + '</span>';
+        if (isPTO) h += ' <span style="font-size:.76rem">🏖️</span>';
+        h += '</div><div class="tally-stats">';
+        rl.forEach(function(r) { h += '<span>' + r + ': <span class="val">' + (t[m][r] || 0) + '</span></span>'; });
+        h += '<span>Total: <span class="val">' + t[m].Total + '</span></span></div>';
+        h += '<div class="tally-daily">M-T-W-T-F: ' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '</div></div>';
+    });
+
+    // Pairings
+    var prs = [];
+    for (var i = 0; i < mm.length; i++) for (var j = i + 1; j < mm.length; j++)
+        prs.push(mm[i].split(' ')[0] + '+' + mm[j].split(' ')[0] + ': ' + p[mm[i]][mm[j]]);
+    h += '<div class="tally-pairs">🤝 <strong>Pairings:</strong> ' + prs.join(' · ') + '</div>';
+
+    // Matrix
+    h += '<div class="pair-matrix"><table><tr><th></th>';
+    mm.forEach(function(m) { h += '<th>' + esc(m.split(' ')[0]) + '</th>'; });
+    h += '</tr>';
+    mm.forEach(function(m1) {
+        h += '<tr><td>' + esc(m1.split(' ')[0]) + '</td>';
+        mm.forEach(function(m2) { h += '<td>' + (m1 === m2 ? '—' : (p[m1][m2] || 0)) + '</td>'; });
+        h += '</tr>';
+    });
+    h += '</table></div>';
+    $('tallyOut').innerHTML = h;
+}
+
+function renderAsgn() {
+    var asgns = R.assignments, lv = R.memberLevels, mm = R.members;
+    var gr = groupByDay(asgns);
+    var h = '';
+    DAYS.forEach(function(day) {
+        if (!gr[day] || !gr[day].length) return;
+        h += '<div class="asgn-day"><div class="asgn-day-head">' + DAY_FULL[day] + '</div>';
+        gr[day].forEach(function(a) {
+            var ct = a.isContainmentTest;
+            var solo = a.isSolo;
+            h += '<div class="asgn-item' + (ct ? ' is-ct' : '') + '" id="ai-' + a.id + '">';
+            h += '<div class="asgn-head"><div class="asgn-name">' + esc(a.name);
+            if (ct) h += ' <span class="badge badge-accent">🔒 CT</span>';
+            if (solo) h += ' <span class="badge badge-muted">👤 Solo</span>';
+            h += '</div><button class="btn btn-sm btn-ghost edit-trigger" onclick="startEdit(' + a.id + ')">✏️</button></div>';
+
+            a.roleLabels.forEach(function(role) {
+                var m = a.roles[role]; if (!m) return;
+                var pn = a.pinned && a.pinned[role], ed = a.edited && a.edited[role];
+                h += '<div class="role-row"><span class="r-icon">' + rIcon(role) + '</span><span class="r-label">' + role + '</span>';
+                h += '<span class="r-name">' + esc(m) + '</span> <span class="badge ' + cseBadge(lv[m]) + '">CSE' + lv[m] + '</span>';
+                if (pn) h += ' <span style="font-size:.72rem">📌</span>';
+                if (ed) h += ' <span style="font-size:.72rem">✏️</span>';
+                h += '</div>';
+            });
+
+            // Edit panel
+            h += '<div class="edit-panel">';
+            a.roleLabels.forEach(function(role) {
+                h += '<div class="edit-row"><label>' + role + '</label><select class="esel" data-aid="' + a.id + '" data-role="' + role + '">';
+                mm.forEach(function(m) {
+                    var dis = (ct && role === 'Presenter' && !isCSE3R(m, lv)) ? ' disabled' : '';
+                    var sel = (a.roles[role] === m) ? ' selected' : '';
+                    h += '<option value="' + esc(m) + '"' + dis + sel + '>' + esc(m) + ' (CSE' + lv[m] + ')' + (dis ? ' — needs CSE3+' : '') + '</option>';
+                });
+                h += '</select></div>';
+            });
+            h += '<div class="edit-err hidden" id="ee-' + a.id + '"></div>';
+            h += '<div class="edit-btns"><button class="btn btn-sm btn-green" onclick="saveEdit(' + a.id + ')">Save</button><button class="btn btn-sm btn-ghost" onclick="cancelEdit(' + a.id + ')">Cancel</button></div>';
+            h += '</div></div>';
+        });
+        h += '</div>';
+    });
+    $('asgnOut').innerHTML = h;
+}
+
+// ════════════════════════════════════════════════════════════════
+// EDIT
+// ════════════════════════════════════════════════════════════════
+
+function startEdit(id) { var el = document.getElementById('ai-' + id); if (el) el.classList.add('editing'); }
+function cancelEdit(id) {
+    var el = document.getElementById('ai-' + id); if (el) el.classList.remove('editing');
+    var ee = document.getElementById('ee-' + id); if (ee) { ee.classList.add('hidden'); ee.textContent = ''; }
+}
+function saveEdit(id) {
+    var a = R.assignments.find(function(x) { return x.id === id; }); if (!a) return;
+    var nr = {};
+    document.querySelectorAll('.esel[data-aid="' + id + '"]').forEach(function(s) { nr[s.dataset.role] = s.value; });
+    var vs = Object.values(nr);
+    if (new Set(vs).size < vs.length) {
+        var ee = document.getElementById('ee-' + id); ee.textContent = 'Cannot assign same person to multiple roles.'; ee.classList.remove('hidden'); return;
+    }
+    if (a.isContainmentTest && nr.Presenter && !isCSE3R(nr.Presenter, R.memberLevels)) {
+        var ee2 = document.getElementById('ee-' + id); ee2.textContent = 'CT Presenter must be CSE3+.'; ee2.classList.remove('hidden'); return;
+    }
+    if (!a.edited) a.edited = {};
+    Object.keys(nr).forEach(function(r) { if (a.roles[r] !== nr[r]) a.edited[r] = true; });
+    a.roles = nr;
+    recalc(); saveHist(); renderResults(); toast('Assignment updated!');
+}
+
+// ════════════════════════════════════════════════════════════════
+// FORMAT + COPY
+// ════════════════════════════════════════════════════════════════
+
+function setFmt(f) { fmt = f; $$('.fmt-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); }); }
+
+function fmtTally() {
+    var mm = R.members, lv = R.memberLevels, t = R.tally, d = R.dailyTally, p = R.pairingTally, pto = R.ptoMembers || [], rl = R.roleLabels;
+    var prs = []; for (var i = 0; i < mm.length; i++) for (var j = i + 1; j < mm.length; j++) prs.push([mm[i], mm[j]]);
+
+    if (fmt === 'slack') {
+        var o = '📊 *Assignment Stats*\n';
+        o += '─────────────────\n\n';
+        mm.forEach(function(m) {
+            o += '👤 *' + m + '*  ·  CSE' + lv[m] + (pto.includes(m) ? '  🏖️ _OOO_' : '') + '\n';
+            o += '      ' + rl.map(function(r) { return r + ': *' + (t[m][r] || 0) + '*'; }).join('  ·  ') + '\n';
+            o += '      Total: *' + t[m].Total + '*  ·  Daily: _' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '_\n\n';
+        });
+        if (prs.length > 0) {
+            o += '🤝 *Pairings*\n';
+            prs.forEach(function(pr) {
+                o += '      ' + pr[0] + ' + ' + pr[1] + ': *' + p[pr[0]][pr[1]] + '*\n';
+            });
+        }
+        return o;
+    }
+
+    if (fmt === 'onenote') {
+        var o2 = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+        o2 += 'ASSIGNMENT STATS\n';
+        o2 += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+        mm.forEach(function(m, idx) {
+            o2 += m.toUpperCase() + '  —  CSE' + lv[m] + (pto.includes(m) ? '  (OOO)' : '') + '\n\n';
+            rl.forEach(function(r) {
+                o2 += '    ' + r + ':' + ' '.repeat(Math.max(1, 14 - r.length)) + (t[m][r] || 0) + '\n';
+            });
+            o2 += '    ' + '─'.repeat(20) + '\n';
+            o2 += '    Total:' + ' '.repeat(8) + t[m].Total + '\n\n';
+            o2 += '    Daily Spread\n';
+            DAYS.forEach(function(dy) {
+                o2 += '    ' + DAY_FULL[dy].slice(0, 3) + ':' + ' '.repeat(11) + (d[m][dy] || 0) + '\n';
+            });
+            if (idx < mm.length - 1) o2 += '\n\n';
+        });
+        if (prs.length > 0) {
+            o2 += '\n\nPAIRINGS\n\n';
+            prs.forEach(function(pr) {
+                o2 += '    ' + pr[0] + ' + ' + pr[1] + ':' + ' '.repeat(Math.max(1, 20 - pr[0].length - pr[1].length)) + p[pr[0]][pr[1]] + '\n';
+            });
+        }
+        return o2;
+    }
+
+    // Markdown
+    var o3 = '---\n\n## 📊 Assignment Stats\n\n';
+    mm.forEach(function(m) {
+        o3 += '### ' + m + ' (CSE' + lv[m] + ')' + (pto.includes(m) ? ' 🏖️' : '') + '\n\n';
+        o3 += '| Role | Count |\n|------|-------|\n';
+        rl.forEach(function(r) { o3 += '| ' + r + ' | ' + (t[m][r] || 0) + ' |\n'; });
+        o3 += '| **Total** | **' + t[m].Total + '** |\n\n';
+        o3 += '*Daily (M-T-W-T-F):* `' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '`\n\n';
+    });
+    if (prs.length > 0) {
+        o3 += '### Pairings\n\n';
+        o3 += '| Pair | Count |\n|------|-------|\n';
+        prs.forEach(function(pr) {
+            o3 += '| ' + pr[0] + ' + ' + pr[1] + ' | ' + p[pr[0]][pr[1]] + ' |\n';
+        });
+        o3 += '\n';
+    }
+    return o3;
+}
+
+function fmtAsgn() {
+    var lv = R.memberLevels, gr = groupByDay(R.assignments);
+
+    if (fmt === 'slack') {
+        var o = '📅 *CST Weekly Assignments*\n';
+        o += '═══════════════════\n\n';
+        DAYS.forEach(function(day) {
+            if (!gr[day] || !gr[day].length) return;
+            o += '*━━━ ' + DAY_FULL[day].toUpperCase() + ' ━━━*\n\n';
+            gr[day].forEach(function(a) {
+                var flags = '';
+                if (a.isContainmentTest) flags += '  🔒 _CT_';
+                if (a.isSolo) flags += '  👤 _Solo_';
+                if (Object.keys(a.edited || {}).length) flags += '  ✏️';
+                o += '📌 *' + a.name + '*' + flags + '\n';
+                a.roleLabels.forEach(function(r) {
+                    var m = a.roles[r]; if (!m) return;
+                    var pin = (a.pinned && a.pinned[r]) ? '  📌' : '';
+                    o += '      ' + rIcon(r) + ' ' + r + ': *' + m + '* (CSE' + lv[m] + ')' + pin + '\n';
+                });
+                o += '\n';
+            });
+        });
+        return o;
+    }
+
+    if (fmt === 'onenote') {
+        var o2 = 'CST WEEKLY ASSIGNMENTS\n';
+        o2 += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\n';
+        DAYS.forEach(function(day) {
+            if (!gr[day] || !gr[day].length) return;
+
+            // Day heading — prominent, with visual weight
+            o2 += '▸ ' + DAY_FULL[day].toUpperCase() + '\n';
+            o2 += '  ────────────────────────\n\n';
+
+            gr[day].forEach(function(a, idx) {
+                var flags = '';
+                if (a.isContainmentTest) flags += '  [CT]';
+                if (a.isSolo) flags += '  [Solo]';
+                if (Object.keys(a.edited || {}).length) flags += '  [edited]';
+
+                o2 += '    ' + a.name + flags + '\n\n';
+                a.roleLabels.forEach(function(r) {
+                    var m = a.roles[r]; if (!m) return;
+                    var pin = (a.pinned && a.pinned[r]) ? '  [pinned]' : '';
+                    o2 += '        ' + r + ':' + ' '.repeat(Math.max(1, 14 - r.length)) + m + '  (CSE' + lv[m] + ')' + pin + '\n';
+                });
+
+                // Breathing room between meetings
+                if (idx < gr[day].length - 1) o2 += '\n\n';
+            });
+
+            o2 += '\n\n\n';
+        });
+        return o2;
+    }
+
+    // Markdown
+    var o3 = '## 📅 CST Weekly Assignments\n\n';
+    DAYS.forEach(function(day) {
+        if (!gr[day] || !gr[day].length) return;
+        o3 += '### ' + DAY_FULL[day] + '\n\n';
+        gr[day].forEach(function(a) {
+            var flags = '';
+            if (a.isContainmentTest) flags += ' `CT`';
+            if (a.isSolo) flags += ' `Solo`';
+            if (Object.keys(a.edited || {}).length) flags += ' ✏️';
+            o3 += '**' + a.name + '**' + flags + '\n';
+            a.roleLabels.forEach(function(r) {
+                var m = a.roles[r]; if (!m) return;
+                var pin = (a.pinned && a.pinned[r]) ? ' *(pinned)*' : '';
+                o3 += '- ' + r + ': ' + m + ' (CSE' + lv[m] + ')' + pin + '\n';
+            });
+            o3 += '\n';
+        });
+    });
+    return o3;
+}
+
+function cpTally() { cpText(fmtTally(), 'Stats copied (' + fmt + ')!'); }
+function cpAsgn() { cpText(fmtAsgn(), 'Assignments copied (' + fmt + ')!'); }
+function cpAll() {
+    var sep = fmt === 'markdown' ? '\n' : '\n\n';
+    cpText(fmtAsgn() + sep + fmtTally(), 'All copied (' + fmt + ')!');
+}
+function expTxt() {
+    var saved = fmt; fmt = 'onenote';
+    var text = fmtAsgn() + '\n\n' + fmtTally();
+    fmt = saved;
+    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'cst_assignments_' + R.date + '.txt';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast('File exported!');
+}
+
+// ════════════════════════════════════════════════════════════════
+// CALENDAR EXPORT
+// ════════════════════════════════════════════════════════════════
+
+function updCal() {
+    if (!R) return;
+    var sel = $('calSel');
+    sel.innerHTML = '<option value="all">All Members</option>';
+    R.members.forEach(function(m) {
+        var opt = document.createElement('option');
+        opt.value = m; opt.textContent = m + ' (CSE' + R.memberLevels[m] + ')';
+        sel.appendChild(opt);
+    });
+}
+
+function expICS() {
+    if (!R) return;
+    var lv = R.memberLevels, gr = groupByDay(R.assignments);
+    var filt = $('calSel').value, dur = parseInt($('calDur').value);
+
+    var today = new Date();
+    var mon = new Date(today);
+    mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    mon.setHours(9, 0, 0, 0);
+
+    function icsDate(dt) {
+        return dt.getFullYear() + String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0') +
+            'T' + String(dt.getHours()).padStart(2, '0') + String(dt.getMinutes()).padStart(2, '0') + '00';
+    }
+
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CST Meeting Assigner//EN'];
+
+    DAYS.forEach(function(day, di) {
+        if (!gr[day]) return;
+        gr[day].forEach(function(asgn, mi) {
+            if (filt !== 'all' && !Object.values(asgn.roles).includes(filt)) return;
+            var start = new Date(mon);
+            start.setDate(mon.getDate() + di);
+            start.setHours(9 + mi, 0, 0, 0);
+            var end = new Date(start);
+            end.setMinutes(start.getMinutes() + dur);
+
+            var title = asgn.name + (asgn.isContainmentTest ? ' 🔒' : '') + (asgn.isSolo ? ' 👤' : '');
+            if (filt !== 'all') {
+                var rs = asgn.roleLabels.filter(function(r) { return asgn.roles[r] === filt; });
+                if (rs.length) title += ' [' + rs.join(', ') + ']';
             }
-            
-            const stdRoles = getRoleLabels(state.roleMode, false);
-            const ctRoles = getRoleLabels(state.roleMode, true);
-            const allRoles = [...new Set([...stdRoles, ...ctRoles])];
-            
-            const tally = {}, dailyTally = {};
-            state.members.forEach(m => {
-                tally[m] = { Total: 0 };
-                allRoles.forEach(r => tally[m][r] = 0);
-                dailyTally[m] = {};
-                dayOrder.forEach(d => dailyTally[m][d] = 0);
-            });
-            
-            const assignments = [];
-            const byDay = {};
-            dayOrder.forEach(d => byDay[d] = shuffle(state.allMeetings.filter(m => m.day === d)));
-            
-            for (const day of dayOrder) {
-                for (const meeting of byDay[day]) {
-                    const mExempt = exemptions[meeting.id] || [];
-                    const mPTO = new Set(ptoStatus[meeting.id] || []);
-                    const mPinned = pinned[meeting.id] || {};
-                    const isCT = containmentTests[meeting.id] || false;
-                    const avail = state.members.filter(m => !mExempt.includes(m));
-                    const roles = isCT ? ctRoles : stdRoles;
-                    
-                    for (const [role, mem] of Object.entries(mPinned)) {
-                        if (!avail.includes(mem)) return showMsg(`"${escapeHTML(meeting.name)}": ${escapeHTML(mem)} pinned to ${role} but unavailable.`, 'error', 'step2');
-                    }
-                    if (avail.length < roles.length) return showMsg(`"${escapeHTML(meeting.name)}": Need ${roles.length} available members.`, 'error', 'step2');
-                    
-                    const assigned = {}, used = new Set();
-                    
-                    for (const role of roles) {
-                        if (mPinned[role]) {
-                            const mem = mPinned[role];
-                            if (used.has(mem)) return showMsg(`"${escapeHTML(meeting.name)}": ${escapeHTML(mem)} pinned to multiple roles.`, 'error', 'step2');
-                            if (isCT && role === 'Lead' && !isCSE3Plus(mem)) return showMsg(`"${escapeHTML(meeting.name)}": ${escapeHTML(mem)} pinned as Lead but not CSE3+.`, 'error', 'step2');
-                            assigned[role] = mem;
-                            used.add(mem);
-                            tally[mem][role]++;
-                            tally[mem].Total++;
-                            dailyTally[mem][day]++;
-                            continue;
-                        }
-                        
-                        let candidates = avail.filter(m => !used.has(m));
-                        if (isCT && role === 'Lead') {
-                            const cse3 = candidates.filter(m => isCSE3Plus(m) && !mPTO.has(m));
-                            candidates = cse3.length ? cse3 : candidates.filter(isCSE3Plus);
-                        }
-                        if (!candidates.length) return showMsg(`"${escapeHTML(meeting.name)}": Can't assign ${role}.`, 'error', 'step2');
-                        
-                        candidates.sort((a, b) => {
-                            if (mPTO.has(a) !== mPTO.has(b)) return mPTO.has(a) ? 1 : -1;
-                            if (dailyTally[a][day] !== dailyTally[b][day]) return dailyTally[a][day] - dailyTally[b][day];
-                            if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
-                            if (tally[a].Total !== tally[b].Total) return tally[a].Total - tally[b].Total;
-                            return a.localeCompare(b);
-                        });
-                        
-                        const chosen = candidates[0];
-                        assigned[role] = chosen;
-                        used.add(chosen);
-                        tally[chosen][role]++;
-                        tally[chosen].Total++;
-                        dailyTally[chosen][day]++;
-                    }
-                    
-                    assignments.push({ day: meeting.day, name: meeting.name, roles: assigned, pinned: mPinned, isContainmentTest: isCT, roleLabels: roles });
-                }
-            }
-            
-            const ptoMembers = [...new Set(Object.values(ptoStatus).flat())];
-            
-            currentResults = {
-                id: new Date().toISOString(),
-                date: new Date().toLocaleString(),
-                tally, dailyTally, assignments,
-                members: state.members,
-                memberLevels: state.memberLevels,
-                roleMode: state.roleMode,
-                roleLabels: allRoles,
-                ptoMembers, ptoStatus, containmentTests
-            };
-            
-            renderTally();
-            renderAssignments();
-            updateCalendarOptions();
-            
-            $('exemptionContainer').classList.add('hidden');
-            $('resultsContainer').classList.remove('hidden');
-            $('inputsContainer').classList.remove('hidden');
-            
-            const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
-            history.unshift(currentResults);
-            localStorage.setItem('meetingHistory', JSON.stringify(history.slice(0, 20)));
-            renderHistory(history);
-            showMsg('Assignments saved!', 'success', 'step1');
-        };
-        
-        function renderExemptionUI() {
-            const list = $('exemptionList');
-            list.innerHTML = '';
-            const byDay = groupByDay(state.allMeetings);
-            
-            dayOrder.forEach(day => {
-                if (!byDay[day]?.length) return;
-                const card = document.createElement('div');
-                card.className = 'exemption-card';
-                let html = `<h3 class="card-header">${day}</h3>`;
-                
-                byDay[day].forEach(m => {
-                    html += `<div class="card-body">
-                        <p><strong>${escapeHTML(m.name)}</strong></p>
-                        <div style="margin:0.5rem 0;padding:0.5rem;background:var(--bg-orange);border:1px solid var(--border-orange);border-radius:0.375rem;">
-                            <label class="checkbox-label" style="color:var(--text-orange);font-weight:600;">
-                                <input type="checkbox" class="containment-checkbox" data-meeting-id="${m.id}">
-                                <span>🔒 Containment Test</span>
-                            </label>
-                            <div style="font-size:0.7rem;color:var(--text-muted);margin-left:1.25rem;">Requires CSE3+ Lead</div>
-                        </div>
-                        <details class="pin-section">
-                            <summary><span>📌 Pin Assignment</span><svg class="arrow-down" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg></summary>
-                            <div class="pin-content" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.375rem;">`;
-                    
-                    ['Lead','Follow-up','Owner','Prep','Presenter'].forEach(role => {
-                        html += `<div><label style="font-size:0.75rem;">${role}:</label>
-                            <select class="pin-assignment" data-meeting-id="${m.id}" data-role="${role}" style="width:100%;padding:0.25rem;font-size:0.75rem;">
-                                <option value="">Auto</option>
-                                ${state.members.map(mem => `<option value="${escapeHTML(mem)}">${escapeHTML(mem)} (CSE${state.memberLevels[mem]})</option>`).join('')}
-                            </select></div>`;
-                    });
-                    
-                    html += `</div></details>
-                        <div style="margin-bottom:0.5rem;" class="checkbox-group">
-                            <span style="font-weight:500;margin-right:0.375rem;">Available:</span>
-                            ${state.members.map(mem => `<label class="checkbox-label"><input type="checkbox" class="availability-checkbox" data-meeting-id="${m.id}" value="${escapeHTML(mem)}" checked><span>${escapeHTML(mem)}</span>${cseBadge(state.memberLevels[mem])}</label>`).join('')}
-                        </div>
-                        <div class="checkbox-group">
-                            <span style="font-weight:500;margin-right:0.375rem;color:#f59e0b;">🏖️ PTO:</span>
-                            ${state.members.map(mem => `<label class="checkbox-label" style="color:#f59e0b;"><input type="checkbox" class="pto-checkbox" data-meeting-id="${m.id}" value="${escapeHTML(mem)}"><span>${escapeHTML(mem)}</span></label>`).join('')}
-                        </div>
-                    </div>`;
-                });
-                
-                card.innerHTML = html;
-                list.appendChild(card);
-            });
-        }
-        
-        function renderTally() {
-            if (!currentResults) return;
-            const { tally, dailyTally, members, roleLabels, ptoMembers, memberLevels } = currentResults;
-            const ptoSet = new Set(ptoMembers || []);
-            
-            let html = `<table><thead><tr><th>Member</th>`;
-            roleLabels.forEach(r => html += `<th>${r}</th>`);
-            html += `<th>Total</th><th>Daily</th></tr></thead><tbody>`;
-            
-            members.forEach(m => {
-                const lvl = memberLevels[m];
-                const daily = dailyTally[m] || {};
-                html += `<tr><td>${escapeHTML(m)}${cseBadge(lvl)}${ptoSet.has(m) ? ' 🏖️' : ''}</td>`;
-                roleLabels.forEach(r => html += `<td>${tally[m][r] || 0}</td>`);
-                html += `<td>${tally[m].Total}</td><td style="font-size:0.7rem;">${dayOrder.map(d => daily[d] || 0).join('-')}</td></tr>`;
-            });
-            
-            html += `</tbody></table><p class="text-xs text-gray" style="padding:0.375rem;">Daily = Mon-Tue-Wed-Thu-Fri</p>`;
-            $('tallyOutput').innerHTML = html;
-        }
-        
-        function renderAssignments() {
-            if (!currentResults) return;
-            const { assignments, memberLevels } = currentResults;
-            const byDay = groupByDay(assignments);
-            const out = $('assignmentsOutput');
-            out.innerHTML = '';
-            
-            dayOrder.forEach(day => {
-                if (!byDay[day]?.length) return;
-                const card = document.createElement('div');
-                card.className = 'day-card';
-                let html = `<h3 class="card-header">${day}</h3><div>`;
-                
-                byDay[day].forEach(a => {
-                    const ctClass = a.isContainmentTest ? ' containment-test' : '';
-                    const ctBadge = a.isContainmentTest ? '<span class="containment-badge">🔒 CT</span>' : '';
-                    html += `<div class="assignment-item${ctClass}"><p class="assignment-name">${escapeHTML(a.name)}${ctBadge}</p><div class="badge-group">`;
-                    
-                    const colors = ['blue','green','purple','orange'];
-                    a.roleLabels.forEach((role, i) => {
-                        const mem = a.roles[role];
-                        const pin = a.pinned?.[role] ? ' 📌' : '';
-                        html += `<span class="badge badge-${colors[i % colors.length]}">${role}: ${escapeHTML(mem)}${cseBadge(memberLevels[mem])}${pin}</span>`;
-                    });
-                    html += `</div></div>`;
-                });
-                
-                html += `</div>`;
-                card.innerHTML = html;
-                out.appendChild(card);
-            });
-        }
-        
-        function updateCalendarOptions() {
-            if (!currentResults) return;
-            const sel = $('calendarExportSelect');
-            sel.innerHTML = '<option value="all">All Members</option>';
-            currentResults.members.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.textContent = `${m} (CSE${currentResults.memberLevels[m]})`;
-                sel.appendChild(opt);
-            });
-        }
-        
-        function renderHistory(history) {
-            const out = $('historyOutput');
-            if (!history.length) { out.innerHTML = '<p class="text-gray text-center">No history.</p>'; return; }
-            out.innerHTML = '';
-            
-            history.slice(0, 10).forEach(item => {
-                const det = document.createElement('details');
-                const ctCount = item.containmentTests ? Object.keys(item.containmentTests).length : 0;
-                det.innerHTML = `<summary><span>${escapeHTML(item.date)} <span class="text-xs text-gray">(${item.roleMode}-person${ctCount ? `, ${ctCount} CT` : ''})</span></span><svg class="arrow-down" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg></summary>
-                <div class="history-content"><p class="text-xs text-gray">Members: ${item.members.map(m => `${m} (CSE${item.memberLevels?.[m] || '?'})`).join(', ')}</p></div>`;
-                out.appendChild(det);
-            });
-        }
-        
-        $('copyTallyButton').onclick = () => {
-            if (!currentResults) return;
-            const { tally, dailyTally, members, roleLabels, ptoMembers, memberLevels } = currentResults;
-            const ptoSet = new Set(ptoMembers || []);
-            let text = "📊 *CST ASSIGNMENT TALLY*\n\n";
-            members.forEach(m => {
-                const lvl = memberLevels[m];
-                text += `*${m} (CSE${lvl})${ptoSet.has(m) ? ' 🏖️' : ''}:* `;
-                text += roleLabels.filter(r => tally[m][r]).map(r => `${r}: ${tally[m][r]}`).join(', ');
-                text += ` (Total: ${tally[m].Total})\n`;
-                text += `  _Daily: ${dayOrder.map(d => `${d}:${dailyTally[m]?.[d] || 0}`).join(' ')}_\n`;
-            });
-            copyText(text, 'Tally copied!');
-        };
-        
-        $('copyAssignmentsButton').onclick = () => {
-            if (!currentResults) return;
-            const { assignments, memberLevels } = currentResults;
-            const byDay = groupByDay(assignments);
-            const emojis = { Owner: '👤', Prep: '📋', Presenter: '🎤', Lead: '🎯', 'Follow-up': '✅' };
-            let text = "📅 *CST WEEKLY ASSIGNMENTS*\n\n";
-            
-            dayOrder.forEach(day => {
-                if (!byDay[day]?.length) return;
-                text += `📅 *${day.toUpperCase()}*\n`;
-                byDay[day].forEach(a => {
-                    text += `• *${a.name}*${a.isContainmentTest ? ' 🔒' : ''}\n`;
-                    a.roleLabels.forEach(r => {
-                        const mem = a.roles[r];
-                        text += `  ${emojis[r] || '•'} ${r}: ${mem} (CSE${memberLevels[mem]})${a.pinned?.[r] ? ' 📌' : ''}\n`;
-                    });
-                });
-                text += '\n';
-            });
-            copyText(text, 'Assignments copied!');
-        };
-        
-        $('exportTxtButton').onclick = () => {
-            if (!currentResults) return;
-            const { tally, dailyTally, assignments, members, roleLabels, ptoMembers, memberLevels } = currentResults;
-            const ptoSet = new Set(ptoMembers || []);
-            const byDay = groupByDay(assignments);
-            
-            let text = "=== CST ASSIGNMENT TALLY ===\n\n";
-            members.forEach(m => {
-                text += `${m} (CSE${memberLevels[m]})${ptoSet.has(m) ? ' OOO' : ''}: `;
-                text += roleLabels.filter(r => tally[m][r]).map(r => `${r}: ${tally[m][r]}`).join(', ');
-                text += ` (Total: ${tally[m].Total})\n`;
-                text += `  Daily: ${dayOrder.map(d => `${d}:${dailyTally[m]?.[d] || 0}`).join(' ')}\n`;
-            });
-            
-            text += "\n=== ASSIGNMENTS ===\n\n";
-            dayOrder.forEach(day => {
-                if (!byDay[day]?.length) return;
-                text += `${day.toUpperCase()}\n${'─'.repeat(30)}\n`;
-                byDay[day].forEach(a => {
-                    text += `• ${a.name}${a.isContainmentTest ? ' [CT]' : ''}\n`;
-                    a.roleLabels.forEach(r => text += `  ${r}: ${a.roles[r]} (CSE${memberLevels[a.roles[r]]})${a.pinned?.[r] ? ' [pinned]' : ''}\n`);
-                });
-                text += '\n';
-            });
-            
-            const a = document.createElement('a');
-            a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
-            a.download = `cst_assignments_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            showMsg('Exported!', 'success', 'step1');
-        };
-        
-        $('exportCalendarButton').onclick = () => {
-            if (!currentResults) return;
-            const { assignments, memberLevels } = currentResults;
-            const byDay = groupByDay(assignments);
-            const filter = $('calendarExportSelect').value;
-            const dur = +$('meetingDuration').value;
-            
-            const today = new Date();
-            const mon = new Date(today);
-            mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-            mon.setHours(9, 0, 0, 0);
-            
-            const fmt = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}00`;
-            
-            let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//CST Meeting Assigner//EN\r\n';
-            
-            dayOrder.forEach((day, di) => {
-                if (!byDay[day]) return;
-                byDay[day].forEach((a, i) => {
-                    if (filter !== 'all' && !Object.values(a.roles).includes(filter)) return;
-                    const start = new Date(mon);
-                    start.setDate(mon.getDate() + di);
-                    start.setHours(9 + i);
-                    const end = new Date(start);
-                    end.setMinutes(start.getMinutes() + dur);
-                    
-                    let title = a.name + (a.isContainmentTest ? ' 🔒' : '');
-                    if (filter !== 'all') {
-                        const roles = a.roleLabels.filter(r => a.roles[r] === filter);
-                        if (roles.length) title += ` [${roles.join(', ')}]`;
-                    }
-                    
-                    let desc = a.isContainmentTest ? '[CONTAINMENT TEST]\\n' : '';
-                    a.roleLabels.forEach(r => desc += `${r}: ${a.roles[r]} (CSE${memberLevels[a.roles[r]]})\\n`);
-                    
-                    ics += `BEGIN:VEVENT\r\nUID:${fmt(start)}-${a.name.replace(/\W/g,'')}@cst\r\nDTSTAMP:${fmt(new Date())}\r\nDTSTART:${fmt(start)}\r\nDTEND:${fmt(end)}\r\nSUMMARY:${title}\r\nDESCRIPTION:${desc}\r\nEND:VEVENT\r\n`;
-                });
-            });
-            
-            ics += 'END:VCALENDAR\r\n';
-            const blob = new Blob([ics], { type: 'text/calendar' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `cst_${filter === 'all' ? 'all' : filter.replace(/\s/g, '_')}.ics`;
-            a.click();
-            showMsg('Calendar exported!', 'success', 'step1');
-        };
-        
-        $('clearHistoryButton').onclick = () => $('confirmModal').classList.remove('hidden');
-        $('cancelClearButton').onclick = () => $('confirmModal').classList.add('hidden');
-        $('confirmClearButton').onclick = () => {
-            localStorage.removeItem('meetingHistory');
-            $('historyOutput').innerHTML = '<p class="text-gray text-center">Cleared.</p>';
-            $('confirmModal').classList.add('hidden');
-        };
-    </script>
+            var desc = [];
+            if (asgn.isContainmentTest) desc.push('[CONTAINMENT TEST]');
+            asgn.roleLabels.forEach(function(r) { var m = asgn.roles[r]; if (m) desc.push(r + ': ' + m + ' (CSE' + lv[m] + ')'); });
+
+            lines.push('BEGIN:VEVENT');
+            lines.push('UID:' + icsDate(start) + '-' + asgn.name.replace(/\W/g, '') + '@cst');
+            lines.push('DTSTAMP:' + icsDate(new Date()));
+            lines.push('DTSTART:' + icsDate(start));
+            lines.push('DTEND:' + icsDate(end));
+            lines.push('SUMMARY:' + title);
+            lines.push('DESCRIPTION:' + desc.join('\\n'));
+            lines.push('END:VEVENT');
+        });
+    });
+    lines.push('END:VCALENDAR');
+
+    var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'cst_' + (filt === 'all' ? 'all' : filt.replace(/\s/g, '_')) + '.ics';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast('Calendar exported!');
+}
+
+// ════════════════════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════════════════════
+
+function saveHist() {
+    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+    var idx = h.findIndex(function(x) { return x.id === R.id; });
+    if (idx !== -1) h[idx] = R; else h.unshift(R);
+    h = h.slice(0, 20);
+    localStorage.setItem('meetingHistory', JSON.stringify(h));
+    renderHist();
+}
+
+function renderHist() {
+    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+    if (!h.length) {
+        $('histOut').innerHTML = '<span class="empty-state">No assignment history yet.</span>';
+        $('clrHistBtn').style.display = 'none';
+        return;
+    }
+    $('clrHistBtn').style.display = '';
+    var html = '';
+    h.forEach(function(item, i) {
+        var ctC = 0;
+        if (item.containmentTests) Object.values(item.containmentTests).forEach(function(v) { if (v) ctC++; });
+        var soloC = 0;
+        if (item.soloMeetings) Object.values(item.soloMeetings).forEach(function(v) { if (v) soloC++; });
+        var mc = (item.assignments || []).length;
+        html += '<div class="hist-item" id="hi-' + i + '">';
+        html += '<div class="hist-head" onclick="document.getElementById(\'hi-' + i + '\').classList.toggle(\'open\')">';
+        html += '<span>' + esc(item.date) + ' — ' + item.roleMode + '-person' + (ctC ? ', ' + ctC + ' CT' : '') + (soloC ? ', ' + soloC + ' solo' : '') + ' — ' + mc + ' mtgs — ' + (item.members || []).length + ' members</span>';
+        html += '<span class="arrow">▸</span></div>';
+        html += '<div class="hist-body"><pre>';
+        if (item.members && item.tally) item.members.forEach(function(m) {
+            html += esc(m) + ' (CSE' + item.memberLevels[m] + '): Total ' + item.tally[m].Total + '\n';
+        });
+        html += '</pre><button class="btn btn-sm btn-accent" onclick="loadHist(' + i + ')">Load &amp; View</button></div></div>';
+    });
+    $('histOut').innerHTML = html;
+}
+
+function loadHist(i) {
+    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+    if (!h[i]) return;
+    R = h[i];
+    state.members = R.members;
+    state.memberLevels = R.memberLevels;
+    renderResults(); updCal();
+    $('step1').classList.add('hidden');
+    $('step2').classList.add('hidden');
+    $('results').classList.remove('hidden');
+    toast('Loaded from history!');
+}
+
+function showClearModal() {
+    $('modalRoot').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal-box"><h3>Clear History?</h3><p>This will permanently delete all saved assignments.</p><div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="clearHist()">Clear All</button></div></div></div>';
+}
+function closeModal() { $('modalRoot').innerHTML = ''; }
+function clearHist() { localStorage.removeItem('meetingHistory'); renderHist(); closeModal(); toast('History cleared.'); }
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+
+renderHist();
+</script>
 </body>
 </html>

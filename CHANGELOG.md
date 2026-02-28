@@ -1,61 +1,87 @@
 # Changelog
 
-## [4.0.0] - 2025-01-08
+All notable changes to CST Meeting Assigner.
+
+## [4.5.0] — 2025-02-13
 
 ### Added
-- **CSE Levels**: Assign CSE2, CSE3, or CSE4 to each team member
-- **Containment Tests**: Special 2-person meetings (Lead + Follow-up) requiring CSE3+ as Lead
-- **Daily Spread Algorithm**: Prioritizes balancing meetings across days, not just total count
-- CSE level badges displayed throughout the UI
-- Warning when CSE3+ unavailable for containment tests
+- **Solo meeting support** — New "Solo" role mode assigns only a Presenter
+- **Per-meeting solo toggle** — Override any meeting to solo in Step 2 (hidden when CT is active)
+- **Dynamic team size** — Add or remove team members freely, minimum 1
+- Solo indicators in all copy formats (Slack: `👤 _Solo_`, OneNote: `[Solo]`, Markdown: `[Solo]`)
+- Solo indicator (👤) in ICS calendar export titles
+- Solo count in history summaries
 
 ### Changed
-- Renamed to "CST Meeting Assigner" (Concierge Security Team)
-- Default role mode changed to 2-person
-- Algorithm now considers daily meeting count before total count
-- Container renamed to `cst-meeting-assigner`
+- Minimum team size reduced from 3 to 1
+- Role mode selector now shows 3 options: Solo / 2 People / 3 People
+- 2-person mode validates ≥2 members, 3-person validates ≥3
+- CT toggle now explicitly clears solo flag (CT always takes priority)
+- Version bumped to 4.5.0
 
-### Technical
-- Refactored JavaScript for smaller file size
-- Improved sorting stability with multi-level tiebreakers
-
----
-
-## [3.5.0] - 2024-12-12
+## [4.4.0] — 2025-02-10
 
 ### Added
-- Stable sorting with alphabetical tiebreaker
-- Pin indicators in Slack copy and exports
-- Collapsible pin assignment UI
+- Complete UI/UX revamp with DM Sans + JetBrains Mono typography
+- Warm neutral color palette with terracotta accent
+- Dark-first theme with polished light mode
+- Pairing matrix table in tally section
+- Card entry animations and hover effects
+- Per-member CSE level badges with color coding
+- Toast notifications for all actions
 
----
+### Fixed
+- ICS export variable shadowing (`a` used for both loop var and download link)
+- Copy formats skipping zero-count roles (now always shows all roles)
+- CT toggle destroying all Step 2 checkbox state (now preserves availability/PTO/pins)
+- TXT export not restoring format selector after export
+- `isCSE3Plus` referencing input state instead of results state
+- OneNote "Copy All" using wrong separator
 
-## [3.4.0] - 2024-12-10
+### Changed
+- Simplified role structure: Presenter, Notes, Follow-up
+- Dynamic team member inputs (add/remove freely)
+- Compact CSS class names for smaller file size
+- Refined dark mode contrast and color variables
+
+## [4.3.2] — 2025-01-15
+
+### Fixed
+- String vs number meeting ID lookups — all `data-*` attributes now cast to string
+- Pins, exemptions, PTO, and CT flags no longer silently fail
+
+## [4.3.1] — 2025-01-10
+
+### Fixed
+- Pairing tally calculation for edited assignments
+- Edit validation allowing duplicate members
+
+## [4.3.0] — 2025-01-05
 
 ### Added
-- Pin Assignment feature
+- Calendar export (.ics) with member filter and duration control
+- Export to .txt file with date-stamped filename
+- History persistence with localStorage (max 20 entries)
 
----
-
-## [3.3.0] - 2024-12-08
-
-### Added
-- Per-meeting PTO tracking
-- PTO members get fewer meetings (no catch-up)
-
----
-
-## [3.2.0] - 2024-12-05
+## [4.2.0] — 2024-12-20
 
 ### Added
-- Configurable meeting duration for calendar export
-- Improved Slack formatting
+- Inline edit with recalculation
+- Edit indicators on modified roles
+- Containment Test toggle per meeting
 
----
-
-## [3.0.0] - 2024-11-28
+## [4.1.0] — 2024-12-10
 
 ### Added
-- Dark mode
-- Offline support
-- Single HTML file architecture
+- Multi-format copy system (Slack, OneNote, Markdown)
+- Copy Tally, Copy Assignments, Copy All buttons
+- PTO soft-deprioritize flag
+
+## [4.0.0] — 2024-12-01
+
+### Added
+- Initial release with 2/3 person role modes
+- Multi-factor assignment algorithm
+- Pin assignments feature
+- Availability checkboxes per meeting
+- Daily tally and pairing counts

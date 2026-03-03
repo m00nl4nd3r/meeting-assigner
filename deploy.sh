@@ -1,57 +1,23 @@
 #!/bin/bash
 set -e
 
-echo "=================================="
-echo "CST Meeting Assigner v4.0.0"
-echo "=================================="
+echo "🚀 CST Meeting Assigner — Deploy"
+echo "================================="
 
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker not installed. Get it at https://docs.docker.com/get-docker/"
-    exit 1
+# Build
+echo "Building Docker image..."
+docker build -t cst-meeting-assigner .
+
+# Stop existing container if running
+if docker ps -q --filter "name=cst-assigner" | grep -q .; then
+  echo "Stopping existing container..."
+  docker stop cst-assigner
+  docker rm cst-assigner
 fi
 
-if ! docker info > /dev/null 2>&1; then
-    echo "❌ Docker not running. Start Docker and try again."
-    exit 1
-fi
+# Run
+echo "Starting container on port 8080..."
+docker run -d --name cst-assigner -p 8080:80 --restart unless-stopped cst-meeting-assigner
 
-echo "✓ Docker ready"
-
-if docker compose version &> /dev/null 2>&1; then
-    COMPOSE="docker compose"
-elif command -v docker-compose &> /dev/null; then
-    COMPOSE="docker-compose"
-else
-    COMPOSE=""
-fi
-
-echo "Deploying..."
-
-if [ -n "$COMPOSE" ]; then
-    $COMPOSE down 2>/dev/null || true
-    $COMPOSE build --no-cache
-    $COMPOSE up -d
-    CONTAINER="cst-meeting-assigner"
-else
-    docker stop cst-meeting-assigner 2>/dev/null || true
-    docker rm cst-meeting-assigner 2>/dev/null || true
-    docker build --no-cache -t cst-meeting-assigner .
-    docker run -d -p 80:80 --name cst-meeting-assigner --restart unless-stopped cst-meeting-assigner
-    CONTAINER="cst-meeting-assigner"
-fi
-
-sleep 3
-
-if docker ps | grep -q "$CONTAINER"; then
-    echo ""
-    echo "=================================="
-    echo "✓ Success!"
-    echo "=================================="
-    echo ""
-    echo "Open: http://localhost"
-    echo ""
-    docker ps --filter name="$CONTAINER" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-else
-    echo "❌ Failed. Check: docker logs $CONTAINER"
-    exit 1
-fi
+echo ""
+echo "✅ Running at http://localhost:8080"

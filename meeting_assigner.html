@@ -3,1796 +3,1565 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CST Meeting Assigner</title>
+<title>CST Meeting Assigner v5.0.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════
-   DESIGN SYSTEM
-   ══════════════════════════════════════════ */
-:root {
-    --font: 'DM Sans', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', 'SF Mono', monospace;
-    --ease: cubic-bezier(.4, 0, .2, 1);
-    --r-sm: 6px;
-    --r-md: 10px;
-    --r-lg: 16px;
-    --r-xl: 20px;
-}
-
-[data-theme="light"] {
-    --bg-0: #f4f3f0;
-    --bg-1: #ffffff;
-    --bg-2: #f8f7f5;
-    --bg-3: #f0efec;
-    --bg-elevated: #ffffff;
-    --border: #e4e2dd;
-    --border-subtle: #ece9e4;
-    --text-0: #1a1815;
-    --text-1: #3d3a35;
-    --text-2: #6e6a63;
-    --text-3: #9e9a93;
-    --accent: #c45d35;
-    --accent-soft: #fdf0eb;
-    --accent-text: #9e3c1a;
-    --blue: #3366cc;
-    --blue-soft: #eef2fb;
-    --green: #2d8a4e;
-    --green-soft: #edf7f0;
-    --purple: #7c5cbf;
-    --purple-soft: #f3eefa;
-    --red: #c43535;
-    --red-soft: #fdeaea;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md: 0 2px 8px rgba(0,0,0,.06);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,.08);
-    --shadow-glow: 0 0 0 3px rgba(196,93,53,.12);
-}
+/* ═══════════════════════════════════════════════
+   CST Meeting Assigner — Theme & Base
+   ═══════════════════════════════════════════════ */
+:root { --tr: 0.25s ease; }
 
 [data-theme="dark"] {
-    --bg-0: #111110;
-    --bg-1: #1a1918;
-    --bg-2: #222120;
-    --bg-3: #2a2928;
-    --bg-elevated: #1e1d1c;
-    --border: #333231;
-    --border-subtle: #2a2928;
-    --text-0: #ededec;
-    --text-1: #c8c7c5;
-    --text-2: #8a8884;
-    --text-3: #5e5c58;
-    --accent: #e07850;
-    --accent-soft: #2d1f18;
-    --accent-text: #e9a88e;
-    --blue: #6699ee;
-    --blue-soft: #172035;
-    --green: #5cb87a;
-    --green-soft: #14261a;
-    --purple: #a88de0;
-    --purple-soft: #1c1630;
-    --red: #e05555;
-    --red-soft: #2d1414;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.2);
-    --shadow-md: 0 2px 8px rgba(0,0,0,.3);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,.4);
-    --shadow-glow: 0 0 0 3px rgba(224,120,80,.15);
+  --bg0: #111110; --bg1: #1a1918; --bg2: #222120; --bg3: #2a2928;
+  --tx0: #ededec; --tx1: #c8c7c5; --tx2: #8a8884; --tx3: #5e5c58;
+  --accent: #e07850; --blue: #6699ee; --purple: #a88de0;
+  --green: #5cb87a; --red: #e05555;
+  --border: #333230; --shadow: rgba(0,0,0,0.4);
+  --card: #1a1918; --card-hover: #222120;
+  --input-bg: #222120; --input-border: #3a3938;
+}
+[data-theme="light"] {
+  --bg0: #f4f3f0; --bg1: #ffffff; --bg2: #f8f7f5; --bg3: #f0efec;
+  --tx0: #1a1815; --tx1: #3d3a35; --tx2: #6e6a63; --tx3: #9e9a93;
+  --accent: #c45d35; --blue: #3366cc; --purple: #7c5cbf;
+  --green: #2d8a4e; --red: #c43535;
+  --border: #e0dfdc; --shadow: rgba(0,0,0,0.08);
+  --card: #ffffff; --card-hover: #f8f7f5;
+  --input-bg: #f8f7f5; --input-border: #d8d7d4;
 }
 
-/* ══════════════════════════════════════════
-   RESET & BASE
-   ══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 15px; scroll-behavior: smooth; }
+html { scroll-behavior: smooth; }
 body {
-    font-family: var(--font);
-    background: var(--bg-0);
-    color: var(--text-0);
-    line-height: 1.6;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg0); color: var(--tx0);
+  transition: background var(--tr), color var(--tr);
+  min-height: 100vh; line-height: 1.55;
 }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', monospace; }
 
-/* ══════════════════════════════════════════
-   HEADER
-   ══════════════════════════════════════════ */
-.header {
-    background: var(--bg-1);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(12px);
+/* ═══════════════════════════════════════════════
+   Layout
+   ═══════════════════════════════════════════════ */
+.shell { max-width: 880px; margin: 0 auto; padding: 20px 24px 60px; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0 16px; border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
 }
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.header-brand h1 {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-}
-.header-brand .tag {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    font-weight: 500;
-    color: var(--accent);
-    background: var(--accent-soft);
-    padding: 2px 8px;
-    border-radius: 4px;
-    letter-spacing: 0.02em;
-}
-.header-actions { display: flex; gap: 6px; }
+.logo { display: flex; align-items: baseline; gap: 10px; }
+.logo h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--tx0); }
+.logo .ver { font-size: 0.72rem; color: var(--tx3); font-weight: 500; letter-spacing: 0.03em; }
+.hdr-right { display: flex; align-items: center; gap: 8px; }
 
-/* ══════════════════════════════════════════
-   LAYOUT
-   ══════════════════════════════════════════ */
-.wrap { max-width: 880px; margin: 0 auto; padding: 24px 20px 60px; }
+/* Buttons */
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+button:focus-visible { box-shadow: 0 0 0 2px var(--accent); border-radius: 6px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600;
+  transition: all var(--tr);
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.4; pointer-events: none; }
+.btn-secondary { background: var(--bg3); color: var(--tx1); }
+.btn-secondary:hover { background: var(--border); }
+.btn-ghost { background: transparent; color: var(--tx2); padding: 6px 10px; }
+.btn-ghost:hover { color: var(--tx0); background: var(--bg3); }
+.btn-sm { padding: 5px 12px; font-size: 0.78rem; border-radius: 6px; }
+.btn-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg3); color: var(--tx2); font-size: 1.1rem;
+  transition: all var(--tr);
+}
+.btn-icon:hover { background: var(--border); color: var(--tx0); }
 
-.card {
-    background: var(--bg-1);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    margin-bottom: 16px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    animation: cardIn .35s var(--ease) both;
-}
-@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } }
-
-.card-head {
-    padding: 20px 24px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.card-head .step-num {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    width: 22px; height: 22px;
-    background: var(--accent);
-    color: #fff;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.card-head h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-.card-body { padding: 16px 24px 24px; }
-.hidden { display: none !important; }
-
-/* ══════════════════════════════════════════
-   FORM ELEMENTS
-   ══════════════════════════════════════════ */
-.label {
-    display: block;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-2);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 6px;
-}
-.hint {
-    font-size: 0.78rem;
-    color: var(--text-3);
-    margin-bottom: 10px;
-}
-
+/* Inputs */
 input[type="text"], select, textarea {
-    font-family: var(--font);
-    font-size: 0.88rem;
-    padding: 9px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    background: var(--bg-2);
-    color: var(--text-0);
-    width: 100%;
-    transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+  font-family: inherit; font-size: 0.88rem;
+  background: var(--input-bg); color: var(--tx0);
+  border: 1px solid var(--input-border); border-radius: 8px;
+  padding: 9px 13px; transition: border-color var(--tr);
+  width: 100%;
 }
 input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: var(--shadow-glow);
+  border-color: var(--accent); outline: none;
+  box-shadow: 0 0 0 3px rgba(224,120,80,0.15);
 }
-textarea {
-    resize: vertical;
-    min-height: 110px;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    line-height: 1.7;
-}
+textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
 select { cursor: pointer; }
-input[type="checkbox"] {
-    accent-color: var(--accent);
-    width: 16px; height: 16px;
-    cursor: pointer;
-    border-radius: 4px;
+label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
+
+/* Cards */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 18px;
+  transition: all var(--tr);
 }
 
-/* ══════════════════════════════════════════
-   BUTTONS
-   ══════════════════════════════════════════ */
-.btn {
-    font-family: var(--font);
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 9px 18px;
-    border: none;
-    border-radius: var(--r-md);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all .15s var(--ease);
-    white-space: nowrap;
-}
-.btn:active { transform: scale(0.97); }
-.btn-accent { background: var(--accent); color: #fff; }
-.btn-accent:hover { filter: brightness(1.1); }
-.btn-green { background: var(--green); color: #fff; }
-.btn-green:hover { filter: brightness(1.1); }
-.btn-ghost {
-    background: var(--bg-3);
-    color: var(--text-1);
-    border: 1px solid var(--border);
-}
-.btn-ghost:hover { background: var(--bg-2); border-color: var(--text-3); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-danger:hover { filter: brightness(1.1); }
-.btn-sm { padding: 5px 12px; font-size: 0.75rem; }
-.btn-icon {
-    width: 34px; height: 34px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: var(--r-sm);
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-    color: var(--text-2);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all .15s var(--ease);
-}
-.btn-icon:hover { background: var(--bg-2); color: var(--text-0); }
-
-/* ══════════════════════════════════════════
-   ROLE MODE SELECTOR
-   ══════════════════════════════════════════ */
-.mode-row { display: flex; gap: 8px; margin-bottom: 12px; }
-.mode-opt {
-    flex: 1;
-    padding: 14px 16px;
-    border: 2px solid var(--border);
-    border-radius: var(--r-md);
-    cursor: pointer;
-    transition: all .2s var(--ease);
-    background: var(--bg-2);
-    text-align: center;
-}
-.mode-opt:hover { border-color: var(--text-3); }
-.mode-opt.active { border-color: var(--accent); background: var(--accent-soft); }
-.mode-opt strong { display: block; font-size: 0.92rem; margin-bottom: 2px; }
-.mode-opt span { font-size: 0.75rem; color: var(--text-2); }
-.mode-opt.active span { color: var(--accent-text); }
-.info-strip {
-    background: var(--accent-soft);
-    border: 1px solid var(--accent);
-    border-radius: var(--r-sm);
-    padding: 8px 12px;
-    font-size: 0.78rem;
-    color: var(--accent-text);
-    opacity: .85;
-}
-
-/* ══════════════════════════════════════════
-   TEAM MEMBER ROWS
-   ══════════════════════════════════════════ */
-.members-list { display: flex; flex-direction: column; gap: 6px; }
-.member-row {
-    display: grid;
-    grid-template-columns: 1fr 90px 34px;
-    gap: 6px;
-    align-items: center;
-    animation: fadeIn .25s var(--ease) both;
-}
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } }
-.member-row .remove-btn {
-    width: 34px; height: 34px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: var(--r-sm);
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-3);
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all .15s;
-}
-.member-row .remove-btn:hover { background: var(--red-soft); color: var(--red); border-color: var(--red); }
-.add-member-btn {
-    margin-top: 4px;
-    font-size: 0.8rem;
-    color: var(--accent);
-    background: none;
-    border: 1px dashed var(--border);
-    border-radius: var(--r-md);
-    padding: 8px;
-    width: 100%;
-    cursor: pointer;
-    font-family: var(--font);
-    font-weight: 600;
-    transition: all .15s;
-}
-.add-member-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
-
-/* ══════════════════════════════════════════
-   DAYS GRID
-   ══════════════════════════════════════════ */
-.days-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-@media (max-width: 680px) { .days-grid { grid-template-columns: repeat(2, 1fr); } }
-.days-grid .day-col label {
-    display: block;
-    text-align: center;
-    font-family: var(--mono);
-    font-weight: 600;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-3);
-    margin-bottom: 6px;
-}
-
-/* ══════════════════════════════════════════
-   STEP 2 MEETING CARDS
-   ══════════════════════════════════════════ */
-.day-separator {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-3);
-    padding: 14px 0 6px;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 8px;
-}
-.day-separator:first-child { padding-top: 0; }
-
-.mtg-card {
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 14px 16px;
-    margin-bottom: 8px;
-    transition: border-color .2s;
-}
-.mtg-card.is-ct { border-left: 3px solid var(--accent); }
-.mtg-card-title {
-    font-weight: 700;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.cb-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    font-size: 0.82rem;
-    flex-wrap: wrap;
-}
-.cb-row .cb-label {
-    font-family: var(--mono);
-    font-weight: 500;
-    font-size: 0.72rem;
-    color: var(--text-3);
-    min-width: 65px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.cb-row label {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: var(--text-1);
-    margin: 0;
-}
-.pin-area { margin-top: 8px; }
-.pin-toggle {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--text-3);
-    cursor: pointer;
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    transition: color .15s;
-}
-.pin-toggle:hover { color: var(--text-1); }
-.pin-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.pin-grid > div { flex: 1; min-width: 100px; }
-.pin-grid label { font-size: 0.72rem; color: var(--text-3); display: block; margin-bottom: 3px; }
-.pin-grid select { font-size: 0.8rem; padding: 5px 8px; }
-
-/* ══════════════════════════════════════════
-   BADGES
-   ══════════════════════════════════════════ */
+/* Badges */
 .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px 7px;
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 5px;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em;
 }
-.badge-blue { background: var(--blue-soft); color: var(--blue); }
-.badge-green { background: var(--green-soft); color: var(--green); }
-.badge-purple { background: var(--purple-soft); color: var(--purple); }
-.badge-muted { background: var(--bg-3); color: var(--text-3); }
-.badge-accent { background: var(--accent-soft); color: var(--accent); }
+.badge-cse1, .badge-cse2 { background: var(--bg3); color: var(--tx3); }
+.badge-cse3 { background: rgba(102,153,238,0.15); color: var(--blue); }
+.badge-cse4, .badge-cse5 { background: rgba(168,141,224,0.15); color: var(--purple); }
+.badge-day {
+  font-size: 0.68rem; padding: 2px 7px; border-radius: 4px;
+  background: var(--bg3); color: var(--tx2);
+}
+.badge-ct { background: rgba(224,120,80,0.15); color: var(--accent); }
+.badge-solo { background: rgba(168,141,224,0.15); color: var(--purple); }
+.badge-edit { background: rgba(92,184,122,0.15); color: var(--green); }
+.badge-pin { color: var(--accent); font-size: 0.8rem; }
 
-/* ══════════════════════════════════════════
-   FORMAT SELECTOR
-   ══════════════════════════════════════════ */
-.fmt-bar {
-    display: inline-flex;
-    gap: 2px;
-    background: var(--bg-3);
-    padding: 3px;
-    border-radius: var(--r-sm);
-    margin-bottom: 16px;
+/* ═══════════════════════════════════════════════
+   Step Wizard
+   ═══════════════════════════════════════════════ */
+.step { display: none; animation: fadeUp 0.3s ease; }
+.step.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.step-indicator {
+  display: flex; align-items: center; gap: 0; margin-bottom: 28px;
+}
+.step-dot {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+  background: var(--bg3); color: var(--tx3);
+  transition: all var(--tr);
+}
+.step-dot.done { background: var(--green); color: #fff; }
+.step-dot.current { background: var(--accent); color: #fff; }
+.step-line { flex: 1; height: 2px; background: var(--border); margin: 0 6px; }
+
+.section-title {
+  font-size: 1.05rem; font-weight: 700; margin-bottom: 14px;
+  color: var(--tx0); letter-spacing: -0.01em;
+}
+.section-hint {
+  font-size: 0.78rem; color: var(--tx3); margin-top: 4px; margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* Role Mode Toggle */
+.mode-toggle {
+  display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; margin-bottom: 10px;
+}
+.mode-btn {
+  flex: 1; padding: 11px 14px; text-align: center;
+  font-size: 0.82rem; font-weight: 600;
+  background: var(--bg2); color: var(--tx2);
+  border-right: 1px solid var(--border);
+  transition: all var(--tr); cursor: pointer;
+}
+.mode-btn:last-child { border-right: none; }
+.mode-btn.active { background: var(--accent); color: #fff; }
+.mode-btn:hover:not(.active) { background: var(--bg3); color: var(--tx0); }
+.mode-info {
+  font-size: 0.75rem; color: var(--tx3); background: var(--bg2);
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 24px;
+  line-height: 1.55; border-left: 3px solid var(--accent);
+}
+
+/* Member List */
+.member-add-form { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
+.member-add-form input { flex: 1; }
+.member-add-form select { width: 110px; flex-shrink: 0; }
+.member-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.member-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; background: var(--bg2); border-radius: 8px;
+  border: 1px solid var(--border); transition: all var(--tr);
+}
+.member-row:hover { border-color: var(--tx3); }
+.member-name { font-weight: 600; font-size: 0.88rem; flex: 1; }
+.member-remove {
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--tx3); font-size: 0.85rem;
+  cursor: pointer; transition: all var(--tr); border: none;
+}
+.member-remove:hover { background: var(--red); color: #fff; }
+.min-info { font-size: 0.78rem; color: var(--tx3); margin-bottom: 16px; }
+
+/* Meeting textareas */
+.meeting-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.meeting-day { display: flex; flex-direction: column; gap: 5px; }
+.meeting-day label { font-weight: 600; color: var(--tx1); }
+.meeting-day textarea { min-height: 80px; font-size: 0.84rem; }
+
+/* ═══════════════════════════════════════════════
+   Step 2: Meeting Cards
+   ═══════════════════════════════════════════════ */
+.day-separator {
+  font-size: 0.78rem; font-weight: 700; color: var(--tx3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 0 6px; margin-top: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.day-separator:first-child { margin-top: 0; }
+.mtg-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 16px; margin: 10px 0;
+  transition: all var(--tr);
+}
+.mtg-card:hover { border-color: var(--tx3); }
+.mtg-card-head {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: 0.92rem; margin-bottom: 10px;
+}
+.mtg-flags { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.mtg-flag {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.8rem; color: var(--tx1); cursor: pointer;
+  user-select: none;
+}
+.mtg-flag input[type="checkbox"] {
+  accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
+}
+.avail-row, .pto-row, .pin-row {
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  align-items: center; margin-bottom: 8px;
+  padding: 6px 0;
+}
+.avail-row label, .pto-row label { font-size: 0.72rem; }
+.row-label {
+  font-size: 0.72rem; font-weight: 600; color: var(--tx3);
+  min-width: 65px; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.avail-item, .pto-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.82rem; color: var(--tx1);
+}
+.avail-item input, .pto-item input {
+  width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer;
+}
+.pin-item {
+  display: flex; align-items: center; gap: 5px; font-size: 0.8rem;
+}
+.pin-item select { width: 130px; padding: 5px 8px; font-size: 0.78rem; }
+
+/* ═══════════════════════════════════════════════
+   Step 3: Results
+   ═══════════════════════════════════════════════ */
+.results-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 12px 0; margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.fmt-toggle {
+  display: flex; gap: 0; border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
 }
 .fmt-btn {
-    padding: 5px 14px;
-    border: none;
-    border-radius: calc(var(--r-sm) - 1px);
-    background: transparent;
-    color: var(--text-3);
-    font-family: var(--font);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
+  padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
+  background: var(--bg2); color: var(--tx2);
+  border-right: 1px solid var(--border);
+  transition: all var(--tr); cursor: pointer; border: none;
 }
-.fmt-btn.active {
-    background: var(--bg-elevated);
-    color: var(--text-0);
-    box-shadow: var(--shadow-sm);
-}
-.fmt-btn:hover:not(.active) { color: var(--text-1); }
+.fmt-btn:last-child { border-right: none; }
+.fmt-btn.active { background: var(--accent); color: #fff; }
+.bar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+.cal-select { width: 140px; padding: 5px 8px; font-size: 0.78rem; }
+.dur-select { width: 90px; padding: 5px 8px; font-size: 0.78rem; }
 
-/* ══════════════════════════════════════════
-   RESULT BLOCKS
-   ══════════════════════════════════════════ */
-.res-block {
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    overflow: hidden;
-    margin-bottom: 12px;
+/* Assignment Cards */
+.asgn-day-hdr {
+  font-size: 0.82rem; font-weight: 700; color: var(--tx3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 12px 0 6px; border-bottom: 1px solid var(--border);
 }
-.res-block-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: var(--bg-2);
-    border-bottom: 1px solid var(--border);
-    font-weight: 700;
-    font-size: 0.85rem;
+.asgn-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; margin: 8px 0;
+  border-left: 3px solid var(--border); transition: all var(--tr);
+  position: relative;
 }
-.res-block-body { padding: 16px; }
-
-/* ══════════════════════════════════════════
-   TALLY
-   ══════════════════════════════════════════ */
-.tally-row {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border-subtle);
-}
-.tally-row:last-of-type { border-bottom: none; }
-.tally-name {
-    font-weight: 700;
-    font-size: 0.88rem;
-    margin-bottom: 3px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.tally-stats {
-    font-size: 0.8rem;
-    color: var(--text-1);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-.tally-stats .val {
-    font-family: var(--mono);
-    font-weight: 600;
-    color: var(--text-0);
-}
-.tally-daily {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-3);
-    margin-top: 2px;
-}
-.tally-pairs {
-    padding-top: 12px;
-    border-top: 1px solid var(--border-subtle);
-    margin-top: 8px;
-    font-size: 0.8rem;
-    color: var(--text-2);
-}
-.tally-pairs strong { color: var(--text-0); }
-.pair-matrix { margin-top: 10px; overflow-x: auto; }
-.pair-matrix table { font-family: var(--mono); font-size: 0.72rem; border-collapse: collapse; }
-.pair-matrix th, .pair-matrix td {
-    padding: 4px 10px;
-    border: 1px solid var(--border-subtle);
-    text-align: center;
-}
-.pair-matrix th { background: var(--bg-3); color: var(--text-3); font-weight: 600; }
-.pair-matrix td:first-child { font-weight: 600; text-align: left; color: var(--text-1); }
-
-/* ══════════════════════════════════════════
-   ASSIGNMENT CARDS
-   ══════════════════════════════════════════ */
-.asgn-day { margin-bottom: 16px; }
-.asgn-day-head {
-    font-family: var(--mono);
-    font-weight: 600;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-3);
-    padding: 4px 0 6px;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 8px;
-}
-.asgn-item {
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 12px 14px;
-    margin-bottom: 6px;
-    background: var(--bg-2);
-    transition: box-shadow .2s;
-}
-.asgn-item:hover { box-shadow: var(--shadow-md); }
-.asgn-item.is-ct { border-left: 3px solid var(--accent); }
+.asgn-card.is-ct { border-left-color: var(--accent); }
+.asgn-card.is-solo { border-left-color: var(--purple); }
+.asgn-card.is-edited { border-left-color: var(--green); }
 .asgn-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  flex-wrap: wrap;
 }
-.asgn-name { font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
-.role-row {
-    font-size: 0.82rem;
-    padding: 2px 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.asgn-name { font-weight: 700; font-size: 0.92rem; }
+.asgn-roles { display: flex; flex-direction: column; gap: 4px; }
+.asgn-role {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; padding: 3px 0;
 }
-.role-row .r-icon { width: 20px; text-align: center; flex-shrink: 0; }
-.role-row .r-label {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-3);
-    min-width: 72px;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+.asgn-role-icon { font-size: 0.9rem; min-width: 20px; text-align: center; }
+.asgn-role-label { font-size: 0.75rem; color: var(--tx3); min-width: 70px; font-weight: 500; }
+.asgn-role-member { font-weight: 600; }
+.solo-label { font-size: 0.8rem; color: var(--purple); font-weight: 600; }
+.solo-sub { font-size: 0.72rem; color: var(--tx3); margin-top: 2px; }
+.asgn-edit-btn {
+  position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 30px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg3); color: var(--tx3); cursor: pointer;
+  border: none; font-size: 0.82rem; transition: all var(--tr);
 }
-.role-row .r-name { font-weight: 600; }
+.asgn-edit-btn:hover { background: var(--accent); color: #fff; }
 
-/* Edit mode */
-.asgn-item.editing .role-row { display: none; }
-.asgn-item .edit-panel { display: none; }
-.asgn-item.editing .edit-panel { display: block; }
-.asgn-item.editing .edit-trigger { display: none; }
+/* Edit Panel */
+.edit-panel {
+  display: none; margin-top: 10px; padding: 12px 14px;
+  background: var(--bg2); border-radius: 8px;
+  border: 1px dashed var(--border);
+}
+.asgn-card.editing .edit-panel { display: block; animation: fadeUp 0.2s ease; }
 .edit-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 5px;
-    font-size: 0.82rem;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px; font-size: 0.84rem;
 }
-.edit-row label { font-size: 0.78rem; min-width: 72px; font-weight: 600; color: var(--text-2); margin: 0; }
-.edit-row select { width: auto; flex: 1; font-size: 0.8rem; padding: 5px 8px; }
-.edit-err { color: var(--red); font-size: 0.75rem; margin-top: 4px; font-weight: 500; }
-.edit-btns { display: flex; gap: 5px; margin-top: 8px; }
+.edit-row label { min-width: 80px; font-weight: 600; color: var(--tx2); }
+.edit-row select { flex: 1; }
+.edit-actions { display: flex; gap: 8px; margin-top: 10px; }
+.edit-error { font-size: 0.78rem; color: var(--red); margin-top: 6px; }
 
-/* ══════════════════════════════════════════
-   EXPORT ROW
-   ══════════════════════════════════════════ */
-.export-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.cal-row {
-    display: flex;
-    gap: 8px;
-    align-items: end;
-    flex-wrap: wrap;
-    margin-top: 12px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border-subtle);
+/* Stats Panel */
+.stats-panel { margin-top: 20px; }
+.stat-member {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; margin: 8px 0;
 }
-.cal-row > div { flex: 1; min-width: 110px; }
-.cal-row label { font-size: 0.72rem; color: var(--text-3); display: block; margin-bottom: 3px; }
-.cal-row select { font-size: 0.82rem; }
+.stat-name { font-weight: 700; font-size: 0.92rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.stat-roles { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.84rem; margin-bottom: 6px; }
+.stat-role { display: flex; align-items: center; gap: 4px; }
+.stat-role .count { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.stat-daily { font-size: 0.78rem; color: var(--tx2); font-family: 'JetBrains Mono', monospace; }
+.stat-pairings {
+  background: var(--bg2); border-radius: 8px; padding: 12px 14px;
+  margin-top: 10px; font-size: 0.82rem;
+}
+.stat-pairings-title { font-weight: 600; color: var(--tx2); margin-bottom: 6px; font-size: 0.78rem; }
+.pair-item { display: inline-flex; align-items: center; gap: 4px; margin-right: 14px; margin-bottom: 4px; }
+.pair-count { font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
 
-/* ══════════════════════════════════════════
-   HISTORY
-   ══════════════════════════════════════════ */
+/* History Sidebar */
+.hist-toggle {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px var(--shadow); cursor: pointer; border: none;
+  transition: all var(--tr);
+}
+.hist-toggle:hover { transform: scale(1.08); }
+.hist-panel {
+  position: fixed; right: -340px; top: 0; bottom: 0; width: 320px;
+  background: var(--bg1); border-left: 1px solid var(--border);
+  z-index: 100; padding: 20px; overflow-y: auto;
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -8px 0 32px var(--shadow);
+}
+.hist-panel.open { right: 0; }
+.hist-overlay {
+  display: none; position: fixed; inset: 0; z-index: 95;
+  background: rgba(0,0,0,0.3);
+}
+.hist-overlay.open { display: block; }
+.hist-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.hist-head h3 { font-size: 1rem; font-weight: 700; }
 .hist-item {
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    margin-bottom: 6px;
-    overflow: hidden;
+  padding: 10px 12px; background: var(--bg2); border-radius: 8px;
+  margin-bottom: 8px; cursor: pointer; border: 1px solid var(--border);
+  transition: all var(--tr); font-size: 0.82rem;
 }
-.hist-head {
-    padding: 10px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    font-size: 0.82rem;
-    font-weight: 600;
-    transition: background .15s;
-}
-.hist-head:hover { background: var(--bg-3); }
-.hist-head .arrow { color: var(--text-3); transition: transform .2s; }
-.hist-item.open .hist-head .arrow { transform: rotate(90deg); }
-.hist-body {
-    padding: 12px 14px;
-    border-top: 1px solid var(--border);
-    background: var(--bg-2);
-    display: none;
-}
-.hist-item.open .hist-body { display: block; }
-.hist-body pre {
-    white-space: pre-wrap;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-2);
-    margin-bottom: 8px;
-}
+.hist-item:hover { border-color: var(--accent); }
+.hist-date { font-weight: 600; margin-bottom: 3px; }
+.hist-meta { color: var(--tx3); font-size: 0.75rem; }
 
-/* ══════════════════════════════════════════
-   TOAST
-   ══════════════════════════════════════════ */
-.toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 999; }
+/* Toast */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column-reverse; gap: 8px; }
 .toast {
-    padding: 10px 18px;
-    border-radius: var(--r-md);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #fff;
-    margin-top: 6px;
-    box-shadow: var(--shadow-lg);
-    animation: tIn .3s var(--ease), tOut .3s var(--ease) 2.7s forwards;
+  padding: 10px 18px; border-radius: 8px; font-size: 0.84rem; font-weight: 500;
+  background: var(--bg2); color: var(--tx0); border: 1px solid var(--border);
+  box-shadow: 0 6px 20px var(--shadow);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+  max-width: 320px;
 }
-.toast-ok { background: var(--green); }
-.toast-err { background: var(--red); }
-@keyframes tIn { from { transform: translateX(30px); opacity: 0; } }
-@keyframes tOut { to { opacity: 0; transform: translateY(6px); } }
+.toast.error { border-color: var(--red); color: var(--red); }
+.toast.success { border-color: var(--green); color: var(--green); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-8px); } }
 
-/* ══════════════════════════════════════════
-   MODAL
-   ══════════════════════════════════════════ */
-.modal-bg {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.45);
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn .2s;
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
 }
+.modal-overlay.open { display: flex; }
 .modal-box {
-    background: var(--bg-1);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 28px;
-    max-width: 380px;
-    width: 90%;
-    box-shadow: var(--shadow-lg);
+  background: var(--bg1); border: 1px solid var(--border); border-radius: 14px;
+  padding: 28px; max-width: 380px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px var(--shadow);
 }
-.modal-box h3 { font-size: 1rem; margin-bottom: 6px; }
-.modal-box p { color: var(--text-2); font-size: 0.88rem; margin-bottom: 18px; }
-.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-box h3 { margin-bottom: 10px; font-size: 1rem; }
+.modal-box p { font-size: 0.85rem; color: var(--tx2); margin-bottom: 18px; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
 
-/* ══════════════════════════════════════════
-   NAV
-   ══════════════════════════════════════════ */
-.nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
-.empty-state { color: var(--text-3); font-size: 0.82rem; }
+/* Responsive */
+@media (max-width: 640px) {
+  .meeting-grid { grid-template-columns: 1fr; }
+  .results-bar { flex-direction: column; align-items: flex-start; }
+  .bar-sep { display: none; }
+  .shell { padding: 14px 16px 50px; }
+  .hist-panel { width: 280px; right: -300px; }
+}
+/* Friday full width */
+.meeting-grid .meeting-day:nth-child(5) { grid-column: 1 / -1; }
 </style>
 </head>
 <body>
-
-<header class="header">
-    <div class="header-brand">
-        <h1>CST Meeting Assigner</h1>
-        <span class="tag">v4.5.0</span>
+<div class="shell">
+  <header>
+    <div class="logo">
+      <h1>CST Meeting Assigner</h1>
+      <span class="ver">v5.0.0</span>
     </div>
-    <div class="header-actions">
-        <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="hdr-right">
+      <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark/light theme">◑</button>
+      <button class="btn-icon" onclick="toggleHist()" title="History" aria-label="Open history">☰</button>
     </div>
-</header>
+  </header>
 
-<div class="wrap">
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step-dot current" id="dot1">1</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-line"></div>
+    <div class="step-dot" id="dot3">3</div>
+  </div>
 
-    <!-- ROLE MODE -->
-    <div class="card">
-        <div class="card-head"><h2>Role Mode</h2></div>
-        <div class="card-body">
-            <div class="mode-row">
-                <div class="mode-opt" data-m="1" onclick="setRoleMode(1)"><strong>Solo</strong><span>Presenter only</span></div>
-                <div class="mode-opt active" data-m="2" onclick="setRoleMode(2)"><strong>2 People</strong><span>Presenter + Follow-up</span></div>
-                <div class="mode-opt" data-m="3" onclick="setRoleMode(3)"><strong>3 People</strong><span>Presenter + Notes + Follow-up</span></div>
-            </div>
-            <div class="info-strip">🔒 Containment Tests always use 3 people regardless of mode. CSE3+ required as Presenter. Individual meetings can be overridden to Solo in Step 2.</div>
-        </div>
+  <!-- ═══ STEP 1: Team Setup ═══ -->
+  <div class="step active" id="step1">
+    <div class="section-title">Role Mode</div>
+    <div class="mode-toggle" id="modeToggle">
+      <div class="mode-btn" data-mode="1" onclick="setRoleMode(1)">Solo</div>
+      <div class="mode-btn active" data-mode="2" onclick="setRoleMode(2)">2-Person</div>
+      <div class="mode-btn" data-mode="3" onclick="setRoleMode(3)">3-Person</div>
     </div>
-
-    <!-- STEP 1 -->
-    <div class="card" id="step1">
-        <div class="card-head"><span class="step-num">1</span><h2>Team &amp; Meetings</h2></div>
-        <div class="card-body">
-            <div class="label">Team Members</div>
-            <div class="hint">Add your team. CSE3+ can present Containment Tests.</div>
-            <div class="members-list" id="membersList"></div>
-            <button class="add-member-btn" onclick="addMember()">+ Add member</button>
-
-            <div style="margin-top:20px;">
-                <div class="label">Meetings by Day</div>
-                <div class="hint">One meeting per line. Mark containment tests and solo meetings in Step 2.</div>
-                <div class="days-grid">
-                    <div class="day-col"><label>Mon</label><textarea id="inputMon" placeholder="Customer A&#10;Customer B"></textarea></div>
-                    <div class="day-col"><label>Tue</label><textarea id="inputTue"></textarea></div>
-                    <div class="day-col"><label>Wed</label><textarea id="inputWed"></textarea></div>
-                    <div class="day-col"><label>Thu</label><textarea id="inputThu"></textarea></div>
-                    <div class="day-col"><label>Fri</label><textarea id="inputFri"></textarea></div>
-                </div>
-            </div>
-            <div class="nav-row"><div></div><button class="btn btn-accent" onclick="goToStep2()">Review &amp; Adjust →</button></div>
-        </div>
+    <div class="mode-info">
+      Containment Tests always use 3 people regardless of mode. CSE3+ required as Presenter. Individual meetings can be overridden to Solo in Step 2.
     </div>
 
-    <!-- STEP 2 -->
-    <div class="card hidden" id="step2">
-        <div class="card-head"><span class="step-num">2</span><h2>Review &amp; Adjust</h2></div>
-        <div class="card-body">
-            <div class="hint" style="margin-bottom:14px;">Set containment tests, solo meetings, availability, PTO, and pin assignments.</div>
-            <div id="step2Body"></div>
-            <div class="nav-row">
-                <button class="btn btn-ghost" onclick="goToStep1()">← Back</button>
-                <button class="btn btn-green" onclick="generateAssignments()">Confirm &amp; Assign →</button>
-            </div>
-        </div>
+    <div class="section-title">Team Members</div>
+    <div class="member-add-form">
+      <input type="text" id="memberNameInput" placeholder="Member name" onkeydown="if(event.key==='Enter'){event.preventDefault();addMember();}">
+      <select id="memberLevelInput">
+        <option value="1">CSE 1</option>
+        <option value="2" selected>CSE 2</option>
+        <option value="3">CSE 3</option>
+        <option value="4">CSE 4</option>
+        <option value="5">CSE 5</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="addMember()">Add</button>
+    </div>
+    <div class="member-list" id="memberList"></div>
+    <div class="min-info" id="minInfo">Min: 2 members for 2-person mode</div>
+
+    <div class="section-title" style="margin-top:20px;">Meetings</div>
+    <div class="section-hint">One meeting per line. Mark containment tests and solo meetings in Step 2.</div>
+    <div class="meeting-grid" id="meetingGrid">
+      <div class="meeting-day"><label>Monday</label><textarea id="mtgMon" placeholder="One meeting per line"></textarea></div>
+      <div class="meeting-day"><label>Tuesday</label><textarea id="mtgTue" placeholder="One meeting per line"></textarea></div>
+      <div class="meeting-day"><label>Wednesday</label><textarea id="mtgWed" placeholder="One meeting per line"></textarea></div>
+      <div class="meeting-day"><label>Thursday</label><textarea id="mtgThu" placeholder="One meeting per line"></textarea></div>
+      <div class="meeting-day"><label>Friday</label><textarea id="mtgFri" placeholder="One meeting per line"></textarea></div>
     </div>
 
-    <!-- RESULTS -->
-    <div class="card hidden" id="results">
-        <div class="card-head"><span class="step-num">3</span><h2>Results</h2></div>
-        <div class="card-body">
-            <div class="fmt-bar">
-                <button class="fmt-btn active" data-f="slack" onclick="setFmt('slack')">💬 Slack</button>
-                <button class="fmt-btn" data-f="onenote" onclick="setFmt('onenote')">📓 OneNote</button>
-                <button class="fmt-btn" data-f="markdown" onclick="setFmt('markdown')">📝 Markdown</button>
-            </div>
-            <div class="res-block">
-                <div class="res-block-head"><span>📅 Assignments</span><button class="btn btn-sm btn-ghost" onclick="cpAsgn()">Copy</button></div>
-                <div class="res-block-body" id="asgnOut"></div>
-            </div>
-            <div class="res-block">
-                <div class="res-block-head"><span>📊 Stats</span><button class="btn btn-sm btn-ghost" onclick="cpTally()">Copy</button></div>
-                <div class="res-block-body" id="tallyOut"></div>
-            </div>
-            <div class="export-row">
-                <button class="btn btn-accent" onclick="cpAll()">📋 Copy All</button>
-                <button class="btn btn-ghost" onclick="expTxt()">💾 Export .txt</button>
-            </div>
-            <div class="cal-row">
-                <div><label>Filter</label><select id="calSel"><option value="all">All Members</option></select></div>
-                <div><label>Duration</label><select id="calDur"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
-                <div style="flex:0"><label>&nbsp;</label><button class="btn btn-green" onclick="expICS()">📆 .ics</button></div>
-            </div>
-            <div style="margin-top:16px"><button class="btn btn-ghost" onclick="goToStep1()">← New Assignment</button></div>
-        </div>
-    </div>
+    <button class="btn btn-primary" id="continueBtn" onclick="goToStep2()">Continue →</button>
+  </div>
 
-    <!-- HISTORY -->
-    <div class="card" id="histCard">
-        <div class="card-head" style="padding-bottom:0;">
-            <h2 style="flex:1">History</h2>
-            <button class="btn btn-sm btn-danger" id="clrHistBtn" onclick="showClearModal()" style="display:none">Clear</button>
-        </div>
-        <div class="card-body" id="histOut"><span class="empty-state">No assignment history yet.</span></div>
+  <!-- ═══ STEP 2: Meeting Config ═══ -->
+  <div class="step" id="step2">
+    <div class="section-title">Meeting Configuration</div>
+    <div class="section-hint">Set availability, PTO, pins, and flags for each meeting.</div>
+    <div id="step2Cards"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-secondary" onclick="goToStep1()">← Back to Setup</button>
+      <button class="btn btn-primary" onclick="generateAssignments()">Generate Assignments</button>
     </div>
+  </div>
+
+  <!-- ═══ STEP 3: Results ═══ -->
+  <div class="step" id="step3">
+    <div class="results-bar">
+      <div class="fmt-toggle">
+        <button class="fmt-btn active" data-fmt="slack" onclick="setFmt('slack')">Slack</button>
+        <button class="fmt-btn" data-fmt="onenote" onclick="setFmt('onenote')">OneNote</button>
+        <button class="fmt-btn" data-fmt="markdown" onclick="setFmt('markdown')">Markdown</button>
+      </div>
+      <div class="bar-sep"></div>
+      <button class="btn btn-sm btn-secondary" onclick="cpAsgn()">Copy Assignments</button>
+      <button class="btn btn-sm btn-secondary" onclick="cpTally()">Copy Stats</button>
+      <button class="btn btn-sm btn-primary" onclick="cpAll()">Copy All</button>
+      <div class="bar-sep"></div>
+      <button class="btn btn-sm btn-ghost" onclick="expTxt()">Export .txt</button>
+      <button class="btn btn-sm btn-ghost" onclick="expICS()">Export .ics</button>
+      <select class="cal-select" id="calFilter" onchange="updCal()"><option value="all">All Members</option></select>
+      <select class="dur-select" id="calDur">
+        <option value="30">30 min</option>
+        <option value="45">45 min</option>
+        <option value="60" selected>60 min</option>
+        <option value="90">90 min</option>
+      </select>
+    </div>
+    <div id="asgnPanel"></div>
+    <div id="statsPanel" class="stats-panel"></div>
+    <div style="margin-top:24px;">
+      <button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button>
+    </div>
+  </div>
 </div>
 
-<div class="toast-wrap" id="toasts"></div>
-<div id="modalRoot"></div>
+<!-- History -->
+<div class="hist-overlay" id="histOverlay" onclick="toggleHist()"></div>
+<div class="hist-panel" id="histPanel">
+  <div class="hist-head">
+    <h3>History</h3>
+    <button class="btn btn-sm btn-ghost" onclick="toggleHist()">✕</button>
+  </div>
+  <div id="histList"></div>
+  <button class="btn btn-sm btn-secondary" style="width:100%;margin-top:12px;" onclick="showClearModal()">Clear History</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3>Clear History?</h3>
+    <p>This will permanently remove all saved assignment history.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="clearHist()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastBox"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════════════════════════
-
-var $ = function(id) { return document.getElementById(id); };
-var $$ = function(sel) { return document.querySelectorAll(sel); };
-
-function esc(s) {
-    if (typeof s !== 'string') return '';
-    return s.replace(/[&<>"']/g, function(c) {
-        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];
-    });
-}
-
-function shuffle(arr) {
-    var r = arr.slice();
-    for (var i = r.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = r[i]; r[i] = r[j]; r[j] = tmp;
-    }
-    return r;
-}
-
-function toast(msg, type) {
-    var el = document.createElement('div');
-    el.className = 'toast ' + (type === 'error' ? 'toast-err' : 'toast-ok');
-    el.textContent = msg;
-    $('toasts').appendChild(el);
-    setTimeout(function() { el.remove(); }, 3200);
-}
-
-function cpText(text, msg) {
-    navigator.clipboard.writeText(text).then(function() { toast(msg); }).catch(function() {
-        var t = document.createElement('textarea');
-        t.value = text; t.style.position = 'fixed'; t.style.left = '-9999px';
-        document.body.appendChild(t); t.select();
-        try { document.execCommand('copy'); } catch(e) {}
-        document.body.removeChild(t);
-        toast(msg);
-    });
-}
-
-// ════════════════════════════════════════════════════════════════
-// CONSTANTS
-// ════════════════════════════════════════════════════════════════
-
-var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-var DAY_FULL = { Mon:'Monday', Tue:'Tuesday', Wed:'Wednesday', Thu:'Thursday', Fri:'Friday' };
-var DAY_IDS = ['inputMon', 'inputTue', 'inputWed', 'inputThu', 'inputFri'];
-var ALL_ROLES = ['Presenter', 'Notes', 'Follow-up'];
-
-function roleLabelsFor(mode, isCT, isSolo) {
-    if (isSolo && !isCT) return ['Presenter'];
-    if (isCT) return ['Presenter', 'Notes', 'Follow-up'];
-    if (mode === 1) return ['Presenter'];
-    return mode === 3 ? ['Presenter', 'Notes', 'Follow-up'] : ['Presenter', 'Follow-up'];
-}
-function rIcon(r) { return r === 'Presenter' ? '🎤' : r === 'Notes' ? '📝' : '✅'; }
-function cseBadge(lvl) { return lvl >= 4 ? 'badge-purple' : lvl >= 3 ? 'badge-blue' : 'badge-muted'; }
-function isCSE3(name) { return (state.memberLevels[name] || 2) >= 3; }
-function isCSE3R(name, levels) { return (levels[name] || 2) >= 3; }
-
-function groupByDay(arr) {
-    var g = {};
-    arr.forEach(function(a) { if (!g[a.day]) g[a.day] = []; g[a.day].push(a); });
-    DAYS.forEach(function(d) { if (g[d]) g[d].sort(function(a, b) { return a.id - b.id; }); });
-    return g;
-}
-
-// ════════════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
+   CST Meeting Assigner v5.0.0 — Core Logic
+   ═══════════════════════════════════════════════════════════ */
+var DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+var DAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday'};
+var ALL_ROLES = ['Presenter','Notes','Follow-up'];
 
 var state = {
-    members: [],
-    memberLevels: {},
-    meetings: [],
-    roleMode: 2,
-    ct: {},
-    solo: {},
-    savedAv: {},
-    savedPTO: {},
-    savedPins: {}
+  members: [], memberLevels: {}, meetings: [],
+  roleMode: 2, ct: {}, solo: {},
+  savedAv: {}, savedPTO: {}, savedPins: {}
 };
 var R = null;
 var fmt = 'slack';
-var memberIdCounter = 0;
 
-// ════════════════════════════════════════════════════════════════
-// THEME
-// ════════════════════════════════════════════════════════════════
-
-function toggleTheme() {
-    var cur = document.documentElement.getAttribute('data-theme');
-    var next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    $('themeBtn').textContent = next === 'dark' ? '🌙' : '☀️';
-    localStorage.setItem('cst-theme', next);
+/* ──── Utilities ──── */
+function esc(s) {
+  var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
 }
-(function() {
-    var s = localStorage.getItem('cst-theme');
-    if (s) {
-        document.documentElement.setAttribute('data-theme', s);
-        if ($('themeBtn')) $('themeBtn').textContent = s === 'dark' ? '🌙' : '☀️';
-    }
+function shuffle(arr) {
+  var a = arr.slice(), i = a.length, j, t;
+  while (i > 1) { j = Math.floor(Math.random() * i--); t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function toast(msg, type) {
+  var t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.textContent = msg;
+  document.getElementById('toastBox').appendChild(t);
+  setTimeout(function() { t.remove(); }, 2500);
+}
+function cpText(text, msg) {
+  navigator.clipboard.writeText(text).then(function() { toast(msg || 'Copied!', 'success'); });
+}
+function roleLabelsFor(mode, isCT, isSolo) {
+  if (isSolo && !isCT) return ['Presenter'];
+  if (isCT) return ['Presenter','Notes','Follow-up'];
+  if (mode === 1) return ['Presenter'];
+  return mode === 3 ? ['Presenter','Notes','Follow-up'] : ['Presenter','Follow-up'];
+}
+function rIcon(r) { return r === 'Presenter' ? '🎤' : r === 'Notes' ? '📝' : '✅'; }
+function cseBadge(lvl) { return 'badge-cse' + lvl; }
+function isCSE3(name) { return (state.memberLevels[name] || 1) >= 3; }
+function isCSE3R(name, levels) { return (levels[name] || 1) >= 3; }
+function groupByDay(arr) {
+  var g = {}; DAYS.forEach(function(d) { g[d] = []; });
+  arr.forEach(function(a) { if (g[a.day]) g[a.day].push(a); });
+  return g;
+}
+function pad(s, w) { while (s.length < w) s += ' '; return s; }
+
+/* ──── Theme ──── */
+function toggleTheme() {
+  var h = document.documentElement;
+  var t = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', t);
+  try { localStorage.setItem('cst-theme', t); } catch(e) {}
+}
+(function initTheme() {
+  try { var t = localStorage.getItem('cst-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e) {}
 })();
 
-// ════════════════════════════════════════════════════════════════
-// ROLE MODE
-// ════════════════════════════════════════════════════════════════
+/* ──── Step Navigation ──── */
+function showStep(n) {
+  ['step1','step2','step3'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    el.classList.toggle('active', i + 1 === n);
+  });
+  ['dot1','dot2','dot3'].forEach(function(id, i) {
+    var d = document.getElementById(id);
+    d.className = 'step-dot' + (i + 1 < n ? ' done' : '') + (i + 1 === n ? ' current' : '');
+    d.textContent = i + 1 < n ? '✓' : (i + 1);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
+/* ──── Step 1: Role Mode ──── */
 function setRoleMode(m) {
-    state.roleMode = m;
-    $$('.mode-opt').forEach(function(el) { el.classList.toggle('active', parseInt(el.dataset.m) === m); });
+  state.roleMode = m;
+  document.querySelectorAll('.mode-btn').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.getAttribute('data-mode')) === m);
+  });
+  updateMinInfo();
+}
+function updateMinInfo() {
+  var min = state.roleMode === 3 ? 3 : state.roleMode === 1 ? 1 : 2;
+  document.getElementById('minInfo').textContent = 'Min: ' + min + ' member' + (min > 1 ? 's' : '') + ' for ' + (state.roleMode === 1 ? 'solo' : state.roleMode + '-person') + ' mode';
 }
 
-// ════════════════════════════════════════════════════════════════
-// DYNAMIC TEAM MEMBERS
-// ════════════════════════════════════════════════════════════════
-
-var memberRows = [];
-
+/* ──── Step 1: Members ──── */
 function addMember(name, level) {
-    var id = ++memberIdCounter;
-    memberRows.push({ id: id, name: name || '', level: level || 2 });
-    renderMembers();
+  var n = name || document.getElementById('memberNameInput').value.trim();
+  var l = level || parseInt(document.getElementById('memberLevelInput').value);
+  if (!n) { toast('Enter a member name', 'error'); return; }
+  if (state.members.indexOf(n) !== -1) { toast('Member already exists', 'error'); return; }
+  state.members.push(n);
+  state.memberLevels[n] = l;
+  if (!name) {
+    document.getElementById('memberNameInput').value = '';
+    document.getElementById('memberNameInput').focus();
+  }
+  renderMembers();
 }
-
-function removeMember(id) {
-    if (memberRows.length <= 1) return toast('Need at least 1 team member.', 'error');
-    memberRows = memberRows.filter(function(r) { return r.id !== id; });
-    renderMembers();
+function removeMember(idx) {
+  var name = state.members[idx];
+  state.members.splice(idx, 1);
+  delete state.memberLevels[name];
+  renderMembers();
 }
-
 function renderMembers() {
-    var list = $('membersList');
-    // Save current values before re-render
-    memberRows.forEach(function(row) {
-        var nameEl = document.getElementById('mn-' + row.id);
-        var levelEl = document.getElementById('ml-' + row.id);
-        if (nameEl) row.name = nameEl.value;
-        if (levelEl) row.level = parseInt(levelEl.value);
-    });
-
-    var html = '';
-    memberRows.forEach(function(row, i) {
-        html += '<div class="member-row" style="animation-delay:' + (i * 30) + 'ms">';
-        html += '<input type="text" id="mn-' + row.id + '" value="' + esc(row.name) + '" placeholder="Member ' + (i + 1) + '">';
-        html += '<select id="ml-' + row.id + '">';
-        html += '<option value="2"' + (row.level === 2 ? ' selected' : '') + '>CSE2</option>';
-        html += '<option value="3"' + (row.level === 3 ? ' selected' : '') + '>CSE3</option>';
-        html += '<option value="4"' + (row.level === 4 ? ' selected' : '') + '>CSE4</option>';
-        html += '</select>';
-        html += '<button class="remove-btn" onclick="removeMember(' + row.id + ')" title="Remove">×</button>';
-        html += '</div>';
-    });
-    list.innerHTML = html;
+  var html = '';
+  state.members.forEach(function(m, i) {
+    var lvl = state.memberLevels[m];
+    html += '<div class="member-row">' +
+      '<span class="member-name">' + esc(m) + '</span>' +
+      '<span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span>' +
+      '<button class="member-remove" onclick="removeMember(' + i + ')" title="Remove" aria-label="Remove ' + esc(m) + '">✕</button>' +
+      '</div>';
+  });
+  document.getElementById('memberList').innerHTML = html;
 }
 
-// Initialize with 3 default members
-addMember('Preston', 3);
-addMember('Kaden', 2);
-addMember('Max', 2);
-
-// ════════════════════════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════════════════════════
-
-function goToStep1() {
-    $('step1').classList.remove('hidden');
-    $('step2').classList.add('hidden');
-    $('results').classList.add('hidden');
-}
+/* ──── Step 1→2 Transition ──── */
+function goToStep1() { showStep(1); }
 
 function goToStep2() {
-    // Gather members from dynamic rows
-    var members = [];
-    var levels = {};
-    memberRows.forEach(function(row) {
-        var nameEl = document.getElementById('mn-' + row.id);
-        var levelEl = document.getElementById('ml-' + row.id);
-        var name = nameEl ? nameEl.value.trim() : '';
-        var level = levelEl ? parseInt(levelEl.value) : 2;
-        if (name) {
-            if (members.includes(name)) return; // skip duplicates
-            members.push(name);
-            levels[name] = level;
-        }
+  // Parse meetings
+  var mtgs = [];
+  var dayMap = {Mon:'mtgMon',Tue:'mtgTue',Wed:'mtgWed',Thu:'mtgThu',Fri:'mtgFri'};
+  var id = 0;
+  DAYS.forEach(function(day) {
+    var txt = document.getElementById(dayMap[day]).value;
+    txt.split('\n').forEach(function(line) {
+      line = line.trim();
+      if (line) { mtgs.push({ id: id++, name: line, day: day }); }
     });
+  });
+  state.meetings = mtgs;
 
-    if (members.length < 1) return toast('Need at least 1 team member.', 'error');
+  // Validate
+  var minMembers = state.roleMode === 3 ? 3 : state.roleMode === 1 ? 1 : 2;
+  if (state.members.length < minMembers) { toast('Need at least ' + minMembers + ' member(s)', 'error'); return; }
+  if (mtgs.length === 0) { toast('Add at least one meeting', 'error'); return; }
 
-    // Check role mode compatibility
-    if (state.roleMode === 3 && members.length < 3) {
-        return toast('3-person mode requires at least 3 members.', 'error');
-    }
-    if (state.roleMode === 2 && members.length < 2) {
-        return toast('2-person mode requires at least 2 members.', 'error');
-    }
-
-    state.members = members;
-    state.memberLevels = levels;
-
-    // Parse meetings
-    var all = [];
-    var nextId = 0;
-    DAY_IDS.forEach(function(inputId, i) {
-        var lines = $(inputId).value.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
-        lines.forEach(function(name) {
-            all.push({ id: nextId++, day: DAYS[i], name: name });
-        });
-    });
-    if (!all.length) return toast('Enter at least one meeting.', 'error');
-
-    state.meetings = all;
-    state.ct = {};
-    state.solo = {};
-    state.savedAv = {};
-    state.savedPTO = {};
-    state.savedPins = {};
-
-    renderStep2();
-    $('step1').classList.add('hidden');
-    $('step2').classList.remove('hidden');
-    $('results').classList.add('hidden');
+  renderStep2();
+  showStep(2);
 }
 
-// ════════════════════════════════════════════════════════════════
-// STEP 2 RENDER
-// ════════════════════════════════════════════════════════════════
+/* ──── Step 2: Render ──── */
+function renderStep2() {
+  var html = '';
+  var lastDay = '';
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    if (mtg.day !== lastDay) {
+      lastDay = mtg.day;
+      html += '<div class="day-separator">' + DAY_FULL[mtg.day] + '</div>';
+    }
+    var isCT = !!state.ct[sid];
+    var isSolo = !!state.solo[sid];
+
+    html += '<div class="mtg-card" id="mc' + sid + '">';
+    html += '<div class="mtg-card-head">' + esc(mtg.name) + ' <span class="badge badge-day">' + mtg.day + '</span></div>';
+
+    // Flags
+    html += '<div class="mtg-flags">';
+    html += '<label class="mtg-flag"><input type="checkbox" onchange="handleCT(\'' + sid + '\')" ' + (isCT ? 'checked' : '') + '> 🔒 Containment Test</label>';
+    if (state.roleMode !== 1 && !isCT) {
+      html += '<label class="mtg-flag"><input type="checkbox" onchange="handleSolo(\'' + sid + '\')" ' + (isSolo ? 'checked' : '') + '> 👤 Solo</label>';
+    }
+    html += '</div>';
+
+    // Availability
+    html += '<div class="avail-row"><span class="row-label">Available</span>';
+    state.members.forEach(function(m) {
+      var key = sid + '_' + m;
+      var checked = state.savedAv[key] !== undefined ? state.savedAv[key] : true;
+      html += '<span class="avail-item"><input type="checkbox" id="av_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
+    });
+    html += '</div>';
+
+    // PTO
+    html += '<div class="pto-row"><span class="row-label">🏖️ PTO</span>';
+    state.members.forEach(function(m) {
+      var key = sid + '_' + m;
+      var checked = state.savedPTO[key] ? true : false;
+      html += '<span class="pto-item"><input type="checkbox" id="pto_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
+    });
+    html += '</div>';
+
+    // Pins
+    var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
+    html += '<div class="pin-row"><span class="row-label">📌 Pin</span>';
+    roles.forEach(function(role) {
+      html += '<span class="pin-item"><label>' + role + ':</label><select id="pin_' + sid + '_' + role + '">';
+      html += '<option value="">(none)</option>';
+      state.members.forEach(function(m) {
+        var disabled = (isCT && role === 'Presenter' && !isCSE3(m));
+        var selKey = sid + '_' + role;
+        var selected = (state.savedPins[selKey] === m);
+        html += '<option value="' + esc(m) + '"' + (disabled ? ' disabled title="needs CSE3+"' : '') + (selected ? ' selected' : '') + '>' + esc(m) + (disabled ? ' (needs CSE3+)' : '') + '</option>';
+      });
+      html += '</select></span>';
+    });
+    html += '</div>';
+    html += '</div>';
+  });
+  document.getElementById('step2Cards').innerHTML = html;
+}
 
 function saveStep2State() {
-    $$('.av-cb').forEach(function(cb) {
-        var mid = cb.dataset.mid;
-        if (!state.savedAv[mid]) state.savedAv[mid] = {};
-        state.savedAv[mid][cb.dataset.mem] = cb.checked;
+  state.savedAv = {};
+  state.savedPTO = {};
+  state.savedPins = {};
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    state.members.forEach(function(m) {
+      var avEl = document.getElementById('av_' + sid + '_' + m);
+      var ptoEl = document.getElementById('pto_' + sid + '_' + m);
+      if (avEl) state.savedAv[sid + '_' + m] = avEl.checked;
+      if (ptoEl) state.savedPTO[sid + '_' + m] = ptoEl.checked;
     });
-    $$('.pto-cb').forEach(function(cb) {
-        var mid = cb.dataset.mid;
-        if (!state.savedPTO[mid]) state.savedPTO[mid] = {};
-        state.savedPTO[mid][cb.dataset.mem] = cb.checked;
+    var roles = roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid]);
+    roles.forEach(function(role) {
+      var pinEl = document.getElementById('pin_' + sid + '_' + role);
+      if (pinEl && pinEl.value) state.savedPins[sid + '_' + role] = pinEl.value;
     });
-    $$('.pin-sel').forEach(function(sel) {
-        var mid = sel.dataset.mid;
-        if (!state.savedPins[mid]) state.savedPins[mid] = {};
-        state.savedPins[mid][sel.dataset.role] = sel.value;
-    });
+  });
 }
 
-function renderStep2() {
-    var mtgs = state.meetings;
-    var mems = state.members;
-    var lvls = state.memberLevels;
-    var mode = state.roleMode;
-    var gr = {};
-    mtgs.forEach(function(m) { if (!gr[m.day]) gr[m.day] = []; gr[m.day].push(m); });
-
-    var html = '';
-    DAYS.forEach(function(day) {
-        if (!gr[day] || !gr[day].length) return;
-        html += '<div class="day-separator">' + DAY_FULL[day] + '</div>';
-        gr[day].sort(function(a, b) { return a.id - b.id; }).forEach(function(mtg) {
-            var id = String(mtg.id);
-            var isCT = !!state.ct[id];
-            var isSolo = !!state.solo[id];
-            var roles = roleLabelsFor(mode, isCT, isSolo);
-
-            html += '<div class="mtg-card' + (isCT ? ' is-ct' : '') + '">';
-            html += '<div class="mtg-card-title">' + esc(mtg.name) + ' <span class="badge badge-muted">' + day + '</span></div>';
-
-            // CT toggle
-            html += '<div class="cb-row"><span class="cb-label">🔒 CT</span>';
-            html += '<label><input type="checkbox" id="ct-' + id + '" ' + (isCT ? 'checked' : '') + ' onchange="handleCT(\'' + id + '\')"> Containment Test</label></div>';
-
-            // Solo toggle (hidden if CT is on, since CT overrides)
-            if (!isCT) {
-                html += '<div class="cb-row"><span class="cb-label">👤 Solo</span>';
-                html += '<label><input type="checkbox" id="solo-' + id + '" ' + (isSolo ? 'checked' : '') + ' onchange="handleSolo(\'' + id + '\')"> Solo (Presenter only)</label></div>';
-            }
-
-            // Available
-            html += '<div class="cb-row"><span class="cb-label">Avail</span>';
-            mems.forEach(function(m) {
-                var sv = state.savedAv[id];
-                var ck = sv ? (sv[m] !== false) : true;
-                html += '<label><input type="checkbox" class="av-cb" data-mid="' + id + '" data-mem="' + esc(m) + '" ' + (ck ? 'checked' : '') + '> ' + esc(m) + ' <span class="badge ' + cseBadge(lvls[m]) + '">CSE' + lvls[m] + '</span></label>';
-            });
-            html += '</div>';
-
-            // PTO
-            html += '<div class="cb-row"><span class="cb-label">🏖️ PTO</span>';
-            mems.forEach(function(m) {
-                var sv = state.savedPTO[id];
-                var ck = sv ? (sv[m] === true) : false;
-                html += '<label><input type="checkbox" class="pto-cb" data-mid="' + id + '" data-mem="' + esc(m) + '" ' + (ck ? 'checked' : '') + '> ' + esc(m) + '</label>';
-            });
-            html += '</div>';
-
-            // Pins
-            html += '<div class="pin-area"><div class="pin-toggle" onclick="this.nextElementSibling.classList.toggle(\'hidden\')">📌 Pin ▸</div>';
-            html += '<div class="pin-grid hidden">';
-            roles.forEach(function(role) {
-                var sv = state.savedPins[id];
-                var val = sv ? (sv[role] || '') : '';
-                html += '<div><label>' + role + '</label><select class="pin-sel" data-mid="' + id + '" data-role="' + role + '">';
-                html += '<option value="">Auto</option>';
-                mems.forEach(function(m) {
-                    html += '<option value="' + esc(m) + '"' + (val === m ? ' selected' : '') + '>' + esc(m) + ' (CSE' + lvls[m] + ')</option>';
-                });
-                html += '</select></div>';
-            });
-            html += '</div></div></div>';
-        });
-    });
-    $('step2Body').innerHTML = html;
+function handleCT(sid) {
+  saveStep2State();
+  state.ct[sid] = !state.ct[sid];
+  if (state.ct[sid]) state.solo[sid] = false;
+  renderStep2();
+}
+function handleSolo(sid) {
+  saveStep2State();
+  state.solo[sid] = !state.solo[sid];
+  renderStep2();
 }
 
-function handleCT(id) {
-    saveStep2State();
-    state.ct[id] = !!document.getElementById('ct-' + id).checked;
-    // CT overrides solo
-    if (state.ct[id]) state.solo[id] = false;
-    renderStep2();
-}
-
-function handleSolo(id) {
-    saveStep2State();
-    state.solo[id] = !!document.getElementById('solo-' + id).checked;
-    renderStep2();
-}
-
-// ════════════════════════════════════════════════════════════════
-// COLLECT STEP 2 DATA
-// ════════════════════════════════════════════════════════════════
-
+/* ──── Step 2: Collect Data ──── */
 function collectS2() {
-    var ex = {}, pto = {}, pin = {};
-    $$('.av-cb').forEach(function(cb) {
-        if (!cb.checked) {
-            var mid = cb.dataset.mid;
-            if (!ex[mid]) ex[mid] = [];
-            ex[mid].push(cb.dataset.mem);
-        }
+  var data = { avail: {}, pto: {}, pins: {} };
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    data.avail[sid] = {};
+    data.pto[sid] = {};
+    data.pins[sid] = {};
+    state.members.forEach(function(m) {
+      var avEl = document.getElementById('av_' + sid + '_' + m);
+      var ptoEl = document.getElementById('pto_' + sid + '_' + m);
+      data.avail[sid][m] = avEl ? avEl.checked : true;
+      data.pto[sid][m] = ptoEl ? ptoEl.checked : false;
     });
-    $$('.pto-cb').forEach(function(cb) {
-        if (cb.checked) {
-            var mid = cb.dataset.mid;
-            if (!pto[mid]) pto[mid] = [];
-            pto[mid].push(cb.dataset.mem);
-        }
+    var isCT = !!state.ct[sid];
+    var isSolo = !!state.solo[sid];
+    var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
+    roles.forEach(function(role) {
+      var pinEl = document.getElementById('pin_' + sid + '_' + role);
+      data.pins[sid][role] = pinEl ? pinEl.value : '';
     });
-    $$('.pin-sel').forEach(function(sel) {
-        if (sel.value) {
-            var mid = sel.dataset.mid;
-            if (!pin[mid]) pin[mid] = {};
-            pin[mid][sel.dataset.role] = sel.value;
-        }
-    });
-    return { ex: ex, pto: pto, pin: pin, ct: JSON.parse(JSON.stringify(state.ct)), solo: JSON.parse(JSON.stringify(state.solo)) };
+  });
+  return data;
 }
 
-// ════════════════════════════════════════════════════════════════
-// ASSIGNMENT ALGORITHM
-// ════════════════════════════════════════════════════════════════
-
+/* ═══════════════════════════════════════════════════════════
+   ASSIGNMENT ALGORITHM
+   ═══════════════════════════════════════════════════════════ */
 function generateAssignments() {
-    var mems = state.members;
-    var lvls = state.memberLevels;
-    var mtgs = state.meetings;
-    var mode = state.roleMode;
-    var s2 = collectS2();
+  var s2 = collectS2();
+  var members = state.members.slice();
+  var levels = {};
+  for (var k in state.memberLevels) levels[k] = state.memberLevels[k];
 
-    // Init tallies
-    var tally = {}, daily = {}, pair = {};
-    mems.forEach(function(m) {
-        tally[m] = { Total: 0 };
-        ALL_ROLES.forEach(function(r) { tally[m][r] = 0; });
-        daily[m] = {};
-        DAYS.forEach(function(d) { daily[m][d] = 0; });
-        pair[m] = {};
-        mems.forEach(function(o) { if (m !== o) pair[m][o] = 0; });
-    });
+  // Init tallies
+  var tally = {}, daily = {}, pairing = {};
+  members.forEach(function(m) {
+    tally[m] = { Presenter:0, Notes:0, 'Follow-up':0, Total:0 };
+    daily[m] = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0 };
+    pairing[m] = {};
+    members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
+  });
 
-    // Group + shuffle within each day
-    var byDay = {};
-    mtgs.forEach(function(m) { if (!byDay[m.day]) byDay[m.day] = []; byDay[m.day].push(m); });
-    DAYS.forEach(function(d) { if (byDay[d]) byDay[d] = shuffle(byDay[d]); });
+  var assignments = [];
+  var errors = [];
 
-    var asgns = [];
-    var errs = [];
+  // Process day by day, shuffle within each day
+  DAYS.forEach(function(day) {
+    var dayMtgs = state.meetings.filter(function(m) { return m.day === day; });
+    dayMtgs = shuffle(dayMtgs);
 
-    DAYS.forEach(function(day) {
-        if (!byDay[day]) return;
-        byDay[day].forEach(function(mtg) {
-            var id = String(mtg.id);
-            var mEx = s2.ex[id] || [];
-            var mPTO = new Set(s2.pto[id] || []);
-            var mPin = s2.pin[id] || {};
-            var isCT = !!s2.ct[id];
-            var isSolo = !!s2.solo[id];
-            var avail = mems.filter(function(m) { return !mEx.includes(m); });
-            var roles = roleLabelsFor(mode, isCT, isSolo);
+    dayMtgs.forEach(function(mtg) {
+      var sid = String(mtg.id);
+      var isCT = !!state.ct[sid];
+      var isSolo = !!state.solo[sid];
+      var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
 
-            if (avail.length < roles.length) {
-                errs.push('Not enough available for "' + mtg.name + '"');
-                return;
+      // Available members for this meeting
+      var avail = members.filter(function(m) { return s2.avail[sid][m]; });
+      if (avail.length < roles.length) {
+        errors.push(mtg.name + ': not enough available members (' + avail.length + ' available, need ' + roles.length + ')');
+        return;
+      }
+
+      var assigned = {}; // members used in this meeting
+      var asgn = { id: mtg.id, name: mtg.name, day: mtg.day, isCT: isCT, isSolo: isSolo, roles: {} };
+
+      roles.forEach(function(role) {
+        var pinned = s2.pins[sid][role];
+        if (pinned && avail.indexOf(pinned) !== -1 && !assigned[pinned]) {
+          // Validate CT constraint
+          if (isCT && role === 'Presenter' && !isCSE3R(pinned, levels)) {
+            // Invalid pin — treat as unpinned
+          } else {
+            asgn.roles[role] = { member: pinned, pinned: true, edited: false };
+            assigned[pinned] = true;
+            // Update tallies
+            tally[pinned][role]++;
+            tally[pinned].Total++;
+            daily[pinned][day]++;
+            for (var prev in assigned) {
+              if (prev !== pinned) {
+                pairing[pinned][prev]++;
+                pairing[prev][pinned]++;
+              }
             }
-
-            var assigned = {};
-            var used = new Set();
-
-            roles.forEach(function(role) {
-                // Pinned?
-                if (mPin[role]) {
-                    var pm = mPin[role];
-                    if (used.has(pm)) { errs.push('"' + mtg.name + '": ' + pm + ' pinned to multiple roles'); return; }
-                    if (!avail.includes(pm)) { errs.push('"' + mtg.name + '": Pinned ' + pm + ' unavailable'); return; }
-                    if (isCT && role === 'Presenter' && !isCSE3R(pm, lvls)) { errs.push('"' + mtg.name + '": CT Presenter must be CSE3+'); return; }
-                    assigned[role] = pm;
-                    used.forEach(function(u) { pair[pm][u]++; pair[u][pm]++; });
-                    used.add(pm);
-                    tally[pm][role]++;
-                    tally[pm].Total++;
-                    daily[pm][day]++;
-                    return;
-                }
-
-                var cands = avail.filter(function(m) { return !used.has(m); });
-
-                // CT Presenter constraint
-                if (isCT && role === 'Presenter') {
-                    var s3np = cands.filter(function(m) { return isCSE3R(m, lvls) && !mPTO.has(m); });
-                    if (s3np.length) cands = s3np;
-                    else {
-                        var s3a = cands.filter(function(m) { return isCSE3R(m, lvls); });
-                        if (s3a.length) cands = s3a;
-                        else { errs.push('"' + mtg.name + '": No CSE3+ for CT Presenter'); return; }
-                    }
-                }
-                if (!cands.length) { errs.push('"' + mtg.name + '": No one for ' + role); return; }
-
-                // Multi-factor sort
-                cands.sort(function(a, b) {
-                    if (mPTO.has(a) !== mPTO.has(b)) return mPTO.has(a) ? 1 : -1;
-                    if (daily[a][day] !== daily[b][day]) return daily[a][day] - daily[b][day];
-                    var ap = 0, bp = 0;
-                    used.forEach(function(u) { ap += (pair[a][u] || 0); bp += (pair[b][u] || 0); });
-                    if (ap !== bp) return ap - bp;
-                    if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
-                    if (tally[a].Total !== tally[b].Total) return tally[a].Total - tally[b].Total;
-                    return a.localeCompare(b);
-                });
-
-                var ch = cands[0];
-                assigned[role] = ch;
-                used.forEach(function(u) { pair[ch][u]++; pair[u][ch]++; });
-                used.add(ch);
-                tally[ch][role]++;
-                tally[ch].Total++;
-                daily[ch][day]++;
-            });
-
-            asgns.push({
-                id: mtg.id, day: day, name: mtg.name,
-                roles: assigned, roleLabels: roles,
-                isContainmentTest: isCT,
-                isSolo: isSolo,
-                pinned: JSON.parse(JSON.stringify(mPin)),
-                edited: {}
-            });
-        });
-    });
-
-    if (errs.length) { errs.forEach(function(e) { toast(e, 'error'); }); if (!asgns.length) return; }
-
-    // PTO members for display
-    var ptoMems = [];
-    mems.forEach(function(m) {
-        for (var mid in s2.pto) { if ((s2.pto[mid] || []).includes(m)) { ptoMems.push(m); break; } }
-    });
-
-    var usedRoles = [];
-    var rs = new Set();
-    asgns.forEach(function(a) { a.roleLabels.forEach(function(r) { if (!rs.has(r)) { rs.add(r); usedRoles.push(r); } }); });
-
-    R = {
-        id: 'r_' + Date.now(),
-        date: new Date().toISOString().slice(0, 10),
-        members: mems.slice(),
-        memberLevels: JSON.parse(JSON.stringify(lvls)),
-        roleMode: mode,
-        roleLabels: usedRoles,
-        assignments: asgns,
-        tally: tally,
-        dailyTally: daily,
-        pairingTally: pair,
-        ptoMembers: ptoMems,
-        containmentTests: JSON.parse(JSON.stringify(s2.ct)),
-        soloMeetings: JSON.parse(JSON.stringify(s2.solo))
-    };
-
-    saveHist();
-    renderResults();
-    updCal();
-    $('step1').classList.add('hidden');
-    $('step2').classList.add('hidden');
-    $('results').classList.remove('hidden');
-    toast('Assignments generated!');
-}
-
-// ════════════════════════════════════════════════════════════════
-// RECALCULATE
-// ════════════════════════════════════════════════════════════════
-
-function recalc() {
-    var a = R.assignments, mm = R.members, rl = R.roleLabels;
-    var t = {}, d = {}, p = {};
-    mm.forEach(function(m) {
-        t[m] = { Total: 0 };
-        rl.forEach(function(r) { t[m][r] = 0; });
-        d[m] = {};
-        DAYS.forEach(function(dy) { d[m][dy] = 0; });
-        p[m] = {};
-        mm.forEach(function(o) { if (m !== o) p[m][o] = 0; });
-    });
-    a.forEach(function(asgn) {
-        var ms = Object.values(asgn.roles);
-        Object.entries(asgn.roles).forEach(function(e) {
-            if (t[e[1]]) { t[e[1]][e[0]] = (t[e[1]][e[0]] || 0) + 1; t[e[1]].Total++; d[e[1]][asgn.day]++; }
-        });
-        for (var i = 0; i < ms.length; i++) for (var j = i + 1; j < ms.length; j++) {
-            if (p[ms[i]] && p[ms[i]][ms[j]] !== undefined) { p[ms[i]][ms[j]]++; p[ms[j]][ms[i]]++; }
+            return;
+          }
         }
+
+        // Unpinned — run algorithm
+        var candidates = avail.filter(function(m) { return !assigned[m]; });
+
+        // CT Presenter constraint
+        if (isCT && role === 'Presenter') {
+          var cse3 = candidates.filter(function(m) { return isCSE3R(m, levels); });
+          var nonPto = cse3.filter(function(m) { return !s2.pto[sid][m]; });
+          candidates = nonPto.length > 0 ? nonPto : cse3;
+          if (candidates.length === 0) {
+            errors.push(mtg.name + ': no CSE3+ member available for CT Presenter');
+            return;
+          }
+        }
+
+        // Multi-factor sort
+        candidates.sort(function(a, b) {
+          // 1. PTO deprioritization
+          var ptA = s2.pto[sid][a] ? 1 : 0;
+          var ptB = s2.pto[sid][b] ? 1 : 0;
+          if (ptA !== ptB) return ptA - ptB;
+          // 2. Daily spread
+          var dA = daily[a][day], dB = daily[b][day];
+          if (dA !== dB) return dA - dB;
+          // 3. Pairing diversity
+          var pairA = 0, pairB = 0;
+          for (var used in assigned) {
+            pairA += (pairing[a][used] || 0);
+            pairB += (pairing[b][used] || 0);
+          }
+          if (pairA !== pairB) return pairA - pairB;
+          // 4. Role balance
+          var rA = tally[a][role], rB = tally[b][role];
+          if (rA !== rB) return rA - rB;
+          // 5. Total balance
+          var tA = tally[a].Total, tB = tally[b].Total;
+          if (tA !== tB) return tA - tB;
+          // 6. Alphabetical
+          return a.localeCompare(b);
+        });
+
+        var pick = candidates[0];
+        asgn.roles[role] = { member: pick, pinned: false, edited: false };
+        assigned[pick] = true;
+        tally[pick][role]++;
+        tally[pick].Total++;
+        daily[pick][day]++;
+        for (var prev2 in assigned) {
+          if (prev2 !== pick) {
+            pairing[pick][prev2]++;
+            pairing[prev2][pick]++;
+          }
+        }
+      });
+
+      assignments.push(asgn);
     });
-    R.tally = t; R.dailyTally = d; R.pairingTally = p;
+  });
+
+  if (errors.length > 0) {
+    errors.forEach(function(e) { toast(e, 'error'); });
+  }
+
+  // Build result
+  var today = new Date();
+  R = {
+    id: 'r_' + Date.now(),
+    date: today.toISOString().slice(0, 10),
+    members: members.slice(),
+    memberLevels: levels,
+    roleMode: state.roleMode,
+    roleLabels: state.roleMode === 3 ? ALL_ROLES.slice() : state.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'],
+    assignments: assignments,
+    tally: tally,
+    dailyTally: daily,
+    pairingTally: pairing,
+    ptoMembers: [],
+    containmentTests: Object.assign({}, state.ct),
+    soloMeetings: Object.assign({}, state.solo)
+  };
+
+  // Identify PTO members
+  var ptoSet = {};
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    state.members.forEach(function(m) {
+      if (s2.pto[sid][m]) ptoSet[m] = true;
+    });
+  });
+  R.ptoMembers = Object.keys(ptoSet);
+
+  updCal();
+  renderResults();
+  saveHist();
+  showStep(3);
+  toast('Assignments generated!', 'success');
 }
 
-// ════════════════════════════════════════════════════════════════
-// RENDER RESULTS
-// ════════════════════════════════════════════════════════════════
+/* ──── Recalculate Tallies ──── */
+function recalc() {
+  if (!R) return;
+  var members = R.members;
+  var tally = {}, daily = {}, pairing = {};
+  members.forEach(function(m) {
+    tally[m] = { Presenter:0, Notes:0, 'Follow-up':0, Total:0 };
+    daily[m] = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0 };
+    pairing[m] = {};
+    members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
+  });
 
-function renderResults() { renderTally(); renderAsgn(); }
+  R.assignments.forEach(function(asgn) {
+    var used = [];
+    for (var role in asgn.roles) {
+      var mem = asgn.roles[role].member;
+      if (tally[mem]) {
+        tally[mem][role]++;
+        tally[mem].Total++;
+        daily[mem][asgn.day]++;
+        used.forEach(function(prev) {
+          pairing[mem][prev]++;
+          pairing[prev][mem]++;
+        });
+        used.push(mem);
+      }
+    }
+  });
 
-function renderTally() {
-    var mm = R.members, lv = R.memberLevels, t = R.tally, d = R.dailyTally, p = R.pairingTally, pto = R.ptoMembers || [], rl = R.roleLabels;
-    var h = '';
-    mm.forEach(function(m) {
-        var isPTO = pto.includes(m);
-        h += '<div class="tally-row"><div class="tally-name">' + esc(m) + ' <span class="badge ' + cseBadge(lv[m]) + '">CSE' + lv[m] + '</span>';
-        if (isPTO) h += ' <span style="font-size:.76rem">🏖️</span>';
-        h += '</div><div class="tally-stats">';
-        rl.forEach(function(r) { h += '<span>' + r + ': <span class="val">' + (t[m][r] || 0) + '</span></span>'; });
-        h += '<span>Total: <span class="val">' + t[m].Total + '</span></span></div>';
-        h += '<div class="tally-daily">M-T-W-T-F: ' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '</div></div>';
-    });
+  R.tally = tally;
+  R.dailyTally = daily;
+  R.pairingTally = pairing;
+}
 
-    // Pairings
-    var prs = [];
-    for (var i = 0; i < mm.length; i++) for (var j = i + 1; j < mm.length; j++)
-        prs.push(mm[i].split(' ')[0] + '+' + mm[j].split(' ')[0] + ': ' + p[mm[i]][mm[j]]);
-    h += '<div class="tally-pairs">🤝 <strong>Pairings:</strong> ' + prs.join(' · ') + '</div>';
-
-    // Matrix
-    h += '<div class="pair-matrix"><table><tr><th></th>';
-    mm.forEach(function(m) { h += '<th>' + esc(m.split(' ')[0]) + '</th>'; });
-    h += '</tr>';
-    mm.forEach(function(m1) {
-        h += '<tr><td>' + esc(m1.split(' ')[0]) + '</td>';
-        mm.forEach(function(m2) { h += '<td>' + (m1 === m2 ? '—' : (p[m1][m2] || 0)) + '</td>'; });
-        h += '</tr>';
-    });
-    h += '</table></div>';
-    $('tallyOut').innerHTML = h;
+/* ═══════════════════════════════════════════════════════════
+   RENDER RESULTS
+   ═══════════════════════════════════════════════════════════ */
+function renderResults() {
+  renderAsgn();
+  renderTally();
 }
 
 function renderAsgn() {
-    var asgns = R.assignments, lv = R.memberLevels, mm = R.members;
-    var gr = groupByDay(asgns);
-    var h = '';
-    DAYS.forEach(function(day) {
-        if (!gr[day] || !gr[day].length) return;
-        h += '<div class="asgn-day"><div class="asgn-day-head">' + DAY_FULL[day] + '</div>';
-        gr[day].forEach(function(a) {
-            var ct = a.isContainmentTest;
-            var solo = a.isSolo;
-            h += '<div class="asgn-item' + (ct ? ' is-ct' : '') + '" id="ai-' + a.id + '">';
-            h += '<div class="asgn-head"><div class="asgn-name">' + esc(a.name);
-            if (ct) h += ' <span class="badge badge-accent">🔒 CT</span>';
-            if (solo) h += ' <span class="badge badge-muted">👤 Solo</span>';
-            h += '</div><button class="btn btn-sm btn-ghost edit-trigger" onclick="startEdit(' + a.id + ')">✏️</button></div>';
+  if (!R) return;
+  var grouped = groupByDay(R.assignments);
+  var html = '';
+  DAYS.forEach(function(day) {
+    var items = grouped[day];
+    if (!items || items.length === 0) return;
+    html += '<div class="asgn-day-hdr">' + DAY_FULL[day] + '</div>';
+    items.forEach(function(asgn) {
+      var cls = 'asgn-card';
+      if (asgn.isCT) cls += ' is-ct';
+      if (asgn.isSolo && !asgn.isCT) cls += ' is-solo';
+      var anyEdited = false;
+      for (var r in asgn.roles) { if (asgn.roles[r].edited) anyEdited = true; }
+      if (anyEdited) cls += ' is-edited';
 
-            a.roleLabels.forEach(function(role) {
-                var m = a.roles[role]; if (!m) return;
-                var pn = a.pinned && a.pinned[role], ed = a.edited && a.edited[role];
-                h += '<div class="role-row"><span class="r-icon">' + rIcon(role) + '</span><span class="r-label">' + role + '</span>';
-                h += '<span class="r-name">' + esc(m) + '</span> <span class="badge ' + cseBadge(lv[m]) + '">CSE' + lv[m] + '</span>';
-                if (pn) h += ' <span style="font-size:.72rem">📌</span>';
-                if (ed) h += ' <span style="font-size:.72rem">✏️</span>';
-                h += '</div>';
-            });
+      html += '<div class="' + cls + '" id="acard_' + asgn.id + '">';
+      html += '<button class="asgn-edit-btn" onclick="startEdit(' + asgn.id + ')" title="Edit">✏️</button>';
 
-            // Edit panel
-            h += '<div class="edit-panel">';
-            a.roleLabels.forEach(function(role) {
-                h += '<div class="edit-row"><label>' + role + '</label><select class="esel" data-aid="' + a.id + '" data-role="' + role + '">';
-                mm.forEach(function(m) {
-                    var dis = (ct && role === 'Presenter' && !isCSE3R(m, lv)) ? ' disabled' : '';
-                    var sel = (a.roles[role] === m) ? ' selected' : '';
-                    h += '<option value="' + esc(m) + '"' + dis + sel + '>' + esc(m) + ' (CSE' + lv[m] + ')' + (dis ? ' — needs CSE3+' : '') + '</option>';
-                });
-                h += '</select></div>';
-            });
-            h += '<div class="edit-err hidden" id="ee-' + a.id + '"></div>';
-            h += '<div class="edit-btns"><button class="btn btn-sm btn-green" onclick="saveEdit(' + a.id + ')">Save</button><button class="btn btn-sm btn-ghost" onclick="cancelEdit(' + a.id + ')">Cancel</button></div>';
-            h += '</div></div>';
+      // Header
+      html += '<div class="asgn-head"><span class="asgn-name">' + esc(asgn.name) + '</span>';
+      if (asgn.isCT) html += '<span class="badge badge-ct">🔒 CT</span>';
+      if (asgn.isSolo && !asgn.isCT) html += '<span class="badge badge-solo">👤 Solo</span>';
+      if (anyEdited) html += '<span class="badge badge-edit">✏️ edited</span>';
+      html += '</div>';
+
+      // Roles
+      if (asgn.isSolo && !asgn.isCT) {
+        var soloPres = asgn.roles['Presenter'];
+        if (soloPres) {
+          var slvl = R.memberLevels[soloPres.member] || 2;
+          html += '<div style="padding:4px 0;"><span class="solo-label">🎯 Assigned</span> ';
+          html += '<span style="font-weight:700;">' + esc(soloPres.member) + '</span> ';
+          html += '<span class="badge ' + cseBadge(slvl) + '">CSE ' + slvl + '</span>';
+          if (soloPres.pinned) html += ' <span class="badge-pin">📌</span>';
+          html += '<div class="solo-sub">prep · notes · follow-up</div></div>';
+        }
+      } else {
+        html += '<div class="asgn-roles">';
+        var roleOrder = asgn.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+        roleOrder.forEach(function(role) {
+          if (!asgn.roles[role]) return;
+          var info = asgn.roles[role];
+          var mlvl = R.memberLevels[info.member] || 2;
+          html += '<div class="asgn-role">';
+          html += '<span class="asgn-role-icon">' + rIcon(role) + '</span>';
+          html += '<span class="asgn-role-label">' + role + '</span>';
+          html += '<span class="asgn-role-member">' + esc(info.member) + '</span> ';
+          html += '<span class="badge ' + cseBadge(mlvl) + '">CSE ' + mlvl + '</span>';
+          if (info.pinned) html += ' <span class="badge-pin">📌</span>';
+          html += '</div>';
         });
-        h += '</div>';
+        html += '</div>';
+      }
+
+      // Edit Panel
+      html += '<div class="edit-panel" id="ep_' + asgn.id + '">';
+      var editRoles = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
+      editRoles.forEach(function(role) {
+        if (!asgn.roles[role]) return;
+        html += '<div class="edit-row"><label>' + role + ':</label><select id="ed_' + asgn.id + '_' + role + '">';
+        R.members.forEach(function(m) {
+          var disabled = (asgn.isCT && role === 'Presenter' && !isCSE3R(m, R.memberLevels));
+          var sel = asgn.roles[role].member === m ? ' selected' : '';
+          html += '<option value="' + esc(m) + '"' + (disabled ? ' disabled' : '') + sel + '>' + esc(m) + (disabled ? ' (needs CSE3+)' : '') + '</option>';
+        });
+        html += '</select></div>';
+      });
+      html += '<div class="edit-error" id="ee_' + asgn.id + '"></div>';
+      html += '<div class="edit-actions">';
+      html += '<button class="btn btn-sm" style="background:var(--green);color:#fff;" onclick="saveEdit(' + asgn.id + ')">Save</button>';
+      html += '<button class="btn btn-sm btn-secondary" onclick="cancelEdit(' + asgn.id + ')">Cancel</button>';
+      html += '</div></div>';
+
+      html += '</div>';
     });
-    $('asgnOut').innerHTML = h;
+  });
+  document.getElementById('asgnPanel').innerHTML = html;
 }
 
-// ════════════════════════════════════════════════════════════════
-// EDIT
-// ════════════════════════════════════════════════════════════════
+function renderTally() {
+  if (!R) return;
+  var html = '<div class="section-title">Stats</div>';
+  R.members.forEach(function(m) {
+    var t = R.tally[m];
+    var lvl = R.memberLevels[m] || 2;
+    html += '<div class="stat-member">';
+    html += '<div class="stat-name">' + esc(m) + ' <span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span></div>';
+    html += '<div class="stat-roles">';
+    ALL_ROLES.forEach(function(r) {
+      if (t[r] > 0) {
+        html += '<span class="stat-role">' + rIcon(r) + ' <span class="count">' + t[r] + '</span></span>';
+      }
+    });
+    html += '<span class="stat-role" style="font-weight:700;">Total: <span class="count">' + t.Total + '</span></span>';
+    html += '</div>';
+    var d = R.dailyTally[m];
+    html += '<div class="stat-daily">' + DAYS.map(function(day) { return d[day]; }).join('-') + '</div>';
+    html += '</div>';
+  });
 
-function startEdit(id) { var el = document.getElementById('ai-' + id); if (el) el.classList.add('editing'); }
+  // Pairings
+  var pairs = [];
+  var done = {};
+  R.members.forEach(function(a) {
+    R.members.forEach(function(b) {
+      if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
+        var count = R.pairingTally[a][b] || 0;
+        if (count > 0) { pairs.push({ a:a, b:b, count:count }); done[a+'+'+b] = true; }
+      }
+    });
+  });
+  if (pairs.length > 0) {
+    pairs.sort(function(x, y) { return y.count - x.count; });
+    html += '<div class="stat-pairings"><div class="stat-pairings-title">🤝 Pairings</div>';
+    pairs.forEach(function(p) {
+      html += '<span class="pair-item">' + esc(p.a) + '+' + esc(p.b) + ' <span class="pair-count">' + p.count + '</span></span>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('statsPanel').innerHTML = html;
+}
+
+/* ──── Edit Functions ──── */
+function startEdit(id) {
+  var card = document.getElementById('acard_' + id);
+  if (card) card.classList.add('editing');
+}
 function cancelEdit(id) {
-    var el = document.getElementById('ai-' + id); if (el) el.classList.remove('editing');
-    var ee = document.getElementById('ee-' + id); if (ee) { ee.classList.add('hidden'); ee.textContent = ''; }
+  var card = document.getElementById('acard_' + id);
+  if (card) card.classList.remove('editing');
+  document.getElementById('ee_' + id).textContent = '';
 }
 function saveEdit(id) {
-    var a = R.assignments.find(function(x) { return x.id === id; }); if (!a) return;
-    var nr = {};
-    document.querySelectorAll('.esel[data-aid="' + id + '"]').forEach(function(s) { nr[s.dataset.role] = s.value; });
-    var vs = Object.values(nr);
-    if (new Set(vs).size < vs.length) {
-        var ee = document.getElementById('ee-' + id); ee.textContent = 'Cannot assign same person to multiple roles.'; ee.classList.remove('hidden'); return;
-    }
-    if (a.isContainmentTest && nr.Presenter && !isCSE3R(nr.Presenter, R.memberLevels)) {
-        var ee2 = document.getElementById('ee-' + id); ee2.textContent = 'CT Presenter must be CSE3+.'; ee2.classList.remove('hidden'); return;
-    }
-    if (!a.edited) a.edited = {};
-    Object.keys(nr).forEach(function(r) { if (a.roles[r] !== nr[r]) a.edited[r] = true; });
-    a.roles = nr;
-    recalc(); saveHist(); renderResults(); toast('Assignment updated!');
+  var asgn = null;
+  R.assignments.forEach(function(a) { if (a.id === id) asgn = a; });
+  if (!asgn) return;
+
+  var newRoles = {};
+  var used = {};
+  var err = '';
+  var editRoles = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
+
+  editRoles.forEach(function(role) {
+    if (!asgn.roles[role]) return;
+    var sel = document.getElementById('ed_' + id + '_' + role);
+    if (!sel) return;
+    var val = sel.value;
+    if (used[val]) { err = 'Duplicate: ' + val + ' assigned to multiple roles'; }
+    if (asgn.isCT && role === 'Presenter' && !isCSE3R(val, R.memberLevels)) { err = val + ' needs CSE3+ for CT Presenter'; }
+    used[val] = true;
+    var wasEdited = asgn.roles[role].member !== val;
+    newRoles[role] = { member: val, pinned: asgn.roles[role].pinned, edited: wasEdited || asgn.roles[role].edited };
+  });
+
+  if (err) { document.getElementById('ee_' + id).textContent = err; return; }
+
+  asgn.roles = newRoles;
+  recalc();
+  renderResults();
+  toast('Assignment updated', 'success');
 }
 
-// ════════════════════════════════════════════════════════════════
-// FORMAT + COPY
-// ════════════════════════════════════════════════════════════════
-
-function setFmt(f) { fmt = f; $$('.fmt-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); }); }
-
-function fmtTally() {
-    var mm = R.members, lv = R.memberLevels, t = R.tally, d = R.dailyTally, p = R.pairingTally, pto = R.ptoMembers || [], rl = R.roleLabels;
-    var prs = []; for (var i = 0; i < mm.length; i++) for (var j = i + 1; j < mm.length; j++) prs.push([mm[i], mm[j]]);
-
-    if (fmt === 'slack') {
-        var o = '📊 *Assignment Stats*\n';
-        o += '─────────────────\n\n';
-        mm.forEach(function(m) {
-            o += '👤 *' + m + '*  ·  CSE' + lv[m] + (pto.includes(m) ? '  🏖️ _OOO_' : '') + '\n';
-            o += '      ' + rl.map(function(r) { return r + ': *' + (t[m][r] || 0) + '*'; }).join('  ·  ') + '\n';
-            o += '      Total: *' + t[m].Total + '*  ·  Daily: _' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '_\n\n';
-        });
-        if (prs.length > 0) {
-            o += '🤝 *Pairings*\n';
-            prs.forEach(function(pr) {
-                o += '      ' + pr[0] + ' + ' + pr[1] + ': *' + p[pr[0]][pr[1]] + '*\n';
-            });
-        }
-        return o;
-    }
-
-    if (fmt === 'onenote') {
-        var o2 = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-        o2 += 'ASSIGNMENT STATS\n';
-        o2 += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-        mm.forEach(function(m, idx) {
-            o2 += m.toUpperCase() + '  —  CSE' + lv[m] + (pto.includes(m) ? '  (OOO)' : '') + '\n\n';
-            rl.forEach(function(r) {
-                o2 += '    ' + r + ':' + ' '.repeat(Math.max(1, 14 - r.length)) + (t[m][r] || 0) + '\n';
-            });
-            o2 += '    ' + '─'.repeat(20) + '\n';
-            o2 += '    Total:' + ' '.repeat(8) + t[m].Total + '\n\n';
-            o2 += '    Daily Spread\n';
-            DAYS.forEach(function(dy) {
-                o2 += '    ' + DAY_FULL[dy].slice(0, 3) + ':' + ' '.repeat(11) + (d[m][dy] || 0) + '\n';
-            });
-            if (idx < mm.length - 1) o2 += '\n\n';
-        });
-        if (prs.length > 0) {
-            o2 += '\n\nPAIRINGS\n\n';
-            prs.forEach(function(pr) {
-                o2 += '    ' + pr[0] + ' + ' + pr[1] + ':' + ' '.repeat(Math.max(1, 20 - pr[0].length - pr[1].length)) + p[pr[0]][pr[1]] + '\n';
-            });
-        }
-        return o2;
-    }
-
-    // Markdown
-    var o3 = '---\n\n## 📊 Assignment Stats\n\n';
-    mm.forEach(function(m) {
-        o3 += '### ' + m + ' (CSE' + lv[m] + ')' + (pto.includes(m) ? ' 🏖️' : '') + '\n\n';
-        o3 += '| Role | Count |\n|------|-------|\n';
-        rl.forEach(function(r) { o3 += '| ' + r + ' | ' + (t[m][r] || 0) + ' |\n'; });
-        o3 += '| **Total** | **' + t[m].Total + '** |\n\n';
-        o3 += '*Daily (M-T-W-T-F):* `' + DAYS.map(function(dy) { return d[m][dy] || 0; }).join('-') + '`\n\n';
-    });
-    if (prs.length > 0) {
-        o3 += '### Pairings\n\n';
-        o3 += '| Pair | Count |\n|------|-------|\n';
-        prs.forEach(function(pr) {
-            o3 += '| ' + pr[0] + ' + ' + pr[1] + ' | ' + p[pr[0]][pr[1]] + ' |\n';
-        });
-        o3 += '\n';
-    }
-    return o3;
+/* ═══════════════════════════════════════════════════════════
+   COPY / EXPORT FORMATS
+   ═══════════════════════════════════════════════════════════ */
+function setFmt(f) {
+  fmt = f;
+  document.querySelectorAll('.fmt-btn').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-fmt') === f);
+  });
 }
 
 function fmtAsgn() {
-    var lv = R.memberLevels, gr = groupByDay(R.assignments);
+  if (!R) return '';
+  var grouped = groupByDay(R.assignments);
 
-    if (fmt === 'slack') {
-        var o = '📅 *CST Weekly Assignments*\n';
-        o += '═══════════════════\n\n';
-        DAYS.forEach(function(day) {
-            if (!gr[day] || !gr[day].length) return;
-            o += '*━━━ ' + DAY_FULL[day].toUpperCase() + ' ━━━*\n\n';
-            gr[day].forEach(function(a) {
-                var flags = '';
-                if (a.isContainmentTest) flags += '  🔒 _CT_';
-                if (a.isSolo) flags += '  👤 _Solo_';
-                if (Object.keys(a.edited || {}).length) flags += '  ✏️';
-                o += '📌 *' + a.name + '*' + flags + '\n';
-                a.roleLabels.forEach(function(r) {
-                    var m = a.roles[r]; if (!m) return;
-                    var pin = (a.pinned && a.pinned[r]) ? '  📌' : '';
-                    o += '      ' + rIcon(r) + ' ' + r + ': *' + m + '* (CSE' + lv[m] + ')' + pin + '\n';
-                });
-                o += '\n';
-            });
-        });
-        return o;
-    }
-
-    if (fmt === 'onenote') {
-        var o2 = 'CST WEEKLY ASSIGNMENTS\n';
-        o2 += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n\n';
-        DAYS.forEach(function(day) {
-            if (!gr[day] || !gr[day].length) return;
-
-            // Day heading — prominent, with visual weight
-            o2 += '▸ ' + DAY_FULL[day].toUpperCase() + '\n';
-            o2 += '  ────────────────────────\n\n';
-
-            gr[day].forEach(function(a, idx) {
-                var flags = '';
-                if (a.isContainmentTest) flags += '  [CT]';
-                if (a.isSolo) flags += '  [Solo]';
-                if (Object.keys(a.edited || {}).length) flags += '  [edited]';
-
-                o2 += '    ' + a.name + flags + '\n\n';
-                a.roleLabels.forEach(function(r) {
-                    var m = a.roles[r]; if (!m) return;
-                    var pin = (a.pinned && a.pinned[r]) ? '  [pinned]' : '';
-                    o2 += '        ' + r + ':' + ' '.repeat(Math.max(1, 14 - r.length)) + m + '  (CSE' + lv[m] + ')' + pin + '\n';
-                });
-
-                // Breathing room between meetings
-                if (idx < gr[day].length - 1) o2 += '\n\n';
-            });
-
-            o2 += '\n\n\n';
-        });
-        return o2;
-    }
-
-    // Markdown
-    var o3 = '## 📅 CST Weekly Assignments\n\n';
+  if (fmt === 'slack') {
+    var out = '📅 *CST Weekly Assignments*\n';
     DAYS.forEach(function(day) {
-        if (!gr[day] || !gr[day].length) return;
-        o3 += '### ' + DAY_FULL[day] + '\n\n';
-        gr[day].forEach(function(a) {
-            var flags = '';
-            if (a.isContainmentTest) flags += ' `CT`';
-            if (a.isSolo) flags += ' `Solo`';
-            if (Object.keys(a.edited || {}).length) flags += ' ✏️';
-            o3 += '**' + a.name + '**' + flags + '\n';
-            a.roleLabels.forEach(function(r) {
-                var m = a.roles[r]; if (!m) return;
-                var pin = (a.pinned && a.pinned[r]) ? ' *(pinned)*' : '';
-                o3 += '- ' + r + ': ' + m + ' (CSE' + lv[m] + ')' + pin + '\n';
-            });
-            o3 += '\n';
-        });
+      var items = grouped[day];
+      if (!items || items.length === 0) return;
+      out += '\n*' + DAY_FULL[day] + '*\n';
+      items.forEach(function(a) {
+        var parts = [];
+        if (a.isSolo && !a.isCT) {
+          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
+          out += '  *' + a.name + '*  →  *' + sm + '* 👤\n';
+        } else {
+          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+          roleOrder.forEach(function(role) {
+            if (!a.roles[role]) return;
+            var info = a.roles[role];
+            var p = rIcon(role) + ' *' + info.member + '*';
+            if (info.pinned) p += '📌';
+            parts.push(p);
+          });
+          var line = '  *' + a.name + '*  →  ' + parts.join('  ·  ');
+          if (a.isCT) line += ' 🔒';
+          var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
+          if (anyEdited) line += ' ✏️';
+          out += line + '\n';
+        }
+      });
     });
-    return o3;
+    return out;
+  }
+
+  if (fmt === 'onenote') {
+    var out = 'CST WEEKLY ASSIGNMENTS\n══════════════════════════════\n';
+    DAYS.forEach(function(day) {
+      var items = grouped[day];
+      if (!items || items.length === 0) return;
+      out += '\n' + DAY_FULL[day].toUpperCase() + '\n──────────────────────────────\n';
+      items.forEach(function(a) {
+        var tags = [];
+        if (a.isCT) tags.push('[CT]');
+        if (a.isSolo && !a.isCT) tags.push('[Solo]');
+        var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
+        if (anyEdited) tags.push('[edited]');
+        var anyPinned = false; for (var r in a.roles) { if (a.roles[r].pinned) anyPinned = true; }
+        if (anyPinned) tags.push('[pinned]');
+
+        out += '\n  ' + a.name + (tags.length ? '  ' + tags.join(' ') : '') + '\n';
+        if (a.isSolo && !a.isCT) {
+          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
+          out += '    → ' + sm + '\n';
+        } else {
+          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+          roleOrder.forEach(function(role) {
+            if (!a.roles[role]) return;
+            var info = a.roles[role];
+            var label = pad(role + ':', 15);
+            var extra = (a.isCT && role === 'Presenter') ? '  (CSE' + (R.memberLevels[info.member] || 2) + ')' : '';
+            out += '    ' + label + info.member + extra + '\n';
+          });
+        }
+      });
+    });
+    return out;
+  }
+
+  if (fmt === 'markdown') {
+    var out = '## 📅 CST Weekly Assignments\n';
+    DAYS.forEach(function(day) {
+      var items = grouped[day];
+      if (!items || items.length === 0) return;
+      out += '\n### ' + DAY_FULL[day] + '\n\n';
+      items.forEach(function(a) {
+        var parts = [];
+        if (a.isSolo && !a.isCT) {
+          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
+          out += '**' + a.name + '** `Solo` → ' + sm + '\n';
+        } else {
+          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+          roleOrder.forEach(function(role) {
+            if (!a.roles[role]) return;
+            var info = a.roles[role];
+            var p = rIcon(role) + ' ' + info.member;
+            if (info.pinned) p += ' 📌';
+            parts.push(p);
+          });
+          var badges = [];
+          if (a.isCT) badges.push('`CT`');
+          var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
+          if (anyEdited) badges.push('`edited`');
+          out += '**' + a.name + '**' + (badges.length ? ' ' + badges.join(' ') : '') + ' → ' + parts.join(' · ') + '\n';
+        }
+      });
+    });
+    return out;
+  }
+  return '';
 }
 
-function cpTally() { cpText(fmtTally(), 'Stats copied (' + fmt + ')!'); }
-function cpAsgn() { cpText(fmtAsgn(), 'Assignments copied (' + fmt + ')!'); }
-function cpAll() {
-    var sep = fmt === 'markdown' ? '\n' : '\n\n';
-    cpText(fmtAsgn() + sep + fmtTally(), 'All copied (' + fmt + ')!');
-}
-function expTxt() {
-    var saved = fmt; fmt = 'onenote';
-    var text = fmtAsgn() + '\n\n' + fmtTally();
-    fmt = saved;
-    var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'cst_assignments_' + R.date + '.txt';
-    link.click();
-    URL.revokeObjectURL(link.href);
-    toast('File exported!');
-}
+function fmtTally() {
+  if (!R) return '';
+  var mtgCount = R.assignments.length;
+  var memCount = R.members.length;
 
-// ════════════════════════════════════════════════════════════════
-// CALENDAR EXPORT
-// ════════════════════════════════════════════════════════════════
-
-function updCal() {
-    if (!R) return;
-    var sel = $('calSel');
-    sel.innerHTML = '<option value="all">All Members</option>';
+  if (fmt === 'slack') {
+    var out = '─────────────────\n📊 *Stats*  _(' + mtgCount + ' meetings · ' + memCount + ' members)_\n';
     R.members.forEach(function(m) {
-        var opt = document.createElement('option');
-        opt.value = m; opt.textContent = m + ' (CSE' + R.memberLevels[m] + ')';
-        sel.appendChild(opt);
+      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
+      out += '\n  *' + m + '* · CSE' + lvl + '\n  ';
+      var parts = [];
+      ALL_ROLES.forEach(function(r) { if (t[r] > 0) parts.push(rIcon(r) + '*' + t[r] + '*'); });
+      out += parts.join('  ');
+      out += '  │  *' + t.Total + '* total  │  _' + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '_\n';
     });
+    // Pairings
+    var pairs = [], done = {};
+    R.members.forEach(function(a) {
+      R.members.forEach(function(b) {
+        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
+          var c = R.pairingTally[a][b] || 0;
+          if (c > 0) { pairs.push(a + '+' + b + ' *' + c + '*'); done[a+'+'+b] = true; }
+        }
+      });
+    });
+    if (pairs.length > 0) out += '\n  🤝 ' + pairs.join('  ·  ') + '\n';
+    return out;
+  }
+
+  if (fmt === 'onenote') {
+    var out = '══════════════════════════════\nSTATS  (' + mtgCount + ' meetings · ' + memCount + ' members)\n══════════════════════════════\n\n';
+    out += '  ' + pad('Name', 20) + pad('Pres', 7) + pad('Notes', 7) + pad('FU', 7) + pad('Total', 7) + 'Daily\n';
+    out += '  ──────────────────────────────────────────────────────\n';
+    R.members.forEach(function(m) {
+      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
+      var name = m + ' (CSE' + lvl + ')';
+      out += '  ' + pad(name, 20) + pad(String(t.Presenter), 7) + pad(String(t.Notes), 7) + pad(String(t['Follow-up']), 7) + pad(String(t.Total), 7) + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '\n';
+    });
+    var pairs = [], done = {};
+    R.members.forEach(function(a) {
+      R.members.forEach(function(b) {
+        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
+          var c = R.pairingTally[a][b] || 0;
+          if (c > 0) { pairs.push(a + '+' + b + ': ' + c); done[a+'+'+b] = true; }
+        }
+      });
+    });
+    if (pairs.length > 0) out += '\n  Pairings:  ' + pairs.join('  |  ') + '\n';
+    return out;
+  }
+
+  if (fmt === 'markdown') {
+    var out = '---\n\n## 📊 Stats\n\n';
+    out += '| Member | 🎤 | 📝 | ✅ | Total | Daily |\n';
+    out += '|--------|----|----|----|-------|-------|\n';
+    R.members.forEach(function(m) {
+      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
+      out += '| ' + m + ' (CSE' + lvl + ') | ' + t.Presenter + ' | ' + t.Notes + ' | ' + t['Follow-up'] + ' | **' + t.Total + '** | `' + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '` |\n';
+    });
+    var pairs = [], done = {};
+    R.members.forEach(function(a) {
+      R.members.forEach(function(b) {
+        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
+          var c = R.pairingTally[a][b] || 0;
+          if (c > 0) { pairs.push({ a:a, b:b, count:c }); done[a+'+'+b] = true; }
+        }
+      });
+    });
+    if (pairs.length > 0) {
+      out += '\n| Pair | Count |\n|------|-------|\n';
+      pairs.forEach(function(p) { out += '| ' + p.a + ' + ' + p.b + ' | ' + p.count + ' |\n'; });
+    }
+    return out;
+  }
+  return '';
+}
+
+function cpAsgn() { cpText(fmtAsgn(), 'Assignments copied!'); }
+function cpTally() { cpText(fmtTally(), 'Stats copied!'); }
+function cpAll() { cpText(fmtAsgn() + '\n' + fmtTally(), 'All copied!'); }
+
+function expTxt() {
+  var saved = fmt;
+  fmt = 'onenote';
+  var text = fmtAsgn() + '\n' + fmtTally();
+  fmt = saved;
+  var blob = new Blob([text], { type: 'text/plain' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'cst_assignments_' + (R ? R.date : 'export') + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported .txt', 'success');
+}
+
+/* ──── ICS Export ──── */
+function updCal() {
+  if (!R) return;
+  var sel = document.getElementById('calFilter');
+  var html = '<option value="all">All Members</option>';
+  R.members.forEach(function(m) { html += '<option value="' + esc(m) + '">' + esc(m) + '</option>'; });
+  sel.innerHTML = html;
 }
 
 function expICS() {
-    if (!R) return;
-    var lv = R.memberLevels, gr = groupByDay(R.assignments);
-    var filt = $('calSel').value, dur = parseInt($('calDur').value);
+  if (!R) return;
+  var filter = document.getElementById('calFilter').value;
+  var dur = parseInt(document.getElementById('calDur').value) || 60;
 
-    var today = new Date();
-    var mon = new Date(today);
-    mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    mon.setHours(9, 0, 0, 0);
+  // Find next Monday
+  var today = new Date();
+  var mon = new Date(today);
+  var dow = today.getDay();
+  mon.setDate(today.getDate() + ((dow === 0) ? 1 : (dow === 1) ? 0 : (8 - dow)));
+  mon.setHours(9, 0, 0, 0);
 
-    function icsDate(dt) {
-        return dt.getFullYear() + String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0') +
-            'T' + String(dt.getHours()).padStart(2, '0') + String(dt.getMinutes()).padStart(2, '0') + '00';
+  var dayOffsets = { Mon:0, Tue:1, Wed:2, Thu:3, Fri:4 };
+  var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CST Meeting Assigner//EN', 'CALSCALE:GREGORIAN'];
+
+  // Track per-day meeting index for staggering
+  var dayIdx = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0 };
+
+  R.assignments.forEach(function(asgn) {
+    // Filter
+    if (filter !== 'all') {
+      var hasMember = false;
+      for (var role in asgn.roles) { if (asgn.roles[role].member === filter) hasMember = true; }
+      if (!hasMember) return;
     }
 
-    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CST Meeting Assigner//EN'];
+    var evtDate = new Date(mon);
+    evtDate.setDate(mon.getDate() + dayOffsets[asgn.day]);
+    evtDate.setHours(9 + dayIdx[asgn.day], 0, 0, 0);
+    dayIdx[asgn.day]++;
 
-    DAYS.forEach(function(day, di) {
-        if (!gr[day]) return;
-        gr[day].forEach(function(asgn, mi) {
-            if (filt !== 'all' && !Object.values(asgn.roles).includes(filt)) return;
-            var start = new Date(mon);
-            start.setDate(mon.getDate() + di);
-            start.setHours(9 + mi, 0, 0, 0);
-            var end = new Date(start);
-            end.setMinutes(start.getMinutes() + dur);
+    var endDate = new Date(evtDate.getTime() + dur * 60000);
 
-            var title = asgn.name + (asgn.isContainmentTest ? ' 🔒' : '') + (asgn.isSolo ? ' 👤' : '');
-            if (filt !== 'all') {
-                var rs = asgn.roleLabels.filter(function(r) { return asgn.roles[r] === filt; });
-                if (rs.length) title += ' [' + rs.join(', ') + ']';
-            }
-            var desc = [];
-            if (asgn.isContainmentTest) desc.push('[CONTAINMENT TEST]');
-            asgn.roleLabels.forEach(function(r) { var m = asgn.roles[r]; if (m) desc.push(r + ': ' + m + ' (CSE' + lv[m] + ')'); });
+    function fmtDT(d) {
+      return d.getFullYear() +
+        ('0' + (d.getMonth() + 1)).slice(-2) +
+        ('0' + d.getDate()).slice(-2) + 'T' +
+        ('0' + d.getHours()).slice(-2) +
+        ('0' + d.getMinutes()).slice(-2) +
+        ('0' + d.getSeconds()).slice(-2);
+    }
 
-            lines.push('BEGIN:VEVENT');
-            lines.push('UID:' + icsDate(start) + '-' + asgn.name.replace(/\W/g, '') + '@cst');
-            lines.push('DTSTAMP:' + icsDate(new Date()));
-            lines.push('DTSTART:' + icsDate(start));
-            lines.push('DTEND:' + icsDate(end));
-            lines.push('SUMMARY:' + title);
-            lines.push('DESCRIPTION:' + desc.join('\\n'));
-            lines.push('END:VEVENT');
-        });
-    });
-    lines.push('END:VCALENDAR');
+    var title = asgn.name;
+    if (asgn.isCT) title += ' 🔒';
+    if (asgn.isSolo && !asgn.isCT) title += ' 👤';
+    if (filter !== 'all') {
+      for (var role in asgn.roles) {
+        if (asgn.roles[role].member === filter) title += ' [' + role + ']';
+      }
+    }
 
-    var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'cst_' + (filt === 'all' ? 'all' : filt.replace(/\s/g, '_')) + '.ics';
-    link.click();
-    URL.revokeObjectURL(link.href);
-    toast('Calendar exported!');
+    var desc = '';
+    if (asgn.isCT) desc += '[CONTAINMENT TEST]\\n';
+    if (asgn.isSolo && !asgn.isCT) {
+      var sm = asgn.roles['Presenter'] ? asgn.roles['Presenter'].member : '?';
+      var slvl = R.memberLevels[sm] || 2;
+      desc += 'Assigned: ' + sm + ' (CSE' + slvl + ')\\n[SOLO — handles prep, notes & follow-up]';
+    } else {
+      var roleOrder = asgn.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+      roleOrder.forEach(function(role) {
+        if (!asgn.roles[role]) return;
+        var info = asgn.roles[role];
+        var rlvl = R.memberLevels[info.member] || 2;
+        desc += role + ': ' + info.member + ' (CSE' + rlvl + ')\\n';
+      });
+    }
+
+    var uid = fmtDT(evtDate) + '-' + asgn.name.replace(/[^a-zA-Z0-9]/g, '') + '@cst';
+    lines.push('BEGIN:VEVENT');
+    lines.push('UID:' + uid);
+    lines.push('DTSTART:' + fmtDT(evtDate));
+    lines.push('DTEND:' + fmtDT(endDate));
+    lines.push('SUMMARY:' + title);
+    lines.push('DESCRIPTION:' + desc);
+    lines.push('END:VEVENT');
+  });
+
+  lines.push('END:VCALENDAR');
+
+  var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+  var url = URL.createObjectURL(blob);
+  var dl = document.createElement('a');
+  dl.href = url;
+  dl.download = 'cst_assignments_' + (R ? R.date : 'export') + '.ics';
+  dl.click();
+  URL.revokeObjectURL(url);
+  toast('Exported .ics', 'success');
 }
 
-// ════════════════════════════════════════════════════════════════
-// HISTORY
-// ════════════════════════════════════════════════════════════════
-
+/* ═══════════════════════════════════════════════════════════
+   HISTORY
+   ═══════════════════════════════════════════════════════════ */
+function getHist() {
+  try { return JSON.parse(localStorage.getItem('meetingHistory') || '[]'); } catch(e) { return []; }
+}
 function saveHist() {
-    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
-    var idx = h.findIndex(function(x) { return x.id === R.id; });
-    if (idx !== -1) h[idx] = R; else h.unshift(R);
-    h = h.slice(0, 20);
-    localStorage.setItem('meetingHistory', JSON.stringify(h));
+  if (!R) return;
+  try {
+    var hist = getHist();
+    hist.unshift(R);
+    if (hist.length > 20) hist = hist.slice(0, 20);
+    localStorage.setItem('meetingHistory', JSON.stringify(hist));
     renderHist();
+  } catch(e) {}
 }
-
 function renderHist() {
-    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
-    if (!h.length) {
-        $('histOut').innerHTML = '<span class="empty-state">No assignment history yet.</span>';
-        $('clrHistBtn').style.display = 'none';
-        return;
-    }
-    $('clrHistBtn').style.display = '';
-    var html = '';
-    h.forEach(function(item, i) {
-        var ctC = 0;
-        if (item.containmentTests) Object.values(item.containmentTests).forEach(function(v) { if (v) ctC++; });
-        var soloC = 0;
-        if (item.soloMeetings) Object.values(item.soloMeetings).forEach(function(v) { if (v) soloC++; });
-        var mc = (item.assignments || []).length;
-        html += '<div class="hist-item" id="hi-' + i + '">';
-        html += '<div class="hist-head" onclick="document.getElementById(\'hi-' + i + '\').classList.toggle(\'open\')">';
-        html += '<span>' + esc(item.date) + ' — ' + item.roleMode + '-person' + (ctC ? ', ' + ctC + ' CT' : '') + (soloC ? ', ' + soloC + ' solo' : '') + ' — ' + mc + ' mtgs — ' + (item.members || []).length + ' members</span>';
-        html += '<span class="arrow">▸</span></div>';
-        html += '<div class="hist-body"><pre>';
-        if (item.members && item.tally) item.members.forEach(function(m) {
-            html += esc(m) + ' (CSE' + item.memberLevels[m] + '): Total ' + item.tally[m].Total + '\n';
-        });
-        html += '</pre><button class="btn btn-sm btn-accent" onclick="loadHist(' + i + ')">Load &amp; View</button></div></div>';
+  var hist = getHist();
+  var html = '';
+  if (hist.length === 0) {
+    html = '<div style="color:var(--tx3);font-size:0.82rem;text-align:center;padding:20px 0;">No history yet</div>';
+  } else {
+    hist.forEach(function(h, i) {
+      var ctCount = 0, soloCount = 0;
+      if (h.containmentTests) for (var k in h.containmentTests) { if (h.containmentTests[k]) ctCount++; }
+      if (h.soloMeetings) for (var k in h.soloMeetings) { if (h.soloMeetings[k]) soloCount++; }
+      html += '<div class="hist-item" onclick="loadHist(' + i + ')">';
+      html += '<div class="hist-date">' + (h.date || 'Unknown') + '</div>';
+      html += '<div class="hist-meta">' + (h.assignments ? h.assignments.length : 0) + ' meetings · ' + (h.members ? h.members.length : 0) + ' members';
+      if (ctCount > 0) html += ' · ' + ctCount + ' CT';
+      if (soloCount > 0) html += ' · ' + soloCount + ' solo';
+      html += '</div></div>';
     });
-    $('histOut').innerHTML = html;
+  }
+  document.getElementById('histList').innerHTML = html;
 }
-
 function loadHist(i) {
-    var h = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
-    if (!h[i]) return;
-    R = h[i];
-    state.members = R.members;
-    state.memberLevels = R.memberLevels;
-    renderResults(); updCal();
-    $('step1').classList.add('hidden');
-    $('step2').classList.add('hidden');
-    $('results').classList.remove('hidden');
-    toast('Loaded from history!');
+  var hist = getHist();
+  if (!hist[i]) return;
+  R = hist[i];
+  updCal();
+  renderResults();
+  showStep(3);
+  toggleHist();
+  toast('Loaded from history', 'success');
+}
+function toggleHist() {
+  document.getElementById('histPanel').classList.toggle('open');
+  document.getElementById('histOverlay').classList.toggle('open');
+}
+function showClearModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function clearHist() {
+  try { localStorage.removeItem('meetingHistory'); } catch(e) {}
+  renderHist();
+  closeModal();
+  toast('History cleared', 'success');
 }
 
-function showClearModal() {
-    $('modalRoot').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal-box"><h3>Clear History?</h3><p>This will permanently delete all saved assignments.</p><div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="clearHist()">Clear All</button></div></div></div>';
-}
-function closeModal() { $('modalRoot').innerHTML = ''; }
-function clearHist() { localStorage.removeItem('meetingHistory'); renderHist(); closeModal(); toast('History cleared.'); }
-
-// ════════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════════
-
+/* Init */
 renderHist();
+updateMinInfo();
 </script>
 </body>
 </html>

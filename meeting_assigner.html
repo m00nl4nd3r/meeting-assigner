@@ -3,15 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CST Meeting Assigner v5.0.0</title>
+<title>CST Meeting Assigner v5.1.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════
-   CST Meeting Assigner — Theme & Base
-   ═══════════════════════════════════════════════ */
 :root { --tr: 0.25s ease; }
-
 [data-theme="dark"] {
   --bg0: #111110; --bg1: #1a1918; --bg2: #222120; --bg3: #2a2928;
   --tx0: #ededec; --tx1: #c8c7c5; --tx2: #8a8884; --tx3: #5e5c58;
@@ -20,6 +16,7 @@
   --border: #333230; --shadow: rgba(0,0,0,0.4);
   --card: #1a1918; --card-hover: #222120;
   --input-bg: #222120; --input-border: #3a3938;
+  --internal: #4a9; --internal-bg: rgba(68,170,153,0.12);
 }
 [data-theme="light"] {
   --bg0: #f4f3f0; --bg1: #ffffff; --bg2: #f8f7f5; --bg3: #f0efec;
@@ -29,8 +26,8 @@
   --border: #e0dfdc; --shadow: rgba(0,0,0,0.08);
   --card: #ffffff; --card-hover: #f8f7f5;
   --input-bg: #f8f7f5; --input-border: #d8d7d4;
+  --internal: #2a8070; --internal-bg: rgba(42,128,112,0.1);
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -41,28 +38,22 @@ body {
 }
 .mono { font-family: 'JetBrains Mono', 'SF Mono', monospace; }
 
-/* ═══════════════════════════════════════════════
-   Layout
-   ═══════════════════════════════════════════════ */
 .shell { max-width: 880px; margin: 0 auto; padding: 20px 24px 60px; }
 header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 0 16px; border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
+  padding: 18px 0 16px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
 }
 .logo { display: flex; align-items: baseline; gap: 10px; }
-.logo h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--tx0); }
+.logo h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
 .logo .ver { font-size: 0.72rem; color: var(--tx3); font-weight: 500; letter-spacing: 0.03em; }
 .hdr-right { display: flex; align-items: center; gap: 8px; }
 
-/* Buttons */
 button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 button:focus-visible { box-shadow: 0 0 0 2px var(--accent); border-radius: 6px; }
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 9px 18px; border-radius: 8px;
-  font-size: 0.85rem; font-weight: 600;
-  transition: all var(--tr);
+  font-size: 0.85rem; font-weight: 600; transition: all var(--tr);
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
@@ -75,18 +66,15 @@ button:focus-visible { box-shadow: 0 0 0 2px var(--accent); border-radius: 6px; 
 .btn-icon {
   width: 36px; height: 36px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  background: var(--bg3); color: var(--tx2); font-size: 1.1rem;
-  transition: all var(--tr);
+  background: var(--bg3); color: var(--tx2); font-size: 1.1rem; transition: all var(--tr);
 }
 .btn-icon:hover { background: var(--border); color: var(--tx0); }
 
-/* Inputs */
 input[type="text"], select, textarea {
   font-family: inherit; font-size: 0.88rem;
   background: var(--input-bg); color: var(--tx0);
   border: 1px solid var(--input-border); border-radius: 8px;
-  padding: 9px 13px; transition: border-color var(--tr);
-  width: 100%;
+  padding: 9px 13px; transition: border-color var(--tr); width: 100%;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent); outline: none;
@@ -96,14 +84,6 @@ textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
 select { cursor: pointer; }
 label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 
-/* Cards */
-.card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px 18px;
-  transition: all var(--tr);
-}
-
-/* Badges */
 .badge {
   display: inline-flex; align-items: center;
   padding: 2px 8px; border-radius: 5px;
@@ -112,58 +92,35 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .badge-cse1, .badge-cse2 { background: var(--bg3); color: var(--tx3); }
 .badge-cse3 { background: rgba(102,153,238,0.15); color: var(--blue); }
 .badge-cse4, .badge-cse5 { background: rgba(168,141,224,0.15); color: var(--purple); }
-.badge-day {
-  font-size: 0.68rem; padding: 2px 7px; border-radius: 4px;
-  background: var(--bg3); color: var(--tx2);
-}
+.badge-day { font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; background: var(--bg3); color: var(--tx2); }
 .badge-ct { background: rgba(224,120,80,0.15); color: var(--accent); }
 .badge-solo { background: rgba(168,141,224,0.15); color: var(--purple); }
+.badge-internal { background: var(--internal-bg); color: var(--internal); }
 .badge-edit { background: rgba(92,184,122,0.15); color: var(--green); }
 .badge-pin { color: var(--accent); font-size: 0.8rem; }
 
-/* ═══════════════════════════════════════════════
-   Step Wizard
-   ═══════════════════════════════════════════════ */
 .step { display: none; animation: fadeUp 0.3s ease; }
 .step.active { display: block; }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.step-indicator {
-  display: flex; align-items: center; gap: 0; margin-bottom: 28px;
-}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
 .step-dot {
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.75rem; font-weight: 700;
-  background: var(--bg3); color: var(--tx3);
-  transition: all var(--tr);
+  background: var(--bg3); color: var(--tx3); transition: all var(--tr);
 }
 .step-dot.done { background: var(--green); color: #fff; }
 .step-dot.current { background: var(--accent); color: #fff; }
 .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 6px; }
+.section-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.01em; }
+.section-hint { font-size: 0.78rem; color: var(--tx3); margin-top: 4px; margin-bottom: 12px; line-height: 1.5; }
 
-.section-title {
-  font-size: 1.05rem; font-weight: 700; margin-bottom: 14px;
-  color: var(--tx0); letter-spacing: -0.01em;
-}
-.section-hint {
-  font-size: 0.78rem; color: var(--tx3); margin-top: 4px; margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-/* Role Mode Toggle */
-.mode-toggle {
-  display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px;
-  overflow: hidden; margin-bottom: 10px;
-}
+.mode-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
 .mode-btn {
   flex: 1; padding: 11px 14px; text-align: center;
   font-size: 0.82rem; font-weight: 600;
   background: var(--bg2); color: var(--tx2);
-  border-right: 1px solid var(--border);
-  transition: all var(--tr); cursor: pointer;
+  border-right: 1px solid var(--border); transition: all var(--tr); cursor: pointer;
 }
 .mode-btn:last-child { border-right: none; }
 .mode-btn.active { background: var(--accent); color: #fff; }
@@ -174,7 +131,6 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
   line-height: 1.55; border-left: 3px solid var(--accent);
 }
 
-/* Member List */
 .member-add-form { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
 .member-add-form input { flex: 1; }
 .member-add-form select { width: 110px; flex-shrink: 0; }
@@ -195,91 +151,44 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .member-remove:hover { background: var(--red); color: #fff; }
 .min-info { font-size: 0.78rem; color: var(--tx3); margin-bottom: 16px; }
 
-/* Meeting textareas */
-.meeting-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 14px; margin-bottom: 20px;
-}
+.meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 .meeting-day { display: flex; flex-direction: column; gap: 5px; }
 .meeting-day label { font-weight: 600; color: var(--tx1); }
 .meeting-day textarea { min-height: 80px; font-size: 0.84rem; }
+.meeting-grid .meeting-day:nth-child(5) { grid-column: 1 / -1; }
 
-/* ═══════════════════════════════════════════════
-   Step 2: Meeting Cards
-   ═══════════════════════════════════════════════ */
 .day-separator {
   font-size: 0.78rem; font-weight: 700; color: var(--tx3);
   text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 10px 0 6px; margin-top: 14px;
-  border-bottom: 1px solid var(--border);
+  padding: 10px 0 6px; margin-top: 14px; border-bottom: 1px solid var(--border);
 }
 .day-separator:first-child { margin-top: 0; }
 .mtg-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-  padding: 14px 16px; margin: 10px 0;
-  transition: all var(--tr);
+  padding: 14px 16px; margin: 10px 0; transition: all var(--tr);
 }
 .mtg-card:hover { border-color: var(--tx3); }
-.mtg-card-head {
-  display: flex; align-items: center; gap: 8px;
-  font-weight: 600; font-size: 0.92rem; margin-bottom: 10px;
-}
+.mtg-card.is-internal { border-left: 3px solid var(--internal); opacity: 0.85; }
+.mtg-card-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.92rem; margin-bottom: 10px; }
 .mtg-flags { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-.mtg-flag {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 0.8rem; color: var(--tx1); cursor: pointer;
-  user-select: none;
-}
-.mtg-flag input[type="checkbox"] {
-  accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;
-}
-.avail-row, .pto-row, .pin-row {
-  display: flex; flex-wrap: wrap; gap: 6px 14px;
-  align-items: center; margin-bottom: 8px;
-  padding: 6px 0;
-}
-.avail-row label, .pto-row label { font-size: 0.72rem; }
-.row-label {
-  font-size: 0.72rem; font-weight: 600; color: var(--tx3);
-  min-width: 65px; text-transform: uppercase; letter-spacing: 0.05em;
-}
-.avail-item, .pto-item {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 0.82rem; color: var(--tx1);
-}
-.avail-item input, .pto-item input {
-  width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer;
-}
-.pin-item {
-  display: flex; align-items: center; gap: 5px; font-size: 0.8rem;
-}
+.mtg-flag { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--tx1); cursor: pointer; user-select: none; }
+.mtg-flag input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+.avail-row, .pto-row, .pin-row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin-bottom: 8px; padding: 6px 0; }
+.row-label { font-size: 0.72rem; font-weight: 600; color: var(--tx3); min-width: 65px; text-transform: uppercase; letter-spacing: 0.05em; }
+.avail-item, .pto-item { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--tx1); }
+.avail-item input, .pto-item input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+.pin-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
 .pin-item select { width: 130px; padding: 5px 8px; font-size: 0.78rem; }
+.internal-note { font-size: 0.76rem; color: var(--internal); padding: 8px 0 2px; font-style: italic; }
 
-/* ═══════════════════════════════════════════════
-   Step 3: Results
-   ═══════════════════════════════════════════════ */
 .results-bar {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  padding: 12px 0; margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 12px 0; margin-bottom: 16px; border-bottom: 1px solid var(--border);
 }
-.fmt-toggle {
-  display: flex; gap: 0; border: 1px solid var(--border);
-  border-radius: 8px; overflow: hidden;
-}
-.fmt-btn {
-  padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
-  background: var(--bg2); color: var(--tx2);
-  border-right: 1px solid var(--border);
-  transition: all var(--tr); cursor: pointer; border: none;
-}
-.fmt-btn:last-child { border-right: none; }
-.fmt-btn.active { background: var(--accent); color: #fff; }
 .bar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
 .cal-select { width: 140px; padding: 5px 8px; font-size: 0.78rem; }
 .dur-select { width: 90px; padding: 5px 8px; font-size: 0.78rem; }
 
-/* Assignment Cards */
 .asgn-day-hdr {
   font-size: 0.82rem; font-weight: 700; color: var(--tx3);
   text-transform: uppercase; letter-spacing: 0.06em;
@@ -288,27 +197,22 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .asgn-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 10px; padding: 14px 16px; margin: 8px 0;
-  border-left: 3px solid var(--border); transition: all var(--tr);
-  position: relative;
+  border-left: 3px solid var(--border); transition: all var(--tr); position: relative;
 }
 .asgn-card.is-ct { border-left-color: var(--accent); }
 .asgn-card.is-solo { border-left-color: var(--purple); }
+.asgn-card.is-internal { border-left-color: var(--internal); }
 .asgn-card.is-edited { border-left-color: var(--green); }
-.asgn-head {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-  flex-wrap: wrap;
-}
+.asgn-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
 .asgn-name { font-weight: 700; font-size: 0.92rem; }
 .asgn-roles { display: flex; flex-direction: column; gap: 4px; }
-.asgn-role {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.85rem; padding: 3px 0;
-}
+.asgn-role { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 3px 0; }
 .asgn-role-icon { font-size: 0.9rem; min-width: 20px; text-align: center; }
 .asgn-role-label { font-size: 0.75rem; color: var(--tx3); min-width: 70px; font-weight: 500; }
 .asgn-role-member { font-weight: 600; }
 .solo-label { font-size: 0.8rem; color: var(--purple); font-weight: 600; }
 .solo-sub { font-size: 0.72rem; color: var(--tx3); margin-top: 2px; }
+.internal-label { font-size: 0.8rem; color: var(--internal); font-style: italic; }
 .asgn-edit-btn {
   position: absolute; top: 12px; right: 12px;
   width: 30px; height: 30px; border-radius: 6px;
@@ -318,23 +222,17 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 }
 .asgn-edit-btn:hover { background: var(--accent); color: #fff; }
 
-/* Edit Panel */
 .edit-panel {
   display: none; margin-top: 10px; padding: 12px 14px;
-  background: var(--bg2); border-radius: 8px;
-  border: 1px dashed var(--border);
+  background: var(--bg2); border-radius: 8px; border: 1px dashed var(--border);
 }
 .asgn-card.editing .edit-panel { display: block; animation: fadeUp 0.2s ease; }
-.edit-row {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 8px; font-size: 0.84rem;
-}
+.edit-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.84rem; }
 .edit-row label { min-width: 80px; font-weight: 600; color: var(--tx2); }
 .edit-row select { flex: 1; }
 .edit-actions { display: flex; gap: 8px; margin-top: 10px; }
 .edit-error { font-size: 0.78rem; color: var(--red); margin-top: 6px; }
 
-/* Stats Panel */
 .stats-panel { margin-top: 20px; }
 .stat-member {
   background: var(--card); border: 1px solid var(--border);
@@ -345,24 +243,11 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .stat-role { display: flex; align-items: center; gap: 4px; }
 .stat-role .count { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .stat-daily { font-size: 0.78rem; color: var(--tx2); font-family: 'JetBrains Mono', monospace; }
-.stat-pairings {
-  background: var(--bg2); border-radius: 8px; padding: 12px 14px;
-  margin-top: 10px; font-size: 0.82rem;
-}
+.stat-pairings { background: var(--bg2); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 0.82rem; }
 .stat-pairings-title { font-weight: 600; color: var(--tx2); margin-bottom: 6px; font-size: 0.78rem; }
 .pair-item { display: inline-flex; align-items: center; gap: 4px; margin-right: 14px; margin-bottom: 4px; }
 .pair-count { font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
 
-/* History Sidebar */
-.hist-toggle {
-  position: fixed; right: 16px; bottom: 16px; z-index: 90;
-  width: 42px; height: 42px; border-radius: 50%;
-  background: var(--accent); color: #fff; font-size: 1.1rem;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px var(--shadow); cursor: pointer; border: none;
-  transition: all var(--tr);
-}
-.hist-toggle:hover { transform: scale(1.08); }
 .hist-panel {
   position: fixed; right: -340px; top: 0; bottom: 0; width: 320px;
   background: var(--bg1); border-left: 1px solid var(--border);
@@ -371,10 +256,7 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
   box-shadow: -8px 0 32px var(--shadow);
 }
 .hist-panel.open { right: 0; }
-.hist-overlay {
-  display: none; position: fixed; inset: 0; z-index: 95;
-  background: rgba(0,0,0,0.3);
-}
+.hist-overlay { display: none; position: fixed; inset: 0; z-index: 95; background: rgba(0,0,0,0.3); }
 .hist-overlay.open { display: block; }
 .hist-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
 .hist-head h3 { font-size: 1rem; font-weight: 700; }
@@ -387,25 +269,19 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .hist-date { font-weight: 600; margin-bottom: 3px; }
 .hist-meta { color: var(--tx3); font-size: 0.75rem; }
 
-/* Toast */
 .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column-reverse; gap: 8px; }
 .toast {
   padding: 10px 18px; border-radius: 8px; font-size: 0.84rem; font-weight: 500;
   background: var(--bg2); color: var(--tx0); border: 1px solid var(--border);
   box-shadow: 0 6px 20px var(--shadow);
-  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
-  max-width: 320px;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards; max-width: 320px;
 }
 .toast.error { border-color: var(--red); color: var(--red); }
 .toast.success { border-color: var(--green); color: var(--green); }
 @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-8px); } }
 
-/* Modal */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
-}
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
 .modal-overlay.open { display: flex; }
 .modal-box {
   background: var(--bg1); border: 1px solid var(--border); border-radius: 14px;
@@ -416,7 +292,6 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .modal-box p { font-size: 0.85rem; color: var(--tx2); margin-bottom: 18px; }
 .modal-actions { display: flex; gap: 10px; justify-content: center; }
 
-/* Responsive */
 @media (max-width: 640px) {
   .meeting-grid { grid-template-columns: 1fr; }
   .results-bar { flex-direction: column; align-items: flex-start; }
@@ -424,73 +299,56 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
   .shell { padding: 14px 16px 50px; }
   .hist-panel { width: 280px; right: -300px; }
 }
-/* Friday full width */
-.meeting-grid .meeting-day:nth-child(5) { grid-column: 1 / -1; }
 </style>
 </head>
 <body>
 <div class="shell">
   <header>
-    <div class="logo">
-      <h1>CST Meeting Assigner</h1>
-      <span class="ver">v5.0.0</span>
-    </div>
+    <div class="logo"><h1>CST Meeting Assigner</h1><span class="ver">v5.1.0</span></div>
     <div class="hdr-right">
-      <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark/light theme">◑</button>
-      <button class="btn-icon" onclick="toggleHist()" title="History" aria-label="Open history">☰</button>
+      <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">◑</button>
+      <button class="btn-icon" onclick="toggleHist()" title="History" aria-label="History">☰</button>
     </div>
   </header>
-
-  <!-- Step Indicator -->
   <div class="step-indicator">
-    <div class="step-dot current" id="dot1">1</div>
-    <div class="step-line"></div>
-    <div class="step-dot" id="dot2">2</div>
-    <div class="step-line"></div>
+    <div class="step-dot current" id="dot1">1</div><div class="step-line"></div>
+    <div class="step-dot" id="dot2">2</div><div class="step-line"></div>
     <div class="step-dot" id="dot3">3</div>
   </div>
 
-  <!-- ═══ STEP 1: Team Setup ═══ -->
+  <!-- STEP 1 -->
   <div class="step active" id="step1">
     <div class="section-title">Role Mode</div>
-    <div class="mode-toggle" id="modeToggle">
+    <div class="mode-toggle">
       <div class="mode-btn" data-mode="1" onclick="setRoleMode(1)">Solo</div>
       <div class="mode-btn active" data-mode="2" onclick="setRoleMode(2)">2-Person</div>
       <div class="mode-btn" data-mode="3" onclick="setRoleMode(3)">3-Person</div>
     </div>
-    <div class="mode-info">
-      Containment Tests always use 3 people regardless of mode. CSE3+ required as Presenter. Individual meetings can be overridden to Solo in Step 2.
-    </div>
-
+    <div class="mode-info">Containment Tests always use 3 people regardless of mode. CSE3+ required as Presenter. Override individual meetings to Solo or Internal in Step 2.</div>
     <div class="section-title">Team Members</div>
     <div class="member-add-form">
       <input type="text" id="memberNameInput" placeholder="Member name" onkeydown="if(event.key==='Enter'){event.preventDefault();addMember();}">
       <select id="memberLevelInput">
-        <option value="1">CSE 1</option>
-        <option value="2" selected>CSE 2</option>
-        <option value="3">CSE 3</option>
-        <option value="4">CSE 4</option>
-        <option value="5">CSE 5</option>
+        <option value="1">CSE 1</option><option value="2" selected>CSE 2</option>
+        <option value="3">CSE 3</option><option value="4">CSE 4</option><option value="5">CSE 5</option>
       </select>
       <button class="btn btn-primary btn-sm" onclick="addMember()">Add</button>
     </div>
     <div class="member-list" id="memberList"></div>
     <div class="min-info" id="minInfo">Min: 2 members for 2-person mode</div>
-
     <div class="section-title" style="margin-top:20px;">Meetings</div>
-    <div class="section-hint">One meeting per line. Mark containment tests and solo meetings in Step 2.</div>
-    <div class="meeting-grid" id="meetingGrid">
+    <div class="section-hint">One meeting per line. Mark containment tests, solo, and internal meetings in Step 2.</div>
+    <div class="meeting-grid">
       <div class="meeting-day"><label>Monday</label><textarea id="mtgMon" placeholder="One meeting per line"></textarea></div>
       <div class="meeting-day"><label>Tuesday</label><textarea id="mtgTue" placeholder="One meeting per line"></textarea></div>
       <div class="meeting-day"><label>Wednesday</label><textarea id="mtgWed" placeholder="One meeting per line"></textarea></div>
       <div class="meeting-day"><label>Thursday</label><textarea id="mtgThu" placeholder="One meeting per line"></textarea></div>
       <div class="meeting-day"><label>Friday</label><textarea id="mtgFri" placeholder="One meeting per line"></textarea></div>
     </div>
-
-    <button class="btn btn-primary" id="continueBtn" onclick="goToStep2()">Continue →</button>
+    <button class="btn btn-primary" onclick="goToStep2()">Continue →</button>
   </div>
 
-  <!-- ═══ STEP 2: Meeting Config ═══ -->
+  <!-- STEP 2 -->
   <div class="step" id="step2">
     <div class="section-title">Meeting Configuration</div>
     <div class="section-hint">Set availability, PTO, pins, and flags for each meeting.</div>
@@ -501,66 +359,46 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
     </div>
   </div>
 
-  <!-- ═══ STEP 3: Results ═══ -->
+  <!-- STEP 3 -->
   <div class="step" id="step3">
     <div class="results-bar">
-      <div class="fmt-toggle">
-        <button class="fmt-btn active" data-fmt="slack" onclick="setFmt('slack')">Slack</button>
-        <button class="fmt-btn" data-fmt="onenote" onclick="setFmt('onenote')">OneNote</button>
-        <button class="fmt-btn" data-fmt="markdown" onclick="setFmt('markdown')">Markdown</button>
-      </div>
-      <div class="bar-sep"></div>
+      <button class="btn btn-sm btn-primary" onclick="cpAll()">Copy All</button>
       <button class="btn btn-sm btn-secondary" onclick="cpAsgn()">Copy Assignments</button>
       <button class="btn btn-sm btn-secondary" onclick="cpTally()">Copy Stats</button>
-      <button class="btn btn-sm btn-primary" onclick="cpAll()">Copy All</button>
       <div class="bar-sep"></div>
       <button class="btn btn-sm btn-ghost" onclick="expTxt()">Export .txt</button>
       <button class="btn btn-sm btn-ghost" onclick="expICS()">Export .ics</button>
-      <select class="cal-select" id="calFilter" onchange="updCal()"><option value="all">All Members</option></select>
+      <select class="cal-select" id="calFilter"><option value="all">All Members</option></select>
       <select class="dur-select" id="calDur">
-        <option value="30">30 min</option>
-        <option value="45">45 min</option>
-        <option value="60" selected>60 min</option>
-        <option value="90">90 min</option>
+        <option value="30">30 min</option><option value="45">45 min</option>
+        <option value="60" selected>60 min</option><option value="90">90 min</option>
       </select>
     </div>
     <div id="asgnPanel"></div>
     <div id="statsPanel" class="stats-panel"></div>
-    <div style="margin-top:24px;">
-      <button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button>
-    </div>
+    <div style="margin-top:24px;"><button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button></div>
   </div>
 </div>
 
-<!-- History -->
 <div class="hist-overlay" id="histOverlay" onclick="toggleHist()"></div>
 <div class="hist-panel" id="histPanel">
-  <div class="hist-head">
-    <h3>History</h3>
-    <button class="btn btn-sm btn-ghost" onclick="toggleHist()">✕</button>
-  </div>
+  <div class="hist-head"><h3>History</h3><button class="btn btn-sm btn-ghost" onclick="toggleHist()">✕</button></div>
   <div id="histList"></div>
   <button class="btn btn-sm btn-secondary" style="width:100%;margin-top:12px;" onclick="showClearModal()">Clear History</button>
 </div>
-
-<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box">
-    <h3>Clear History?</h3>
-    <p>This will permanently remove all saved assignment history.</p>
+  <div class="modal-box"><h3>Clear History?</h3><p>This will permanently remove all saved assignment history.</p>
     <div class="modal-actions">
       <button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancel</button>
       <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="clearHist()">Clear All</button>
     </div>
   </div>
 </div>
-
-<!-- Toast Container -->
 <div class="toast-container" id="toastBox"></div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   CST Meeting Assigner v5.0.0 — Core Logic
+   CST Meeting Assigner v5.1.0
    ═══════════════════════════════════════════════════════════ */
 var DAYS = ['Mon','Tue','Wed','Thu','Fri'];
 var DAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday'};
@@ -568,32 +406,30 @@ var ALL_ROLES = ['Presenter','Notes','Follow-up'];
 
 var state = {
   members: [], memberLevels: {}, meetings: [],
-  roleMode: 2, ct: {}, solo: {},
+  roleMode: 2, ct: {}, solo: {}, internal: {},
   savedAv: {}, savedPTO: {}, savedPins: {}
 };
 var R = null;
-var fmt = 'slack';
 
 /* ──── Utilities ──── */
-function esc(s) {
-  var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
-}
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function shuffle(arr) {
   var a = arr.slice(), i = a.length, j, t;
   while (i > 1) { j = Math.floor(Math.random() * i--); t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
 function toast(msg, type) {
-  var t = document.createElement('div');
-  t.className = 'toast' + (type ? ' ' + type : '');
-  t.textContent = msg;
-  document.getElementById('toastBox').appendChild(t);
-  setTimeout(function() { t.remove(); }, 2500);
+  var el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  document.getElementById('toastBox').appendChild(el);
+  setTimeout(function() { el.remove(); }, 2500);
 }
 function cpText(text, msg) {
   navigator.clipboard.writeText(text).then(function() { toast(msg || 'Copied!', 'success'); });
 }
-function roleLabelsFor(mode, isCT, isSolo) {
+function roleLabelsFor(mode, isCT, isSolo, isInternal) {
+  if (isInternal) return [];
   if (isSolo && !isCT) return ['Presenter'];
   if (isCT) return ['Presenter','Notes','Follow-up'];
   if (mode === 1) return ['Presenter'];
@@ -621,11 +457,10 @@ function toggleTheme() {
   try { var t = localStorage.getItem('cst-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e) {}
 })();
 
-/* ──── Step Navigation ──── */
+/* ──── Step Nav ──── */
 function showStep(n) {
   ['step1','step2','step3'].forEach(function(id, i) {
-    var el = document.getElementById(id);
-    el.classList.toggle('active', i + 1 === n);
+    document.getElementById(id).classList.toggle('active', i + 1 === n);
   });
   ['dot1','dot2','dot3'].forEach(function(id, i) {
     var d = document.getElementById(id);
@@ -635,7 +470,7 @@ function showStep(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ──── Step 1: Role Mode ──── */
+/* ──── Step 1 ──── */
 function setRoleMode(m) {
   state.roleMode = m;
   document.querySelectorAll('.mode-btn').forEach(function(b) {
@@ -647,177 +482,123 @@ function updateMinInfo() {
   var min = state.roleMode === 3 ? 3 : state.roleMode === 1 ? 1 : 2;
   document.getElementById('minInfo').textContent = 'Min: ' + min + ' member' + (min > 1 ? 's' : '') + ' for ' + (state.roleMode === 1 ? 'solo' : state.roleMode + '-person') + ' mode';
 }
-
-/* ──── Step 1: Members ──── */
 function addMember(name, level) {
   var n = name || document.getElementById('memberNameInput').value.trim();
   var l = level || parseInt(document.getElementById('memberLevelInput').value);
   if (!n) { toast('Enter a member name', 'error'); return; }
   if (state.members.indexOf(n) !== -1) { toast('Member already exists', 'error'); return; }
-  state.members.push(n);
-  state.memberLevels[n] = l;
-  if (!name) {
-    document.getElementById('memberNameInput').value = '';
-    document.getElementById('memberNameInput').focus();
-  }
+  state.members.push(n); state.memberLevels[n] = l;
+  if (!name) { document.getElementById('memberNameInput').value = ''; document.getElementById('memberNameInput').focus(); }
   renderMembers();
 }
 function removeMember(idx) {
-  var name = state.members[idx];
-  state.members.splice(idx, 1);
-  delete state.memberLevels[name];
-  renderMembers();
+  var name = state.members[idx]; state.members.splice(idx, 1); delete state.memberLevels[name]; renderMembers();
 }
 function renderMembers() {
   var html = '';
   state.members.forEach(function(m, i) {
     var lvl = state.memberLevels[m];
-    html += '<div class="member-row">' +
-      '<span class="member-name">' + esc(m) + '</span>' +
-      '<span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span>' +
-      '<button class="member-remove" onclick="removeMember(' + i + ')" title="Remove" aria-label="Remove ' + esc(m) + '">✕</button>' +
-      '</div>';
+    html += '<div class="member-row"><span class="member-name">' + esc(m) + '</span><span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span><button class="member-remove" onclick="removeMember(' + i + ')" title="Remove">✕</button></div>';
   });
   document.getElementById('memberList').innerHTML = html;
 }
-
-/* ──── Step 1→2 Transition ──── */
 function goToStep1() { showStep(1); }
-
 function goToStep2() {
-  // Parse meetings
-  var mtgs = [];
-  var dayMap = {Mon:'mtgMon',Tue:'mtgTue',Wed:'mtgWed',Thu:'mtgThu',Fri:'mtgFri'};
-  var id = 0;
+  var mtgs = [], dayMap = {Mon:'mtgMon',Tue:'mtgTue',Wed:'mtgWed',Thu:'mtgThu',Fri:'mtgFri'}, id = 0;
   DAYS.forEach(function(day) {
-    var txt = document.getElementById(dayMap[day]).value;
-    txt.split('\n').forEach(function(line) {
-      line = line.trim();
-      if (line) { mtgs.push({ id: id++, name: line, day: day }); }
+    document.getElementById(dayMap[day]).value.split('\n').forEach(function(line) {
+      line = line.trim(); if (line) mtgs.push({ id: id++, name: line, day: day });
     });
   });
   state.meetings = mtgs;
-
-  // Validate
   var minMembers = state.roleMode === 3 ? 3 : state.roleMode === 1 ? 1 : 2;
   if (state.members.length < minMembers) { toast('Need at least ' + minMembers + ' member(s)', 'error'); return; }
   if (mtgs.length === 0) { toast('Add at least one meeting', 'error'); return; }
-
-  renderStep2();
-  showStep(2);
+  renderStep2(); showStep(2);
 }
 
-/* ──── Step 2: Render ──── */
+/* ──── Step 2 ──── */
 function renderStep2() {
-  var html = '';
-  var lastDay = '';
+  var html = '', lastDay = '';
   state.meetings.forEach(function(mtg) {
     var sid = String(mtg.id);
-    if (mtg.day !== lastDay) {
-      lastDay = mtg.day;
-      html += '<div class="day-separator">' + DAY_FULL[mtg.day] + '</div>';
-    }
-    var isCT = !!state.ct[sid];
-    var isSolo = !!state.solo[sid];
-
-    html += '<div class="mtg-card" id="mc' + sid + '">';
+    if (mtg.day !== lastDay) { lastDay = mtg.day; html += '<div class="day-separator">' + DAY_FULL[mtg.day] + '</div>'; }
+    var isCT = !!state.ct[sid], isSolo = !!state.solo[sid], isInt = !!state.internal[sid];
+    html += '<div class="mtg-card' + (isInt ? ' is-internal' : '') + '" id="mc' + sid + '">';
     html += '<div class="mtg-card-head">' + esc(mtg.name) + ' <span class="badge badge-day">' + mtg.day + '</span></div>';
-
-    // Flags
     html += '<div class="mtg-flags">';
-    html += '<label class="mtg-flag"><input type="checkbox" onchange="handleCT(\'' + sid + '\')" ' + (isCT ? 'checked' : '') + '> 🔒 Containment Test</label>';
-    if (state.roleMode !== 1 && !isCT) {
-      html += '<label class="mtg-flag"><input type="checkbox" onchange="handleSolo(\'' + sid + '\')" ' + (isSolo ? 'checked' : '') + '> 👤 Solo</label>';
+    html += '<label class="mtg-flag"><input type="checkbox" onchange="handleInternal(\'' + sid + '\')" ' + (isInt ? 'checked' : '') + '> 🏢 Internal</label>';
+    if (!isInt) {
+      html += '<label class="mtg-flag"><input type="checkbox" onchange="handleCT(\'' + sid + '\')" ' + (isCT ? 'checked' : '') + '> 🔒 Containment Test</label>';
+      if (state.roleMode !== 1 && !isCT) html += '<label class="mtg-flag"><input type="checkbox" onchange="handleSolo(\'' + sid + '\')" ' + (isSolo ? 'checked' : '') + '> 👤 Solo</label>';
     }
     html += '</div>';
-
-    // Availability
-    html += '<div class="avail-row"><span class="row-label">Available</span>';
-    state.members.forEach(function(m) {
-      var key = sid + '_' + m;
-      var checked = state.savedAv[key] !== undefined ? state.savedAv[key] : true;
-      html += '<span class="avail-item"><input type="checkbox" id="av_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
-    });
-    html += '</div>';
-
-    // PTO
-    html += '<div class="pto-row"><span class="row-label">🏖️ PTO</span>';
-    state.members.forEach(function(m) {
-      var key = sid + '_' + m;
-      var checked = state.savedPTO[key] ? true : false;
-      html += '<span class="pto-item"><input type="checkbox" id="pto_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
-    });
-    html += '</div>';
-
-    // Pins
-    var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
-    html += '<div class="pin-row"><span class="row-label">📌 Pin</span>';
-    roles.forEach(function(role) {
-      html += '<span class="pin-item"><label>' + role + ':</label><select id="pin_' + sid + '_' + role + '">';
-      html += '<option value="">(none)</option>';
+    if (isInt) {
+      html += '<div class="internal-note">No roles assigned — internal meeting, listed only.</div>';
+    } else {
+      html += '<div class="avail-row"><span class="row-label">Available</span>';
       state.members.forEach(function(m) {
-        var disabled = (isCT && role === 'Presenter' && !isCSE3(m));
-        var selKey = sid + '_' + role;
-        var selected = (state.savedPins[selKey] === m);
-        html += '<option value="' + esc(m) + '"' + (disabled ? ' disabled title="needs CSE3+"' : '') + (selected ? ' selected' : '') + '>' + esc(m) + (disabled ? ' (needs CSE3+)' : '') + '</option>';
+        var checked = state.savedAv[sid + '_' + m] !== undefined ? state.savedAv[sid + '_' + m] : true;
+        html += '<span class="avail-item"><input type="checkbox" id="av_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
       });
-      html += '</select></span>';
-    });
-    html += '</div>';
+      html += '</div><div class="pto-row"><span class="row-label">🏖️ PTO</span>';
+      state.members.forEach(function(m) {
+        var checked = state.savedPTO[sid + '_' + m] ? true : false;
+        html += '<span class="pto-item"><input type="checkbox" id="pto_' + sid + '_' + esc(m) + '" ' + (checked ? 'checked' : '') + '> ' + esc(m) + '</span>';
+      });
+      html += '</div>';
+      var roles = roleLabelsFor(state.roleMode, isCT, isSolo, false);
+      html += '<div class="pin-row"><span class="row-label">📌 Pin</span>';
+      roles.forEach(function(role) {
+        html += '<span class="pin-item"><label>' + role + ':</label><select id="pin_' + sid + '_' + role + '"><option value="">(none)</option>';
+        state.members.forEach(function(m) {
+          var disabled = (isCT && role === 'Presenter' && !isCSE3(m));
+          var selected = (state.savedPins[sid + '_' + role] === m);
+          html += '<option value="' + esc(m) + '"' + (disabled ? ' disabled title="needs CSE3+"' : '') + (selected ? ' selected' : '') + '>' + esc(m) + (disabled ? ' (needs CSE3+)' : '') + '</option>';
+        });
+        html += '</select></span>';
+      });
+      html += '</div>';
+    }
     html += '</div>';
   });
   document.getElementById('step2Cards').innerHTML = html;
 }
-
 function saveStep2State() {
-  state.savedAv = {};
-  state.savedPTO = {};
-  state.savedPins = {};
+  state.savedAv = {}; state.savedPTO = {}; state.savedPins = {};
   state.meetings.forEach(function(mtg) {
     var sid = String(mtg.id);
+    if (state.internal[sid]) return;
     state.members.forEach(function(m) {
       var avEl = document.getElementById('av_' + sid + '_' + m);
       var ptoEl = document.getElementById('pto_' + sid + '_' + m);
       if (avEl) state.savedAv[sid + '_' + m] = avEl.checked;
       if (ptoEl) state.savedPTO[sid + '_' + m] = ptoEl.checked;
     });
-    var roles = roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid]);
+    var roles = roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid], false);
     roles.forEach(function(role) {
       var pinEl = document.getElementById('pin_' + sid + '_' + role);
       if (pinEl && pinEl.value) state.savedPins[sid + '_' + role] = pinEl.value;
     });
   });
 }
+function handleCT(sid) { saveStep2State(); state.ct[sid] = !state.ct[sid]; if (state.ct[sid]) state.solo[sid] = false; renderStep2(); }
+function handleSolo(sid) { saveStep2State(); state.solo[sid] = !state.solo[sid]; renderStep2(); }
+function handleInternal(sid) { saveStep2State(); state.internal[sid] = !state.internal[sid]; if (state.internal[sid]) { state.ct[sid] = false; state.solo[sid] = false; } renderStep2(); }
 
-function handleCT(sid) {
-  saveStep2State();
-  state.ct[sid] = !state.ct[sid];
-  if (state.ct[sid]) state.solo[sid] = false;
-  renderStep2();
-}
-function handleSolo(sid) {
-  saveStep2State();
-  state.solo[sid] = !state.solo[sid];
-  renderStep2();
-}
-
-/* ──── Step 2: Collect Data ──── */
 function collectS2() {
   var data = { avail: {}, pto: {}, pins: {} };
   state.meetings.forEach(function(mtg) {
     var sid = String(mtg.id);
-    data.avail[sid] = {};
-    data.pto[sid] = {};
-    data.pins[sid] = {};
+    data.avail[sid] = {}; data.pto[sid] = {}; data.pins[sid] = {};
+    if (state.internal[sid]) return;
     state.members.forEach(function(m) {
       var avEl = document.getElementById('av_' + sid + '_' + m);
       var ptoEl = document.getElementById('pto_' + sid + '_' + m);
       data.avail[sid][m] = avEl ? avEl.checked : true;
       data.pto[sid][m] = ptoEl ? ptoEl.checked : false;
     });
-    var isCT = !!state.ct[sid];
-    var isSolo = !!state.solo[sid];
-    var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
+    var roles = roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid], false);
     roles.forEach(function(role) {
       var pinEl = document.getElementById('pin_' + sid + '_' + role);
       data.pins[sid][role] = pinEl ? pinEl.value : '';
@@ -827,15 +608,31 @@ function collectS2() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ASSIGNMENT ALGORITHM
+   ASSIGNMENT ALGORITHM v2 — Even-Spread Engine
+
+   Improvements over v1:
+   1. Fair ceiling — no one exceeds ceil(totalSlots/members) unless
+      everyone at the ceiling is unavailable.
+   2. Total-first sorting — the person with fewest total assignments
+      always wins over daily spread or role count.
+   3. Role equity — members who have NEVER held a role get strong
+      preference, spreading role variety.
+   4. Pairing diversity as tiebreaker only.
    ═══════════════════════════════════════════════════════════ */
 function generateAssignments() {
   var s2 = collectS2();
   var members = state.members.slice();
-  var levels = {};
-  for (var k in state.memberLevels) levels[k] = state.memberLevels[k];
+  var levels = {}; for (var k in state.memberLevels) levels[k] = state.memberLevels[k];
 
-  // Init tallies
+  // Compute fair ceiling
+  var totalSlots = 0;
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    if (state.internal[sid]) return;
+    totalSlots += roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid], false).length;
+  });
+  var fairCeiling = Math.ceil(totalSlots / members.length);
+
   var tally = {}, daily = {}, pairing = {};
   members.forEach(function(m) {
     tally[m] = { Presenter:0, Notes:0, 'Follow-up':0, Total:0 };
@@ -844,724 +641,373 @@ function generateAssignments() {
     members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
   });
 
-  var assignments = [];
-  var errors = [];
+  var assignments = [], errors = [];
 
-  // Process day by day, shuffle within each day
   DAYS.forEach(function(day) {
-    var dayMtgs = state.meetings.filter(function(m) { return m.day === day; });
-    dayMtgs = shuffle(dayMtgs);
-
+    var dayMtgs = shuffle(state.meetings.filter(function(m) { return m.day === day; }));
     dayMtgs.forEach(function(mtg) {
       var sid = String(mtg.id);
+      var isInt = !!state.internal[sid];
       var isCT = !!state.ct[sid];
       var isSolo = !!state.solo[sid];
-      var roles = roleLabelsFor(state.roleMode, isCT, isSolo);
 
-      // Available members for this meeting
-      var avail = members.filter(function(m) { return s2.avail[sid][m]; });
-      if (avail.length < roles.length) {
-        errors.push(mtg.name + ': not enough available members (' + avail.length + ' available, need ' + roles.length + ')');
+      if (isInt) {
+        assignments.push({ id: mtg.id, name: mtg.name, day: mtg.day, isCT:false, isSolo:false, isInternal:true, roles:{} });
         return;
       }
 
-      var assigned = {}; // members used in this meeting
-      var asgn = { id: mtg.id, name: mtg.name, day: mtg.day, isCT: isCT, isSolo: isSolo, roles: {} };
+      var roles = roleLabelsFor(state.roleMode, isCT, isSolo, false);
+      var avail = members.filter(function(m) { return s2.avail[sid][m]; });
+      if (avail.length < roles.length) {
+        errors.push(mtg.name + ': not enough available (' + avail.length + ' for ' + roles.length + ')');
+        return;
+      }
+
+      var assigned = {};
+      var asgn = { id:mtg.id, name:mtg.name, day:mtg.day, isCT:isCT, isSolo:isSolo, isInternal:false, roles:{} };
 
       roles.forEach(function(role) {
+        // Pinned
         var pinned = s2.pins[sid][role];
         if (pinned && avail.indexOf(pinned) !== -1 && !assigned[pinned]) {
-          // Validate CT constraint
-          if (isCT && role === 'Presenter' && !isCSE3R(pinned, levels)) {
-            // Invalid pin — treat as unpinned
-          } else {
-            asgn.roles[role] = { member: pinned, pinned: true, edited: false };
+          if (isCT && role === 'Presenter' && !isCSE3R(pinned, levels)) { /* bad pin */ }
+          else {
+            asgn.roles[role] = { member:pinned, pinned:true, edited:false };
             assigned[pinned] = true;
-            // Update tallies
-            tally[pinned][role]++;
-            tally[pinned].Total++;
-            daily[pinned][day]++;
-            for (var prev in assigned) {
-              if (prev !== pinned) {
-                pairing[pinned][prev]++;
-                pairing[prev][pinned]++;
-              }
-            }
+            tally[pinned][role]++; tally[pinned].Total++; daily[pinned][day]++;
+            for (var p in assigned) { if (p !== pinned) { pairing[pinned][p]++; pairing[p][pinned]++; } }
             return;
           }
         }
 
-        // Unpinned — run algorithm
         var candidates = avail.filter(function(m) { return !assigned[m]; });
-
-        // CT Presenter constraint
         if (isCT && role === 'Presenter') {
           var cse3 = candidates.filter(function(m) { return isCSE3R(m, levels); });
           var nonPto = cse3.filter(function(m) { return !s2.pto[sid][m]; });
           candidates = nonPto.length > 0 ? nonPto : cse3;
-          if (candidates.length === 0) {
-            errors.push(mtg.name + ': no CSE3+ member available for CT Presenter');
-            return;
-          }
+          if (candidates.length === 0) { errors.push(mtg.name + ': no CSE3+ for CT Presenter'); return; }
         }
 
-        // Multi-factor sort
         candidates.sort(function(a, b) {
-          // 1. PTO deprioritization
-          var ptA = s2.pto[sid][a] ? 1 : 0;
-          var ptB = s2.pto[sid][b] ? 1 : 0;
+          // 1. PTO last
+          var ptA = s2.pto[sid][a] ? 1 : 0, ptB = s2.pto[sid][b] ? 1 : 0;
           if (ptA !== ptB) return ptA - ptB;
-          // 2. Daily spread
-          var dA = daily[a][day], dB = daily[b][day];
-          if (dA !== dB) return dA - dB;
-          // 3. Pairing diversity
-          var pairA = 0, pairB = 0;
-          for (var used in assigned) {
-            pairA += (pairing[a][used] || 0);
-            pairB += (pairing[b][used] || 0);
-          }
-          if (pairA !== pairB) return pairA - pairB;
-          // 4. Role balance
-          var rA = tally[a][role], rB = tally[b][role];
-          if (rA !== rB) return rA - rB;
-          // 5. Total balance
-          var tA = tally[a].Total, tB = tally[b].Total;
-          if (tA !== tB) return tA - tB;
-          // 6. Alphabetical
+          // 2. Fair ceiling — prefer under ceiling
+          var cA = tally[a].Total >= fairCeiling ? 1 : 0, cB = tally[b].Total >= fairCeiling ? 1 : 0;
+          if (cA !== cB) return cA - cB;
+          // 3. Fewest total assignments
+          if (tally[a].Total !== tally[b].Total) return tally[a].Total - tally[b].Total;
+          // 4. Role equity — never done this role wins
+          var nA = tally[a][role] === 0 ? 0 : 1, nB = tally[b][role] === 0 ? 0 : 1;
+          if (nA !== nB) return nA - nB;
+          // 5. Fewest meetings today
+          if (daily[a][day] !== daily[b][day]) return daily[a][day] - daily[b][day];
+          // 6. Fewest in this role
+          if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
+          // 7. Pairing diversity
+          var pA = 0, pB = 0;
+          for (var u in assigned) { pA += (pairing[a][u]||0); pB += (pairing[b][u]||0); }
+          if (pA !== pB) return pA - pB;
+          // 8. Alphabetical
           return a.localeCompare(b);
         });
 
         var pick = candidates[0];
-        asgn.roles[role] = { member: pick, pinned: false, edited: false };
+        asgn.roles[role] = { member:pick, pinned:false, edited:false };
         assigned[pick] = true;
-        tally[pick][role]++;
-        tally[pick].Total++;
-        daily[pick][day]++;
-        for (var prev2 in assigned) {
-          if (prev2 !== pick) {
-            pairing[pick][prev2]++;
-            pairing[prev2][pick]++;
-          }
-        }
+        tally[pick][role]++; tally[pick].Total++; daily[pick][day]++;
+        for (var p2 in assigned) { if (p2 !== pick) { pairing[pick][p2]++; pairing[p2][pick]++; } }
       });
-
       assignments.push(asgn);
     });
   });
 
-  if (errors.length > 0) {
-    errors.forEach(function(e) { toast(e, 'error'); });
-  }
+  if (errors.length) errors.forEach(function(e) { toast(e, 'error'); });
 
-  // Build result
   var today = new Date();
   R = {
-    id: 'r_' + Date.now(),
-    date: today.toISOString().slice(0, 10),
-    members: members.slice(),
-    memberLevels: levels,
-    roleMode: state.roleMode,
-    roleLabels: state.roleMode === 3 ? ALL_ROLES.slice() : state.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'],
-    assignments: assignments,
-    tally: tally,
-    dailyTally: daily,
-    pairingTally: pairing,
-    ptoMembers: [],
-    containmentTests: Object.assign({}, state.ct),
-    soloMeetings: Object.assign({}, state.solo)
+    id: 'r_' + Date.now(), date: today.toISOString().slice(0,10),
+    members: members.slice(), memberLevels: levels, roleMode: state.roleMode,
+    assignments: assignments, tally: tally, dailyTally: daily, pairingTally: pairing,
+    ptoMembers: [], containmentTests: Object.assign({}, state.ct),
+    soloMeetings: Object.assign({}, state.solo), internalMeetings: Object.assign({}, state.internal)
   };
-
-  // Identify PTO members
   var ptoSet = {};
-  state.meetings.forEach(function(mtg) {
-    var sid = String(mtg.id);
-    state.members.forEach(function(m) {
-      if (s2.pto[sid][m]) ptoSet[m] = true;
-    });
-  });
+  state.meetings.forEach(function(mtg) { var sid = String(mtg.id); if (!state.internal[sid]) state.members.forEach(function(m) { if (s2.pto[sid][m]) ptoSet[m] = true; }); });
   R.ptoMembers = Object.keys(ptoSet);
-
-  updCal();
-  renderResults();
-  saveHist();
-  showStep(3);
-  toast('Assignments generated!', 'success');
+  updCal(); renderResults(); saveHist(); showStep(3); toast('Assignments generated!', 'success');
 }
 
-/* ──── Recalculate Tallies ──── */
 function recalc() {
   if (!R) return;
-  var members = R.members;
-  var tally = {}, daily = {}, pairing = {};
+  var members = R.members, tally = {}, daily = {}, pairing = {};
   members.forEach(function(m) {
     tally[m] = { Presenter:0, Notes:0, 'Follow-up':0, Total:0 };
     daily[m] = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0 };
-    pairing[m] = {};
-    members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
+    pairing[m] = {}; members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
   });
-
   R.assignments.forEach(function(asgn) {
+    if (asgn.isInternal) return;
     var used = [];
     for (var role in asgn.roles) {
       var mem = asgn.roles[role].member;
-      if (tally[mem]) {
-        tally[mem][role]++;
-        tally[mem].Total++;
-        daily[mem][asgn.day]++;
-        used.forEach(function(prev) {
-          pairing[mem][prev]++;
-          pairing[prev][mem]++;
-        });
-        used.push(mem);
-      }
+      if (tally[mem]) { tally[mem][role]++; tally[mem].Total++; daily[mem][asgn.day]++; used.forEach(function(p) { pairing[mem][p]++; pairing[p][mem]++; }); used.push(mem); }
     }
   });
-
-  R.tally = tally;
-  R.dailyTally = daily;
-  R.pairingTally = pairing;
+  R.tally = tally; R.dailyTally = daily; R.pairingTally = pairing;
 }
 
 /* ═══════════════════════════════════════════════════════════
    RENDER RESULTS
    ═══════════════════════════════════════════════════════════ */
-function renderResults() {
-  renderAsgn();
-  renderTally();
-}
-
+function renderResults() { renderAsgn(); renderTally(); }
 function renderAsgn() {
   if (!R) return;
-  var grouped = groupByDay(R.assignments);
-  var html = '';
+  var grouped = groupByDay(R.assignments), html = '';
   DAYS.forEach(function(day) {
-    var items = grouped[day];
-    if (!items || items.length === 0) return;
+    var items = grouped[day]; if (!items || !items.length) return;
     html += '<div class="asgn-day-hdr">' + DAY_FULL[day] + '</div>';
     items.forEach(function(asgn) {
       var cls = 'asgn-card';
-      if (asgn.isCT) cls += ' is-ct';
-      if (asgn.isSolo && !asgn.isCT) cls += ' is-solo';
-      var anyEdited = false;
-      for (var r in asgn.roles) { if (asgn.roles[r].edited) anyEdited = true; }
+      if (asgn.isInternal) cls += ' is-internal';
+      else if (asgn.isCT) cls += ' is-ct';
+      else if (asgn.isSolo) cls += ' is-solo';
+      var anyEdited = false; for (var r in asgn.roles) if (asgn.roles[r].edited) anyEdited = true;
       if (anyEdited) cls += ' is-edited';
 
       html += '<div class="' + cls + '" id="acard_' + asgn.id + '">';
-      html += '<button class="asgn-edit-btn" onclick="startEdit(' + asgn.id + ')" title="Edit">✏️</button>';
-
-      // Header
       html += '<div class="asgn-head"><span class="asgn-name">' + esc(asgn.name) + '</span>';
+      if (asgn.isInternal) html += '<span class="badge badge-internal">🏢 Internal</span>';
       if (asgn.isCT) html += '<span class="badge badge-ct">🔒 CT</span>';
       if (asgn.isSolo && !asgn.isCT) html += '<span class="badge badge-solo">👤 Solo</span>';
       if (anyEdited) html += '<span class="badge badge-edit">✏️ edited</span>';
       html += '</div>';
 
-      // Roles
-      if (asgn.isSolo && !asgn.isCT) {
-        var soloPres = asgn.roles['Presenter'];
-        if (soloPres) {
-          var slvl = R.memberLevels[soloPres.member] || 2;
-          html += '<div style="padding:4px 0;"><span class="solo-label">🎯 Assigned</span> ';
-          html += '<span style="font-weight:700;">' + esc(soloPres.member) + '</span> ';
-          html += '<span class="badge ' + cseBadge(slvl) + '">CSE ' + slvl + '</span>';
-          if (soloPres.pinned) html += ' <span class="badge-pin">📌</span>';
-          html += '<div class="solo-sub">prep · notes · follow-up</div></div>';
-        }
+      if (asgn.isInternal) {
+        html += '<div class="internal-label">No roles — internal meeting</div>';
       } else {
-        html += '<div class="asgn-roles">';
-        var roleOrder = asgn.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
-        roleOrder.forEach(function(role) {
-          if (!asgn.roles[role]) return;
-          var info = asgn.roles[role];
-          var mlvl = R.memberLevels[info.member] || 2;
-          html += '<div class="asgn-role">';
-          html += '<span class="asgn-role-icon">' + rIcon(role) + '</span>';
-          html += '<span class="asgn-role-label">' + role + '</span>';
-          html += '<span class="asgn-role-member">' + esc(info.member) + '</span> ';
-          html += '<span class="badge ' + cseBadge(mlvl) + '">CSE ' + mlvl + '</span>';
-          if (info.pinned) html += ' <span class="badge-pin">📌</span>';
+        html += '<button class="asgn-edit-btn" onclick="startEdit(' + asgn.id + ')" title="Edit">✏️</button>';
+        if (asgn.isSolo && !asgn.isCT) {
+          var sp = asgn.roles['Presenter'];
+          if (sp) {
+            html += '<div style="padding:4px 0;"><span class="solo-label">🎯 Assigned</span> <span style="font-weight:700;">' + esc(sp.member) + '</span> <span class="badge ' + cseBadge(R.memberLevels[sp.member]||2) + '">CSE ' + (R.memberLevels[sp.member]||2) + '</span>';
+            if (sp.pinned) html += ' <span class="badge-pin">📌</span>';
+            html += '<div class="solo-sub">prep · notes · follow-up</div></div>';
+          }
+        } else {
+          html += '<div class="asgn-roles">';
+          var ro = asgn.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+          ro.forEach(function(role) {
+            if (!asgn.roles[role]) return;
+            var info = asgn.roles[role], ml = R.memberLevels[info.member]||2;
+            html += '<div class="asgn-role"><span class="asgn-role-icon">' + rIcon(role) + '</span><span class="asgn-role-label">' + role + '</span><span class="asgn-role-member">' + esc(info.member) + '</span> <span class="badge ' + cseBadge(ml) + '">CSE ' + ml + '</span>';
+            if (info.pinned) html += ' <span class="badge-pin">📌</span>';
+            html += '</div>';
+          });
           html += '</div>';
+        }
+        // Edit panel
+        html += '<div class="edit-panel" id="ep_' + asgn.id + '">';
+        var er = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
+        er.forEach(function(role) {
+          if (!asgn.roles[role]) return;
+          html += '<div class="edit-row"><label>' + role + ':</label><select id="ed_' + asgn.id + '_' + role + '">';
+          R.members.forEach(function(m) {
+            var dis = asgn.isCT && role === 'Presenter' && !isCSE3R(m, R.memberLevels);
+            html += '<option value="' + esc(m) + '"' + (dis?' disabled':'') + (asgn.roles[role].member===m?' selected':'') + '>' + esc(m) + (dis?' (needs CSE3+)':'') + '</option>';
+          });
+          html += '</select></div>';
         });
-        html += '</div>';
+        html += '<div class="edit-error" id="ee_' + asgn.id + '"></div><div class="edit-actions"><button class="btn btn-sm" style="background:var(--green);color:#fff;" onclick="saveEdit(' + asgn.id + ')">Save</button><button class="btn btn-sm btn-secondary" onclick="cancelEdit(' + asgn.id + ')">Cancel</button></div></div>';
       }
-
-      // Edit Panel
-      html += '<div class="edit-panel" id="ep_' + asgn.id + '">';
-      var editRoles = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
-      editRoles.forEach(function(role) {
-        if (!asgn.roles[role]) return;
-        html += '<div class="edit-row"><label>' + role + ':</label><select id="ed_' + asgn.id + '_' + role + '">';
-        R.members.forEach(function(m) {
-          var disabled = (asgn.isCT && role === 'Presenter' && !isCSE3R(m, R.memberLevels));
-          var sel = asgn.roles[role].member === m ? ' selected' : '';
-          html += '<option value="' + esc(m) + '"' + (disabled ? ' disabled' : '') + sel + '>' + esc(m) + (disabled ? ' (needs CSE3+)' : '') + '</option>';
-        });
-        html += '</select></div>';
-      });
-      html += '<div class="edit-error" id="ee_' + asgn.id + '"></div>';
-      html += '<div class="edit-actions">';
-      html += '<button class="btn btn-sm" style="background:var(--green);color:#fff;" onclick="saveEdit(' + asgn.id + ')">Save</button>';
-      html += '<button class="btn btn-sm btn-secondary" onclick="cancelEdit(' + asgn.id + ')">Cancel</button>';
-      html += '</div></div>';
-
       html += '</div>';
     });
   });
   document.getElementById('asgnPanel').innerHTML = html;
 }
-
 function renderTally() {
   if (!R) return;
   var html = '<div class="section-title">Stats</div>';
   R.members.forEach(function(m) {
-    var t = R.tally[m];
-    var lvl = R.memberLevels[m] || 2;
-    html += '<div class="stat-member">';
-    html += '<div class="stat-name">' + esc(m) + ' <span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span></div>';
-    html += '<div class="stat-roles">';
-    ALL_ROLES.forEach(function(r) {
-      if (t[r] > 0) {
-        html += '<span class="stat-role">' + rIcon(r) + ' <span class="count">' + t[r] + '</span></span>';
-      }
-    });
-    html += '<span class="stat-role" style="font-weight:700;">Total: <span class="count">' + t.Total + '</span></span>';
-    html += '</div>';
-    var d = R.dailyTally[m];
-    html += '<div class="stat-daily">' + DAYS.map(function(day) { return d[day]; }).join('-') + '</div>';
-    html += '</div>';
+    var t = R.tally[m], lvl = R.memberLevels[m]||2;
+    html += '<div class="stat-member"><div class="stat-name">' + esc(m) + ' <span class="badge ' + cseBadge(lvl) + '">CSE ' + lvl + '</span></div><div class="stat-roles">';
+    ALL_ROLES.forEach(function(r) { if (t[r] > 0) html += '<span class="stat-role">' + rIcon(r) + ' <span class="count">' + t[r] + '</span></span>'; });
+    html += '<span class="stat-role" style="font-weight:700;">Total: <span class="count">' + t.Total + '</span></span></div>';
+    html += '<div class="stat-daily">' + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '</div></div>';
   });
-
-  // Pairings
-  var pairs = [];
-  var done = {};
-  R.members.forEach(function(a) {
-    R.members.forEach(function(b) {
-      if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
-        var count = R.pairingTally[a][b] || 0;
-        if (count > 0) { pairs.push({ a:a, b:b, count:count }); done[a+'+'+b] = true; }
-      }
-    });
-  });
-  if (pairs.length > 0) {
+  var pairs = [], done = {};
+  R.members.forEach(function(a) { R.members.forEach(function(b) {
+    if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) { var c = R.pairingTally[a][b]||0; if (c > 0) { pairs.push({a:a,b:b,count:c}); done[a+'+'+b] = true; } }
+  }); });
+  if (pairs.length) {
     pairs.sort(function(x, y) { return y.count - x.count; });
     html += '<div class="stat-pairings"><div class="stat-pairings-title">🤝 Pairings</div>';
-    pairs.forEach(function(p) {
-      html += '<span class="pair-item">' + esc(p.a) + '+' + esc(p.b) + ' <span class="pair-count">' + p.count + '</span></span>';
-    });
+    pairs.forEach(function(p) { html += '<span class="pair-item">' + esc(p.a) + '+' + esc(p.b) + ' <span class="pair-count">' + p.count + '</span></span>'; });
     html += '</div>';
   }
-
   document.getElementById('statsPanel').innerHTML = html;
 }
-
-/* ──── Edit Functions ──── */
-function startEdit(id) {
-  var card = document.getElementById('acard_' + id);
-  if (card) card.classList.add('editing');
-}
-function cancelEdit(id) {
-  var card = document.getElementById('acard_' + id);
-  if (card) card.classList.remove('editing');
-  document.getElementById('ee_' + id).textContent = '';
-}
+function startEdit(id) { var c = document.getElementById('acard_' + id); if (c) c.classList.add('editing'); }
+function cancelEdit(id) { var c = document.getElementById('acard_' + id); if (c) c.classList.remove('editing'); document.getElementById('ee_' + id).textContent = ''; }
 function saveEdit(id) {
-  var asgn = null;
-  R.assignments.forEach(function(a) { if (a.id === id) asgn = a; });
-  if (!asgn) return;
-
-  var newRoles = {};
-  var used = {};
-  var err = '';
-  var editRoles = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
-
-  editRoles.forEach(function(role) {
+  var asgn = null; R.assignments.forEach(function(a) { if (a.id === id) asgn = a; }); if (!asgn || asgn.isInternal) return;
+  var newRoles = {}, used = {}, err = '';
+  var er = asgn.isCT ? ALL_ROLES : (asgn.isSolo ? ['Presenter'] : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up'])));
+  er.forEach(function(role) {
     if (!asgn.roles[role]) return;
-    var sel = document.getElementById('ed_' + id + '_' + role);
-    if (!sel) return;
+    var sel = document.getElementById('ed_' + id + '_' + role); if (!sel) return;
     var val = sel.value;
-    if (used[val]) { err = 'Duplicate: ' + val + ' assigned to multiple roles'; }
-    if (asgn.isCT && role === 'Presenter' && !isCSE3R(val, R.memberLevels)) { err = val + ' needs CSE3+ for CT Presenter'; }
+    if (used[val]) err = 'Duplicate: ' + val + ' in multiple roles';
+    if (asgn.isCT && role === 'Presenter' && !isCSE3R(val, R.memberLevels)) err = val + ' needs CSE3+ for CT Presenter';
     used[val] = true;
-    var wasEdited = asgn.roles[role].member !== val;
-    newRoles[role] = { member: val, pinned: asgn.roles[role].pinned, edited: wasEdited || asgn.roles[role].edited };
+    newRoles[role] = { member:val, pinned:asgn.roles[role].pinned, edited:asgn.roles[role].member !== val || asgn.roles[role].edited };
   });
-
   if (err) { document.getElementById('ee_' + id).textContent = err; return; }
-
-  asgn.roles = newRoles;
-  recalc();
-  renderResults();
-  toast('Assignment updated', 'success');
+  asgn.roles = newRoles; recalc(); renderResults(); toast('Updated', 'success');
 }
 
 /* ═══════════════════════════════════════════════════════════
-   COPY / EXPORT FORMATS
+   SINGLE CLEAN COPY FORMAT — plain text, works everywhere
    ═══════════════════════════════════════════════════════════ */
-function setFmt(f) {
-  fmt = f;
-  document.querySelectorAll('.fmt-btn').forEach(function(b) {
-    b.classList.toggle('active', b.getAttribute('data-fmt') === f);
-  });
-}
-
 function fmtAsgn() {
   if (!R) return '';
   var grouped = groupByDay(R.assignments);
-
-  if (fmt === 'slack') {
-    var out = '📅 *CST Weekly Assignments*\n';
-    DAYS.forEach(function(day) {
-      var items = grouped[day];
-      if (!items || items.length === 0) return;
-      out += '\n*' + DAY_FULL[day] + '*\n';
-      items.forEach(function(a) {
-        var parts = [];
-        if (a.isSolo && !a.isCT) {
-          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
-          out += '  *' + a.name + '*  →  *' + sm + '* 👤\n';
-        } else {
-          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
-          roleOrder.forEach(function(role) {
-            if (!a.roles[role]) return;
-            var info = a.roles[role];
-            var p = rIcon(role) + ' *' + info.member + '*';
-            if (info.pinned) p += '📌';
-            parts.push(p);
-          });
-          var line = '  *' + a.name + '*  →  ' + parts.join('  ·  ');
-          if (a.isCT) line += ' 🔒';
-          var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
-          if (anyEdited) line += ' ✏️';
-          out += line + '\n';
-        }
-      });
+  var out = 'CST WEEKLY ASSIGNMENTS\n';
+  out += '══════════════════════\n';
+  DAYS.forEach(function(day) {
+    var items = grouped[day]; if (!items || !items.length) return;
+    out += '\n' + DAY_FULL[day].toUpperCase() + '\n──────\n';
+    items.forEach(function(a) {
+      var tags = [];
+      if (a.isInternal) tags.push('[INTERNAL]');
+      if (a.isCT) tags.push('[CT]');
+      if (a.isSolo && !a.isCT && !a.isInternal) tags.push('[SOLO]');
+      var anyEdited = false, anyPinned = false;
+      for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; if (a.roles[r].pinned) anyPinned = true; }
+      if (anyEdited) tags.push('[edited]');
+      if (anyPinned) tags.push('[pinned]');
+      out += a.name + (tags.length ? '  ' + tags.join(' ') : '') + '\n';
+      if (a.isInternal) {
+        out += '  (no roles assigned)\n';
+      } else if (a.isSolo && !a.isCT) {
+        var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
+        out += '  Assigned:   ' + sm + '  (prep, notes & follow-up)\n';
+      } else {
+        var ro = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
+        ro.forEach(function(role) {
+          if (!a.roles[role]) return;
+          var extra = (a.isCT && role === 'Presenter') ? '  (CSE' + (R.memberLevels[a.roles[role].member]||2) + ')' : '';
+          out += '  ' + pad(role + ':', 13) + a.roles[role].member + extra + '\n';
+        });
+      }
     });
-    return out;
-  }
-
-  if (fmt === 'onenote') {
-    var out = 'CST WEEKLY ASSIGNMENTS\n══════════════════════════════\n';
-    DAYS.forEach(function(day) {
-      var items = grouped[day];
-      if (!items || items.length === 0) return;
-      out += '\n' + DAY_FULL[day].toUpperCase() + '\n──────────────────────────────\n';
-      items.forEach(function(a) {
-        var tags = [];
-        if (a.isCT) tags.push('[CT]');
-        if (a.isSolo && !a.isCT) tags.push('[Solo]');
-        var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
-        if (anyEdited) tags.push('[edited]');
-        var anyPinned = false; for (var r in a.roles) { if (a.roles[r].pinned) anyPinned = true; }
-        if (anyPinned) tags.push('[pinned]');
-
-        out += '\n  ' + a.name + (tags.length ? '  ' + tags.join(' ') : '') + '\n';
-        if (a.isSolo && !a.isCT) {
-          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
-          out += '    → ' + sm + '\n';
-        } else {
-          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
-          roleOrder.forEach(function(role) {
-            if (!a.roles[role]) return;
-            var info = a.roles[role];
-            var label = pad(role + ':', 15);
-            var extra = (a.isCT && role === 'Presenter') ? '  (CSE' + (R.memberLevels[info.member] || 2) + ')' : '';
-            out += '    ' + label + info.member + extra + '\n';
-          });
-        }
-      });
-    });
-    return out;
-  }
-
-  if (fmt === 'markdown') {
-    var out = '## 📅 CST Weekly Assignments\n';
-    DAYS.forEach(function(day) {
-      var items = grouped[day];
-      if (!items || items.length === 0) return;
-      out += '\n### ' + DAY_FULL[day] + '\n\n';
-      items.forEach(function(a) {
-        var parts = [];
-        if (a.isSolo && !a.isCT) {
-          var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
-          out += '**' + a.name + '** `Solo` → ' + sm + '\n';
-        } else {
-          var roleOrder = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
-          roleOrder.forEach(function(role) {
-            if (!a.roles[role]) return;
-            var info = a.roles[role];
-            var p = rIcon(role) + ' ' + info.member;
-            if (info.pinned) p += ' 📌';
-            parts.push(p);
-          });
-          var badges = [];
-          if (a.isCT) badges.push('`CT`');
-          var anyEdited = false; for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; }
-          if (anyEdited) badges.push('`edited`');
-          out += '**' + a.name + '**' + (badges.length ? ' ' + badges.join(' ') : '') + ' → ' + parts.join(' · ') + '\n';
-        }
-      });
-    });
-    return out;
-  }
-  return '';
+  });
+  return out;
 }
-
 function fmtTally() {
   if (!R) return '';
-  var mtgCount = R.assignments.length;
-  var memCount = R.members.length;
-
-  if (fmt === 'slack') {
-    var out = '─────────────────\n📊 *Stats*  _(' + mtgCount + ' meetings · ' + memCount + ' members)_\n';
-    R.members.forEach(function(m) {
-      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
-      out += '\n  *' + m + '* · CSE' + lvl + '\n  ';
-      var parts = [];
-      ALL_ROLES.forEach(function(r) { if (t[r] > 0) parts.push(rIcon(r) + '*' + t[r] + '*'); });
-      out += parts.join('  ');
-      out += '  │  *' + t.Total + '* total  │  _' + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '_\n';
-    });
-    // Pairings
-    var pairs = [], done = {};
-    R.members.forEach(function(a) {
-      R.members.forEach(function(b) {
-        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
-          var c = R.pairingTally[a][b] || 0;
-          if (c > 0) { pairs.push(a + '+' + b + ' *' + c + '*'); done[a+'+'+b] = true; }
-        }
-      });
-    });
-    if (pairs.length > 0) out += '\n  🤝 ' + pairs.join('  ·  ') + '\n';
-    return out;
-  }
-
-  if (fmt === 'onenote') {
-    var out = '══════════════════════════════\nSTATS  (' + mtgCount + ' meetings · ' + memCount + ' members)\n══════════════════════════════\n\n';
-    out += '  ' + pad('Name', 20) + pad('Pres', 7) + pad('Notes', 7) + pad('FU', 7) + pad('Total', 7) + 'Daily\n';
-    out += '  ──────────────────────────────────────────────────────\n';
-    R.members.forEach(function(m) {
-      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
-      var name = m + ' (CSE' + lvl + ')';
-      out += '  ' + pad(name, 20) + pad(String(t.Presenter), 7) + pad(String(t.Notes), 7) + pad(String(t['Follow-up']), 7) + pad(String(t.Total), 7) + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '\n';
-    });
-    var pairs = [], done = {};
-    R.members.forEach(function(a) {
-      R.members.forEach(function(b) {
-        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
-          var c = R.pairingTally[a][b] || 0;
-          if (c > 0) { pairs.push(a + '+' + b + ': ' + c); done[a+'+'+b] = true; }
-        }
-      });
-    });
-    if (pairs.length > 0) out += '\n  Pairings:  ' + pairs.join('  |  ') + '\n';
-    return out;
-  }
-
-  if (fmt === 'markdown') {
-    var out = '---\n\n## 📊 Stats\n\n';
-    out += '| Member | 🎤 | 📝 | ✅ | Total | Daily |\n';
-    out += '|--------|----|----|----|-------|-------|\n';
-    R.members.forEach(function(m) {
-      var t = R.tally[m], lvl = R.memberLevels[m] || 2;
-      out += '| ' + m + ' (CSE' + lvl + ') | ' + t.Presenter + ' | ' + t.Notes + ' | ' + t['Follow-up'] + ' | **' + t.Total + '** | `' + DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-') + '` |\n';
-    });
-    var pairs = [], done = {};
-    R.members.forEach(function(a) {
-      R.members.forEach(function(b) {
-        if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) {
-          var c = R.pairingTally[a][b] || 0;
-          if (c > 0) { pairs.push({ a:a, b:b, count:c }); done[a+'+'+b] = true; }
-        }
-      });
-    });
-    if (pairs.length > 0) {
-      out += '\n| Pair | Count |\n|------|-------|\n';
-      pairs.forEach(function(p) { out += '| ' + p.a + ' + ' + p.b + ' | ' + p.count + ' |\n'; });
-    }
-    return out;
-  }
-  return '';
+  var mtgCount = R.assignments.filter(function(a) { return !a.isInternal; }).length;
+  var intCount = R.assignments.filter(function(a) { return a.isInternal; }).length;
+  var out = '\n══════════════════════\nSTATS  (' + mtgCount + ' assigned';
+  if (intCount) out += ' · ' + intCount + ' internal';
+  out += ' · ' + R.members.length + ' members)\n──────\n\n';
+  R.members.forEach(function(m) {
+    var t = R.tally[m], lvl = R.memberLevels[m]||2;
+    var parts = [];
+    ALL_ROLES.forEach(function(r) { if (t[r] > 0) parts.push(r + ': ' + t[r]); });
+    parts.push('Total: ' + t.Total);
+    var dailyStr = DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-');
+    out += pad(m + ' (CSE' + lvl + ')', 22) + parts.join(' · ') + '  [' + dailyStr + ']\n';
+  });
+  var pairs = [], done = {};
+  R.members.forEach(function(a) { R.members.forEach(function(b) {
+    if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) { var c = R.pairingTally[a][b]||0; if (c > 0) { pairs.push(a+'+'+b+': '+c); done[a+'+'+b] = true; } }
+  }); });
+  if (pairs.length) out += '\nPairings: ' + pairs.join(' | ') + '\n';
+  return out;
 }
-
 function cpAsgn() { cpText(fmtAsgn(), 'Assignments copied!'); }
 function cpTally() { cpText(fmtTally(), 'Stats copied!'); }
-function cpAll() { cpText(fmtAsgn() + '\n' + fmtTally(), 'All copied!'); }
-
+function cpAll() { cpText(fmtAsgn() + fmtTally(), 'All copied!'); }
 function expTxt() {
-  var saved = fmt;
-  fmt = 'onenote';
-  var text = fmtAsgn() + '\n' + fmtTally();
-  fmt = saved;
-  var blob = new Blob([text], { type: 'text/plain' });
+  var blob = new Blob([fmtAsgn() + fmtTally()], {type:'text/plain'});
   var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'cst_assignments_' + (R ? R.date : 'export') + '.txt';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Exported .txt', 'success');
+  var dl = document.createElement('a'); dl.href = url; dl.download = 'cst_assignments_' + (R?R.date:'export') + '.txt';
+  dl.click(); URL.revokeObjectURL(url); toast('Exported .txt', 'success');
 }
 
-/* ──── ICS Export ──── */
+/* ──── ICS ──── */
 function updCal() {
   if (!R) return;
-  var sel = document.getElementById('calFilter');
-  var html = '<option value="all">All Members</option>';
+  var sel = document.getElementById('calFilter'), html = '<option value="all">All Members</option>';
   R.members.forEach(function(m) { html += '<option value="' + esc(m) + '">' + esc(m) + '</option>'; });
   sel.innerHTML = html;
 }
-
+function fmtDT(d) {
+  return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'T'+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2)+('0'+d.getSeconds()).slice(-2);
+}
 function expICS() {
   if (!R) return;
-  var filter = document.getElementById('calFilter').value;
-  var dur = parseInt(document.getElementById('calDur').value) || 60;
-
-  // Find next Monday
-  var today = new Date();
-  var mon = new Date(today);
-  var dow = today.getDay();
-  mon.setDate(today.getDate() + ((dow === 0) ? 1 : (dow === 1) ? 0 : (8 - dow)));
-  mon.setHours(9, 0, 0, 0);
-
-  var dayOffsets = { Mon:0, Tue:1, Wed:2, Thu:3, Fri:4 };
-  var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CST Meeting Assigner//EN', 'CALSCALE:GREGORIAN'];
-
-  // Track per-day meeting index for staggering
-  var dayIdx = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0 };
-
+  var filter = document.getElementById('calFilter').value, dur = parseInt(document.getElementById('calDur').value)||60;
+  var today = new Date(), mon = new Date(today), dow = today.getDay();
+  mon.setDate(today.getDate()+((dow===0)?1:(dow===1)?0:(8-dow))); mon.setHours(9,0,0,0);
+  var dOff = {Mon:0,Tue:1,Wed:2,Thu:3,Fri:4};
+  var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CST Meeting Assigner//EN','CALSCALE:GREGORIAN'];
+  var dIdx = {Mon:0,Tue:0,Wed:0,Thu:0,Fri:0};
   R.assignments.forEach(function(asgn) {
-    // Filter
-    if (filter !== 'all') {
-      var hasMember = false;
-      for (var role in asgn.roles) { if (asgn.roles[role].member === filter) hasMember = true; }
-      if (!hasMember) return;
-    }
-
-    var evtDate = new Date(mon);
-    evtDate.setDate(mon.getDate() + dayOffsets[asgn.day]);
-    evtDate.setHours(9 + dayIdx[asgn.day], 0, 0, 0);
-    dayIdx[asgn.day]++;
-
-    var endDate = new Date(evtDate.getTime() + dur * 60000);
-
-    function fmtDT(d) {
-      return d.getFullYear() +
-        ('0' + (d.getMonth() + 1)).slice(-2) +
-        ('0' + d.getDate()).slice(-2) + 'T' +
-        ('0' + d.getHours()).slice(-2) +
-        ('0' + d.getMinutes()).slice(-2) +
-        ('0' + d.getSeconds()).slice(-2);
-    }
-
+    if (asgn.isInternal) return;
+    if (filter !== 'all') { var has = false; for (var r in asgn.roles) if (asgn.roles[r].member === filter) has = true; if (!has) return; }
+    var evt = new Date(mon); evt.setDate(mon.getDate()+dOff[asgn.day]); evt.setHours(9+dIdx[asgn.day],0,0,0); dIdx[asgn.day]++;
+    var end = new Date(evt.getTime()+dur*60000);
     var title = asgn.name;
-    if (asgn.isCT) title += ' 🔒';
-    if (asgn.isSolo && !asgn.isCT) title += ' 👤';
-    if (filter !== 'all') {
-      for (var role in asgn.roles) {
-        if (asgn.roles[role].member === filter) title += ' [' + role + ']';
-      }
-    }
-
+    if (asgn.isCT) title += ' [CT]';
+    if (asgn.isSolo && !asgn.isCT) title += ' [SOLO]';
+    if (filter !== 'all') { for (var r in asgn.roles) if (asgn.roles[r].member === filter) title += ' ['+r+']'; }
     var desc = '';
     if (asgn.isCT) desc += '[CONTAINMENT TEST]\\n';
     if (asgn.isSolo && !asgn.isCT) {
-      var sm = asgn.roles['Presenter'] ? asgn.roles['Presenter'].member : '?';
-      var slvl = R.memberLevels[sm] || 2;
-      desc += 'Assigned: ' + sm + ' (CSE' + slvl + ')\\n[SOLO — handles prep, notes & follow-up]';
+      var sm = asgn.roles['Presenter']?asgn.roles['Presenter'].member:'?';
+      desc += 'Assigned: '+sm+' (CSE'+(R.memberLevels[sm]||2)+')\\n[SOLO — handles prep, notes & follow-up]';
     } else {
-      var roleOrder = asgn.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
-      roleOrder.forEach(function(role) {
-        if (!asgn.roles[role]) return;
-        var info = asgn.roles[role];
-        var rlvl = R.memberLevels[info.member] || 2;
-        desc += role + ': ' + info.member + ' (CSE' + rlvl + ')\\n';
-      });
+      var ro = asgn.isCT?ALL_ROLES:(R.roleMode===3?ALL_ROLES:(R.roleMode===1?['Presenter']:['Presenter','Follow-up']));
+      ro.forEach(function(role) { if (asgn.roles[role]) desc += role+': '+asgn.roles[role].member+' (CSE'+(R.memberLevels[asgn.roles[role].member]||2)+')\\n'; });
     }
-
-    var uid = fmtDT(evtDate) + '-' + asgn.name.replace(/[^a-zA-Z0-9]/g, '') + '@cst';
-    lines.push('BEGIN:VEVENT');
-    lines.push('UID:' + uid);
-    lines.push('DTSTART:' + fmtDT(evtDate));
-    lines.push('DTEND:' + fmtDT(endDate));
-    lines.push('SUMMARY:' + title);
-    lines.push('DESCRIPTION:' + desc);
-    lines.push('END:VEVENT');
+    var uid = fmtDT(evt)+'-'+asgn.name.replace(/[^a-zA-Z0-9]/g,'')+'@cst';
+    lines.push('BEGIN:VEVENT','UID:'+uid,'DTSTART:'+fmtDT(evt),'DTEND:'+fmtDT(end),'SUMMARY:'+title,'DESCRIPTION:'+desc,'END:VEVENT');
   });
-
   lines.push('END:VCALENDAR');
-
-  var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
-  var url = URL.createObjectURL(blob);
-  var dl = document.createElement('a');
-  dl.href = url;
-  dl.download = 'cst_assignments_' + (R ? R.date : 'export') + '.ics';
-  dl.click();
-  URL.revokeObjectURL(url);
-  toast('Exported .ics', 'success');
+  var blob = new Blob([lines.join('\r\n')],{type:'text/calendar'}), url = URL.createObjectURL(blob);
+  var dl = document.createElement('a'); dl.href = url; dl.download = 'cst_assignments_'+(R?R.date:'export')+'.ics';
+  dl.click(); URL.revokeObjectURL(url); toast('Exported .ics', 'success');
 }
 
-/* ═══════════════════════════════════════════════════════════
-   HISTORY
-   ═══════════════════════════════════════════════════════════ */
-function getHist() {
-  try { return JSON.parse(localStorage.getItem('meetingHistory') || '[]'); } catch(e) { return []; }
-}
+/* ──── History ──── */
+function getHist() { try { return JSON.parse(localStorage.getItem('meetingHistory')||'[]'); } catch(e) { return []; } }
 function saveHist() {
   if (!R) return;
-  try {
-    var hist = getHist();
-    hist.unshift(R);
-    if (hist.length > 20) hist = hist.slice(0, 20);
-    localStorage.setItem('meetingHistory', JSON.stringify(hist));
-    renderHist();
-  } catch(e) {}
+  try { var h = getHist(); h.unshift(R); if (h.length > 20) h = h.slice(0,20); localStorage.setItem('meetingHistory',JSON.stringify(h)); renderHist(); } catch(e) {}
 }
 function renderHist() {
-  var hist = getHist();
-  var html = '';
-  if (hist.length === 0) {
-    html = '<div style="color:var(--tx3);font-size:0.82rem;text-align:center;padding:20px 0;">No history yet</div>';
-  } else {
-    hist.forEach(function(h, i) {
-      var ctCount = 0, soloCount = 0;
-      if (h.containmentTests) for (var k in h.containmentTests) { if (h.containmentTests[k]) ctCount++; }
-      if (h.soloMeetings) for (var k in h.soloMeetings) { if (h.soloMeetings[k]) soloCount++; }
-      html += '<div class="hist-item" onclick="loadHist(' + i + ')">';
-      html += '<div class="hist-date">' + (h.date || 'Unknown') + '</div>';
-      html += '<div class="hist-meta">' + (h.assignments ? h.assignments.length : 0) + ' meetings · ' + (h.members ? h.members.length : 0) + ' members';
-      if (ctCount > 0) html += ' · ' + ctCount + ' CT';
-      if (soloCount > 0) html += ' · ' + soloCount + ' solo';
-      html += '</div></div>';
-    });
-  }
+  var hist = getHist(), html = '';
+  if (!hist.length) { html = '<div style="color:var(--tx3);font-size:0.82rem;text-align:center;padding:20px 0;">No history yet</div>'; }
+  else hist.forEach(function(h, i) {
+    var ct=0, solo=0, int_=0;
+    if (h.containmentTests) for (var k in h.containmentTests) if (h.containmentTests[k]) ct++;
+    if (h.soloMeetings) for (var k in h.soloMeetings) if (h.soloMeetings[k]) solo++;
+    if (h.internalMeetings) for (var k in h.internalMeetings) if (h.internalMeetings[k]) int_++;
+    html += '<div class="hist-item" onclick="loadHist('+i+')"><div class="hist-date">'+(h.date||'Unknown')+'</div><div class="hist-meta">'+(h.assignments?h.assignments.length:0)+' meetings · '+(h.members?h.members.length:0)+' members';
+    if (ct) html += ' · '+ct+' CT'; if (solo) html += ' · '+solo+' solo'; if (int_) html += ' · '+int_+' internal';
+    html += '</div></div>';
+  });
   document.getElementById('histList').innerHTML = html;
 }
-function loadHist(i) {
-  var hist = getHist();
-  if (!hist[i]) return;
-  R = hist[i];
-  updCal();
-  renderResults();
-  showStep(3);
-  toggleHist();
-  toast('Loaded from history', 'success');
-}
-function toggleHist() {
-  document.getElementById('histPanel').classList.toggle('open');
-  document.getElementById('histOverlay').classList.toggle('open');
-}
+function loadHist(i) { var h = getHist(); if (!h[i]) return; R = h[i]; updCal(); renderResults(); showStep(3); toggleHist(); toast('Loaded from history','success'); }
+function toggleHist() { document.getElementById('histPanel').classList.toggle('open'); document.getElementById('histOverlay').classList.toggle('open'); }
 function showClearModal() { document.getElementById('modalOverlay').classList.add('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function clearHist() {
-  try { localStorage.removeItem('meetingHistory'); } catch(e) {}
-  renderHist();
-  closeModal();
-  toast('History cleared', 'success');
-}
+function clearHist() { try { localStorage.removeItem('meetingHistory'); } catch(e) {} renderHist(); closeModal(); toast('History cleared','success'); }
 
-/* Init */
-renderHist();
-updateMinInfo();
+renderHist(); updateMinInfo();
 </script>
 </body>
 </html>

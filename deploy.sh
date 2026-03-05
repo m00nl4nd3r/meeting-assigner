@@ -1,23 +1,38 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "🚀 CST Meeting Assigner — Deploy"
-echo "================================="
+IMAGE="cst-meeting-assigner"
+CONTAINER="cst-assigner"
+PORT="${1:-8080}"
 
-# Build
-echo "Building Docker image..."
-docker build -t cst-meeting-assigner .
+echo ""
+echo "  ╔══════════════════════════════════════╗"
+echo "  ║   CST Meeting Assigner — Deploy      ║"
+echo "  ║   v5.1.0                              ║"
+echo "  ╚══════════════════════════════════════╝"
+echo ""
 
-# Stop existing container if running
-if docker ps -q --filter "name=cst-assigner" | grep -q .; then
-  echo "Stopping existing container..."
-  docker stop cst-assigner
-  docker rm cst-assigner
+# Build image
+echo "→ Building Docker image..."
+docker build -t "$IMAGE" .
+
+# Stop & remove existing container if running
+if docker ps -aq --filter "name=$CONTAINER" | grep -q .; then
+  echo "→ Stopping existing container..."
+  docker stop "$CONTAINER" 2>/dev/null || true
+  docker rm "$CONTAINER" 2>/dev/null || true
 fi
 
 # Run
-echo "Starting container on port 8080..."
-docker run -d --name cst-assigner -p 8080:80 --restart unless-stopped cst-meeting-assigner
+echo "→ Starting container on port $PORT..."
+docker run -d \
+  --name "$CONTAINER" \
+  -p "$PORT:80" \
+  --restart unless-stopped \
+  "$IMAGE"
 
 echo ""
-echo "✅ Running at http://localhost:8080"
+echo "  ✅  Running at http://localhost:$PORT"
+echo "  📋  Logs:   docker logs -f $CONTAINER"
+echo "  🛑  Stop:   docker stop $CONTAINER"
+echo ""

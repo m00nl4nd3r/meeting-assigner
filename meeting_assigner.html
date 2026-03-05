@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CST Meeting Assigner v5.1.0</title>
+<title>CST Meeting Assigner v5.2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -292,6 +292,34 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 .modal-box p { font-size: 0.85rem; color: var(--tx2); margin-bottom: 18px; }
 .modal-actions { display: flex; gap: 10px; justify-content: center; }
 
+/* JSON import */
+.json-import-area { display: none; margin-top: 10px; }
+.json-import-area.open { display: block; }
+.json-import-area textarea { min-height: 60px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.json-drop-zone {
+  border: 2px dashed var(--border); border-radius: 10px; padding: 18px;
+  text-align: center; color: var(--tx3); font-size: 0.8rem; cursor: pointer;
+  transition: all var(--tr); margin-bottom: 8px;
+}
+.json-drop-zone:hover, .json-drop-zone.dragover { border-color: var(--accent); color: var(--accent); }
+.json-drop-zone input[type="file"] { display: none; }
+
+/* Last edited indicator */
+.last-edited {
+  font-size: 0.72rem; color: var(--tx3); font-style: italic;
+  padding: 4px 0;
+}
+.hist-edited-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); margin-right: 4px; vertical-align: middle;
+}
+.result-meta {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+  font-size: 0.78rem; color: var(--tx3); padding: 6px 0 12px;
+  border-bottom: 1px solid var(--border); margin-bottom: 14px;
+}
+.result-meta span { display: flex; align-items: center; gap: 4px; }
+
 @media (max-width: 640px) {
   .meeting-grid { grid-template-columns: 1fr; }
   .results-bar { flex-direction: column; align-items: flex-start; }
@@ -304,7 +332,7 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 <body>
 <div class="shell">
   <header>
-    <div class="logo"><h1>CST Meeting Assigner</h1><span class="ver">v5.1.0</span></div>
+    <div class="logo"><h1>CST Meeting Assigner</h1><span class="ver">v5.2.0</span></div>
     <div class="hdr-right">
       <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">◑</button>
       <button class="btn-icon" onclick="toggleHist()" title="History" aria-label="History">☰</button>
@@ -368,12 +396,14 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
       <div class="bar-sep"></div>
       <button class="btn btn-sm btn-ghost" onclick="expTxt()">Export .txt</button>
       <button class="btn btn-sm btn-ghost" onclick="expICS()">Export .ics</button>
+      <button class="btn btn-sm btn-ghost" onclick="expJSON()">Export .json</button>
       <select class="cal-select" id="calFilter"><option value="all">All Members</option></select>
       <select class="dur-select" id="calDur">
         <option value="30">30 min</option><option value="45">45 min</option>
         <option value="60" selected>60 min</option><option value="90">90 min</option>
       </select>
     </div>
+    <div class="result-meta" id="resultMeta"></div>
     <div id="asgnPanel"></div>
     <div id="statsPanel" class="stats-panel"></div>
     <div style="margin-top:24px;"><button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button></div>
@@ -384,7 +414,20 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 <div class="hist-panel" id="histPanel">
   <div class="hist-head"><h3>History</h3><button class="btn btn-sm btn-ghost" onclick="toggleHist()">✕</button></div>
   <div id="histList"></div>
-  <button class="btn btn-sm btn-secondary" style="width:100%;margin-top:12px;" onclick="showClearModal()">Clear History</button>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+    <button class="btn btn-sm btn-primary" style="width:100%;" onclick="expBackup()">⬇ Backup All History (.json)</button>
+    <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="toggleImportArea()">⬆ Import from JSON</button>
+    <div class="json-import-area" id="jsonImportArea">
+      <div class="json-drop-zone" id="jsonDropZone" onclick="document.getElementById('jsonFileInput').click();">
+        Drop .json file here or click to browse
+        <input type="file" id="jsonFileInput" accept=".json,application/json" onchange="handleJSONFile(this)">
+      </div>
+      <div style="text-align:center;font-size:0.72rem;color:var(--tx3);margin:4px 0;">— or paste JSON —</div>
+      <textarea id="jsonPasteArea" placeholder="Paste JSON backup here..."></textarea>
+      <button class="btn btn-sm btn-primary" style="width:100%;margin-top:6px;" onclick="importJSONPaste()">Import</button>
+    </div>
+    <button class="btn btn-sm btn-secondary" style="width:100%;" onclick="showClearModal()">Clear History</button>
+  </div>
 </div>
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box"><h3>Clear History?</h3><p>This will permanently remove all saved assignment history.</p>
@@ -398,7 +441,7 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   CST Meeting Assigner v5.1.0
+   CST Meeting Assigner v5.2.0
    ═══════════════════════════════════════════════════════════ */
 var DAYS = ['Mon','Tue','Wed','Thu','Fri'];
 var DAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday'};
@@ -410,6 +453,7 @@ var state = {
   savedAv: {}, savedPTO: {}, savedPins: {}
 };
 var R = null;
+var histIndex = -1; // -1 = fresh generation, >=0 = loaded from history at this index
 
 /* ──── Utilities ──── */
 function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -735,6 +779,8 @@ function generateAssignments() {
   var ptoSet = {};
   state.meetings.forEach(function(mtg) { var sid = String(mtg.id); if (!state.internal[sid]) state.members.forEach(function(m) { if (s2.pto[sid][m]) ptoSet[m] = true; }); });
   R.ptoMembers = Object.keys(ptoSet);
+  R.lastEdited = null;
+  histIndex = -1;
   updCal(); renderResults(); saveHist(); showStep(3); toast('Assignments generated!', 'success');
 }
 
@@ -760,7 +806,23 @@ function recalc() {
 /* ═══════════════════════════════════════════════════════════
    RENDER RESULTS
    ═══════════════════════════════════════════════════════════ */
-function renderResults() { renderAsgn(); renderTally(); }
+function renderResults() { renderMeta(); renderAsgn(); renderTally(); }
+function renderMeta() {
+  if (!R) return;
+  var html = '<span>📅 Generated: ' + R.date + '</span>';
+  if (R.lastEdited) {
+    var d = new Date(R.lastEdited);
+    var dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    html += '<span>✏️ Last edited: ' + dateStr + '</span>';
+  }
+  var mtgCount = R.assignments ? R.assignments.length : 0;
+  var intCount = R.assignments ? R.assignments.filter(function(a){return a.isInternal;}).length : 0;
+  html += '<span>' + (mtgCount - intCount) + ' assigned';
+  if (intCount) html += ' + ' + intCount + ' internal';
+  html += '</span>';
+  if (histIndex >= 0) html += '<span style="color:var(--green);">Editing history #' + (histIndex + 1) + '</span>';
+  document.getElementById('resultMeta').innerHTML = html;
+}
 function renderAsgn() {
   if (!R) return;
   var grouped = groupByDay(R.assignments), html = '';
@@ -863,67 +925,128 @@ function saveEdit(id) {
     newRoles[role] = { member:val, pinned:asgn.roles[role].pinned, edited:asgn.roles[role].member !== val || asgn.roles[role].edited };
   });
   if (err) { document.getElementById('ee_' + id).textContent = err; return; }
-  asgn.roles = newRoles; recalc(); renderResults(); toast('Updated', 'success');
+  asgn.roles = newRoles;
+  R.lastEdited = new Date().toISOString();
+  recalc(); renderResults();
+  saveBackToHist();
+  toast('Updated', 'success');
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SINGLE CLEAN COPY FORMAT — plain text, works everywhere
+   COPY FORMAT — spacious, scannable, works in OneNote + Slack
    ═══════════════════════════════════════════════════════════ */
 function fmtAsgn() {
   if (!R) return '';
   var grouped = groupByDay(R.assignments);
-  var out = 'CST WEEKLY ASSIGNMENTS\n';
-  out += '══════════════════════\n';
+
+  var out = '';
+  out += '┌─────────────────────────────────────────┐\n';
+  out += '│     📋  CST WEEKLY ASSIGNMENTS          │\n';
+  out += '│     Week of ' + pad(R.date || 'N/A', 28) + '│\n';
+  if (R.lastEdited) {
+    var ed = new Date(R.lastEdited);
+    out += '│     ✏️  Edited ' + pad(ed.toLocaleDateString() + ' ' + ed.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), 25) + '│\n';
+  }
+  out += '└─────────────────────────────────────────┘\n';
+
   DAYS.forEach(function(day) {
     var items = grouped[day]; if (!items || !items.length) return;
-    out += '\n' + DAY_FULL[day].toUpperCase() + '\n──────\n';
-    items.forEach(function(a) {
+
+    out += '\n\n';
+    out += '━━━  ' + DAY_FULL[day].toUpperCase() + '  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+    out += '\n';
+
+    items.forEach(function(a, idx) {
+      // Meeting name with tags
       var tags = [];
-      if (a.isInternal) tags.push('[INTERNAL]');
-      if (a.isCT) tags.push('[CT]');
-      if (a.isSolo && !a.isCT && !a.isInternal) tags.push('[SOLO]');
+      if (a.isInternal) tags.push('🏢 INTERNAL');
+      if (a.isCT) tags.push('🔒 CT');
+      if (a.isSolo && !a.isCT && !a.isInternal) tags.push('👤 SOLO');
       var anyEdited = false, anyPinned = false;
       for (var r in a.roles) { if (a.roles[r].edited) anyEdited = true; if (a.roles[r].pinned) anyPinned = true; }
-      if (anyEdited) tags.push('[edited]');
-      if (anyPinned) tags.push('[pinned]');
-      out += a.name + (tags.length ? '  ' + tags.join(' ') : '') + '\n';
+
+      out += '    ' + a.name;
+      if (tags.length) out += '   ‹ ' + tags.join(' · ') + ' ›';
+      out += '\n';
+
       if (a.isInternal) {
-        out += '  (no roles assigned)\n';
+        out += '        (no roles assigned)\n';
       } else if (a.isSolo && !a.isCT) {
         var sm = a.roles['Presenter'] ? a.roles['Presenter'].member : '?';
-        out += '  Assigned:   ' + sm + '  (prep, notes & follow-up)\n';
+        out += '\n';
+        out += '        ➜  ' + sm + '\n';
+        out += '           handles prep, notes & follow-up\n';
       } else {
+        out += '\n';
         var ro = a.isCT ? ALL_ROLES : (R.roleMode === 3 ? ALL_ROLES : (R.roleMode === 1 ? ['Presenter'] : ['Presenter','Follow-up']));
         ro.forEach(function(role) {
           if (!a.roles[role]) return;
-          var extra = (a.isCT && role === 'Presenter') ? '  (CSE' + (R.memberLevels[a.roles[role].member]||2) + ')' : '';
-          out += '  ' + pad(role + ':', 13) + a.roles[role].member + extra + '\n';
+          var info = a.roles[role];
+          var icon = role === 'Presenter' ? '🎤' : role === 'Notes' ? '📝' : '✅';
+          var line = '        ' + icon + '  ' + pad(role, 12) + '→   ' + info.member;
+          if (a.isCT && role === 'Presenter') line += '  (CSE' + (R.memberLevels[info.member]||2) + ')';
+          if (info.pinned) line += '  📌';
+          out += line + '\n';
         });
       }
+
+      if (anyEdited) out += '        ✏️  edited\n';
+
+      // Add spacer between meetings (not after the last one in a day)
+      if (idx < items.length - 1) out += '\n    ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n\n';
     });
   });
+
+  out += '\n';
   return out;
 }
+
 function fmtTally() {
   if (!R) return '';
   var mtgCount = R.assignments.filter(function(a) { return !a.isInternal; }).length;
   var intCount = R.assignments.filter(function(a) { return a.isInternal; }).length;
-  var out = '\n══════════════════════\nSTATS  (' + mtgCount + ' assigned';
-  if (intCount) out += ' · ' + intCount + ' internal';
-  out += ' · ' + R.members.length + ' members)\n──────\n\n';
+
+  var out = '\n';
+  out += '┌─────────────────────────────────────────┐\n';
+  out += '│     📊  STATS                           │\n';
+  var summary = mtgCount + ' assigned';
+  if (intCount) summary += '  ·  ' + intCount + ' internal';
+  summary += '  ·  ' + R.members.length + ' members';
+  out += '│     ' + pad(summary, 36) + '│\n';
+  out += '└─────────────────────────────────────────┘\n';
+  out += '\n';
+
+  // Column headers
+  out += '    ' + pad('MEMBER', 22) + pad('PRES', 8) + pad('NOTES', 8) + pad('F/U', 8) + pad('TOTAL', 8) + 'M-T-W-T-F\n';
+  out += '    ─────────────────────────────────────────────────────────────────\n';
+
   R.members.forEach(function(m) {
     var t = R.tally[m], lvl = R.memberLevels[m]||2;
-    var parts = [];
-    ALL_ROLES.forEach(function(r) { if (t[r] > 0) parts.push(r + ': ' + t[r]); });
-    parts.push('Total: ' + t.Total);
-    var dailyStr = DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-');
-    out += pad(m + ' (CSE' + lvl + ')', 22) + parts.join(' · ') + '  [' + dailyStr + ']\n';
+    var name = m + '  (CSE' + lvl + ')';
+    out += '    ' + pad(name, 22);
+    out += pad(t.Presenter ? String(t.Presenter) : '·', 8);
+    out += pad(t.Notes ? String(t.Notes) : '·', 8);
+    out += pad(t['Follow-up'] ? String(t['Follow-up']) : '·', 8);
+    out += pad(String(t.Total), 8);
+    out += DAYS.map(function(d) { return R.dailyTally[m][d]; }).join('-');
+    out += '\n';
   });
+
+  // Pairings
   var pairs = [], done = {};
   R.members.forEach(function(a) { R.members.forEach(function(b) {
-    if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) { var c = R.pairingTally[a][b]||0; if (c > 0) { pairs.push(a+'+'+b+': '+c); done[a+'+'+b] = true; } }
+    if (a !== b && !done[a+'+'+b] && !done[b+'+'+a]) { var c = R.pairingTally[a][b]||0; if (c > 0) { pairs.push({a:a, b:b, count:c}); done[a+'+'+b] = true; } }
   }); });
-  if (pairs.length) out += '\nPairings: ' + pairs.join(' | ') + '\n';
+  if (pairs.length) {
+    pairs.sort(function(x, y) { return y.count - x.count; });
+    out += '\n    🤝  PAIRINGS\n';
+    out += '    ─────────────────────────────────────────────────────────────────\n';
+    pairs.forEach(function(p) {
+      out += '    ' + pad(p.a + '  +  ' + p.b, 30) + p.count + 'x\n';
+    });
+  }
+
+  out += '\n';
   return out;
 }
 function cpAsgn() { cpText(fmtAsgn(), 'Assignments copied!'); }
@@ -985,7 +1108,7 @@ function expICS() {
 function getHist() { try { return JSON.parse(localStorage.getItem('meetingHistory')||'[]'); } catch(e) { return []; } }
 function saveHist() {
   if (!R) return;
-  try { var h = getHist(); h.unshift(R); if (h.length > 20) h = h.slice(0,20); localStorage.setItem('meetingHistory',JSON.stringify(h)); renderHist(); } catch(e) {}
+  try { var h = getHist(); h.unshift(R); if (h.length > 20) h = h.slice(0,20); localStorage.setItem('meetingHistory',JSON.stringify(h)); histIndex = 0; renderHist(); } catch(e) {}
 }
 function renderHist() {
   var hist = getHist(), html = '';
@@ -995,17 +1118,137 @@ function renderHist() {
     if (h.containmentTests) for (var k in h.containmentTests) if (h.containmentTests[k]) ct++;
     if (h.soloMeetings) for (var k in h.soloMeetings) if (h.soloMeetings[k]) solo++;
     if (h.internalMeetings) for (var k in h.internalMeetings) if (h.internalMeetings[k]) int_++;
-    html += '<div class="hist-item" onclick="loadHist('+i+')"><div class="hist-date">'+(h.date||'Unknown')+'</div><div class="hist-meta">'+(h.assignments?h.assignments.length:0)+' meetings · '+(h.members?h.members.length:0)+' members';
+    var isActive = (histIndex === i);
+    html += '<div class="hist-item' + (isActive ? '" style="border-color:var(--green);' : '') + '" onclick="loadHist('+i+')">';
+    html += '<div class="hist-date">' + (h.lastEdited ? '<span class="hist-edited-dot"></span>' : '') + (h.date||'Unknown');
+    if (isActive) html += ' <span style="color:var(--green);font-size:0.7rem;">● active</span>';
+    html += '</div>';
+    html += '<div class="hist-meta">'+(h.assignments?h.assignments.length:0)+' meetings · '+(h.members?h.members.length:0)+' members';
     if (ct) html += ' · '+ct+' CT'; if (solo) html += ' · '+solo+' solo'; if (int_) html += ' · '+int_+' internal';
+    if (h.lastEdited) {
+      var ed = new Date(h.lastEdited);
+      html += '<br>edited ' + ed.toLocaleDateString() + ' ' + ed.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
     html += '</div></div>';
   });
   document.getElementById('histList').innerHTML = html;
 }
-function loadHist(i) { var h = getHist(); if (!h[i]) return; R = h[i]; updCal(); renderResults(); showStep(3); toggleHist(); toast('Loaded from history','success'); }
+
+function saveBackToHist() {
+  if (!R) return;
+  try {
+    var hist = getHist();
+    if (histIndex >= 0 && histIndex < hist.length) {
+      hist[histIndex] = R;
+    } else {
+      hist.unshift(R);
+      histIndex = 0;
+      if (hist.length > 20) hist = hist.slice(0, 20);
+    }
+    localStorage.setItem('meetingHistory', JSON.stringify(hist));
+    renderHist();
+  } catch(e) {}
+}
+function loadHist(i) { var h = getHist(); if (!h[i]) return; R = h[i]; histIndex = i; updCal(); renderResults(); showStep(3); toggleHist(); toast('Loaded history #' + (i+1) + ' — edits will save back','success'); }
 function toggleHist() { document.getElementById('histPanel').classList.toggle('open'); document.getElementById('histOverlay').classList.toggle('open'); }
 function showClearModal() { document.getElementById('modalOverlay').classList.add('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function clearHist() { try { localStorage.removeItem('meetingHistory'); } catch(e) {} renderHist(); closeModal(); toast('History cleared','success'); }
+function clearHist() { try { localStorage.removeItem('meetingHistory'); } catch(e) {} histIndex = -1; renderHist(); closeModal(); toast('History cleared','success'); }
+
+/* ──── JSON Export/Import ──── */
+function expJSON() {
+  if (!R) return;
+  var blob = new Blob([JSON.stringify(R, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var dl = document.createElement('a'); dl.href = url;
+  dl.download = 'cst_assignment_' + (R.date||'export') + '.json';
+  dl.click(); URL.revokeObjectURL(url);
+  toast('Exported current assignment as .json', 'success');
+}
+function expBackup() {
+  var hist = getHist();
+  if (!hist.length) { toast('No history to backup', 'error'); return; }
+  var backup = { version: '5.2.0', exported: new Date().toISOString(), entries: hist };
+  var blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var dl = document.createElement('a'); dl.href = url;
+  dl.download = 'cst_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  dl.click(); URL.revokeObjectURL(url);
+  toast('Backed up ' + hist.length + ' entries', 'success');
+}
+function toggleImportArea() {
+  document.getElementById('jsonImportArea').classList.toggle('open');
+}
+function handleJSONFile(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) { processJSONImport(e.target.result); };
+  reader.readAsText(input.files[0]);
+  input.value = '';
+}
+function importJSONPaste() {
+  var text = document.getElementById('jsonPasteArea').value.trim();
+  if (!text) { toast('Paste JSON first', 'error'); return; }
+  processJSONImport(text);
+  document.getElementById('jsonPasteArea').value = '';
+}
+function processJSONImport(text) {
+  try {
+    var data = JSON.parse(text);
+    // Detect format: backup (has .entries array) vs single result (has .assignments)
+    if (data.entries && Array.isArray(data.entries)) {
+      // Full backup — merge into history
+      var hist = getHist();
+      var existingIds = {};
+      hist.forEach(function(h) { if (h.id) existingIds[h.id] = true; });
+      var added = 0;
+      data.entries.forEach(function(entry) {
+        if (entry.assignments && !existingIds[entry.id]) {
+          hist.push(entry);
+          added++;
+        }
+      });
+      hist.sort(function(a, b) { return (b.date||'').localeCompare(a.date||''); });
+      if (hist.length > 50) hist = hist.slice(0, 50); // allow more for imports
+      try { localStorage.setItem('meetingHistory', JSON.stringify(hist)); } catch(e) {}
+      renderHist();
+      toast('Imported ' + added + ' new entries (' + (data.entries.length - added) + ' duplicates skipped)', 'success');
+    } else if (data.assignments) {
+      // Single result
+      var hist = getHist();
+      var exists = false;
+      hist.forEach(function(h) { if (h.id === data.id) exists = true; });
+      if (exists) { toast('This assignment already exists in history', 'error'); return; }
+      hist.unshift(data);
+      if (hist.length > 50) hist = hist.slice(0, 50);
+      try { localStorage.setItem('meetingHistory', JSON.stringify(hist)); } catch(e) {}
+      renderHist();
+      R = data; histIndex = 0; updCal(); renderResults(); showStep(3);
+      toast('Imported assignment from ' + (data.date||'unknown date'), 'success');
+    } else {
+      toast('Invalid JSON format — expected backup or assignment', 'error');
+    }
+    document.getElementById('jsonImportArea').classList.remove('open');
+  } catch(e) {
+    toast('Invalid JSON: ' + e.message, 'error');
+  }
+}
+
+// Drag & drop support
+(function initDragDrop() {
+  var zone = document.getElementById('jsonDropZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault(); zone.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(ev) { processJSONImport(ev.target.result); };
+      reader.readAsText(e.dataTransfer.files[0]);
+    }
+  });
+})();
 
 renderHist(); updateMinInfo();
 </script>

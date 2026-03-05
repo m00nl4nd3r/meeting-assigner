@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
 LABEL maintainer="CST Team"
-LABEL version="5.1.0"
+LABEL version="5.2.0"
 LABEL description="CST Meeting Assigner — Weekly role assignment tool for Concierge Security Teams"
 
 # Copy the single-file app as the default page

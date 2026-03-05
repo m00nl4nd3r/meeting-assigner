@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.2.0] — 2026-03-05
+
+### Added
+- **JSON export** — Export current assignment as `.json` from the results bar.
+- **Full history backup** — "Backup All History (.json)" button in the history sidebar exports every saved run as a single timestamped JSON file.
+- **JSON import** — Import backups or single assignments via file upload, drag-and-drop, or paste into the history sidebar. Detects format automatically (full backup vs single result). Deduplicates by ID.
+- **Retroactive editing** — Loading a result from history and editing it saves changes back to that history entry in-place (no duplicate entries created).
+- **Last edited tracking** — Every edit stamps `R.lastEdited` with an ISO timestamp. Shown in the results metadata bar, in the copy/export output header, and as a green dot on history entries.
+- **Result metadata bar** — Shows generated date, last edited date, meeting counts, and active history index below the action buttons.
+- **Drag-and-drop import** — Drop `.json` files directly onto the import zone in the history sidebar.
+
+### Changed
+- History entries now show "edited" date and a green dot indicator when they've been modified after generation.
+- History cap raised to 50 for imports (20 for new generations).
+- `clearHist()` resets `histIndex`.
+
 ## [5.1.0] — 2026-03-05
 
 ### Added

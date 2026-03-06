@@ -319,6 +319,22 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
   border-bottom: 1px solid var(--border); margin-bottom: 14px;
 }
 .result-meta span { display: flex; align-items: center; gap: 4px; }
+.results-actions {
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 6px;
+}
+.hist-item-actions {
+  display: flex; gap: 4px; margin-top: 6px;
+}
+.hist-item-actions button {
+  padding: 3px 8px; font-size: 0.68rem; border-radius: 4px;
+  font-weight: 600; transition: all var(--tr);
+}
+.hist-btn-view { background: var(--bg3); color: var(--tx2); }
+.hist-btn-view:hover { background: var(--accent); color: #fff; }
+.hist-btn-reload { background: var(--bg3); color: var(--tx2); }
+.hist-btn-reload:hover { background: var(--blue); color: #fff; }
+.hist-btn-reshuffle { background: var(--bg3); color: var(--tx2); }
+.hist-btn-reshuffle:hover { background: var(--green); color: #fff; }
 
 @media (max-width: 640px) {
   .meeting-grid { grid-template-columns: 1fr; }
@@ -406,7 +422,11 @@ label { font-size: 0.82rem; color: var(--tx2); font-weight: 500; }
     <div class="result-meta" id="resultMeta"></div>
     <div id="asgnPanel"></div>
     <div id="statsPanel" class="stats-panel"></div>
-    <div style="margin-top:24px;"><button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button></div>
+    <div class="results-actions" style="margin-top:24px; border-top:1px solid var(--border); padding-top:16px;">
+      <button class="btn btn-secondary" onclick="goToStep1()">← New Assignment</button>
+      <button class="btn btn-secondary" onclick="reshuffleFromR()" title="Re-run algorithm with same team, meetings, and config — new random shuffle">🔄 Reshuffle</button>
+      <button class="btn btn-secondary" onclick="editAndReassign()" title="Load this run's team and meetings back into the wizard so you can add, remove, or change meetings before regenerating">✏️ Edit Setup &amp; Reassign</button>
+    </div>
   </div>
 </div>
 
@@ -774,7 +794,10 @@ function generateAssignments() {
     members: members.slice(), memberLevels: levels, roleMode: state.roleMode,
     assignments: assignments, tally: tally, dailyTally: daily, pairingTally: pairing,
     ptoMembers: [], containmentTests: Object.assign({}, state.ct),
-    soloMeetings: Object.assign({}, state.solo), internalMeetings: Object.assign({}, state.internal)
+    soloMeetings: Object.assign({}, state.solo), internalMeetings: Object.assign({}, state.internal),
+    // Save original setup for reload/reshuffle
+    originalMeetings: JSON.parse(JSON.stringify(state.meetings)),
+    savedS2: JSON.parse(JSON.stringify(s2))
   };
   var ptoSet = {};
   state.meetings.forEach(function(mtg) { var sid = String(mtg.id); if (!state.internal[sid]) state.members.forEach(function(m) { if (s2.pto[sid][m]) ptoSet[m] = true; }); });
@@ -1129,7 +1152,13 @@ function renderHist() {
       var ed = new Date(h.lastEdited);
       html += '<br>edited ' + ed.toLocaleDateString() + ' ' + ed.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     }
-    html += '</div></div>';
+    html += '</div>';
+    html += '<div class="hist-item-actions">';
+    html += '<button class="hist-btn-view" onclick="event.stopPropagation();loadHist('+i+')">View</button>';
+    html += '<button class="hist-btn-reload" onclick="event.stopPropagation();reloadHistSetup('+i+')">Edit Setup</button>';
+    html += '<button class="hist-btn-reshuffle" onclick="event.stopPropagation();reshuffleHist('+i+')">Reshuffle</button>';
+    html += '</div>';
+    html += '</div>';
   });
   document.getElementById('histList').innerHTML = html;
 }
@@ -1154,6 +1183,141 @@ function toggleHist() { document.getElementById('histPanel').classList.toggle('o
 function showClearModal() { document.getElementById('modalOverlay').classList.add('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 function clearHist() { try { localStorage.removeItem('meetingHistory'); } catch(e) {} histIndex = -1; renderHist(); closeModal(); toast('History cleared','success'); }
+
+/* ═══════════════════════════════════════════════════════════
+   RELOAD / RESHUFFLE / EDIT & REASSIGN
+   ═══════════════════════════════════════════════════════════ */
+
+/* Reshuffle: re-run the algorithm with the exact same setup.
+   If R has savedS2 and originalMeetings, we restore state from them
+   and call generateAssignments(). Otherwise fall back to editAndReassign. */
+function reshuffleFromR() {
+  if (!R) return;
+  if (!R.originalMeetings || !R.savedS2) {
+    toast('This run was saved before reshuffle support — use Edit & Reassign instead', 'error');
+    return;
+  }
+  // Restore state from R
+  state.members = R.members.slice();
+  state.memberLevels = {};
+  for (var k in R.memberLevels) state.memberLevels[k] = R.memberLevels[k];
+  state.roleMode = R.roleMode;
+  state.meetings = JSON.parse(JSON.stringify(R.originalMeetings));
+  state.ct = R.containmentTests ? JSON.parse(JSON.stringify(R.containmentTests)) : {};
+  state.solo = R.soloMeetings ? JSON.parse(JSON.stringify(R.soloMeetings)) : {};
+  state.internal = R.internalMeetings ? JSON.parse(JSON.stringify(R.internalMeetings)) : {};
+
+  // We need to render Step 2 momentarily so collectS2 can read the DOM,
+  // OR we can bypass collectS2 and inject s2 data directly.
+  // Bypass approach: temporarily override collectS2.
+  var savedS2 = JSON.parse(JSON.stringify(R.savedS2));
+  var origCollect = collectS2;
+  collectS2 = function() { return savedS2; };
+
+  generateAssignments();
+
+  // Restore original collectS2
+  collectS2 = origCollect;
+  toast('Reshuffled with same setup!', 'success');
+}
+
+/* Edit & Reassign: Load R's setup back into Step 1 wizard so user can
+   add/remove meetings, change members, then go through Step 2 → Generate. */
+function editAndReassign() {
+  if (!R) return;
+  reloadSetup(R);
+}
+
+/* reloadSetup: populate state + Step 1 UI from a result object. */
+function reloadSetup(result) {
+  // Restore members
+  state.members = result.members ? result.members.slice() : [];
+  state.memberLevels = {};
+  if (result.memberLevels) { for (var k in result.memberLevels) state.memberLevels[k] = result.memberLevels[k]; }
+
+  // Restore role mode
+  state.roleMode = result.roleMode || 2;
+  setRoleMode(state.roleMode);
+
+  // Restore flags
+  state.ct = result.containmentTests ? JSON.parse(JSON.stringify(result.containmentTests)) : {};
+  state.solo = result.soloMeetings ? JSON.parse(JSON.stringify(result.soloMeetings)) : {};
+  state.internal = result.internalMeetings ? JSON.parse(JSON.stringify(result.internalMeetings)) : {};
+
+  // Restore saved S2 state for when they go to Step 2
+  if (result.savedS2) {
+    state.savedAv = {};
+    state.savedPTO = {};
+    state.savedPins = {};
+    // Reconstruct savedAv/savedPTO from s2 data
+    var s2 = result.savedS2;
+    for (var sid in s2.avail) {
+      for (var m in s2.avail[sid]) {
+        state.savedAv[sid + '_' + m] = s2.avail[sid][m];
+      }
+    }
+    for (var sid in s2.pto) {
+      for (var m in s2.pto[sid]) {
+        state.savedPTO[sid + '_' + m] = s2.pto[sid][m];
+      }
+    }
+    for (var sid in s2.pins) {
+      for (var role in s2.pins[sid]) {
+        if (s2.pins[sid][role]) state.savedPins[sid + '_' + role] = s2.pins[sid][role];
+      }
+    }
+  } else {
+    state.savedAv = {};
+    state.savedPTO = {};
+    state.savedPins = {};
+  }
+
+  // Reconstruct meetings list — prefer originalMeetings, fall back to assignments
+  var meetings = [];
+  if (result.originalMeetings && result.originalMeetings.length) {
+    meetings = JSON.parse(JSON.stringify(result.originalMeetings));
+  } else if (result.assignments) {
+    // Reconstruct from assignments (older results without originalMeetings)
+    result.assignments.forEach(function(a, i) {
+      meetings.push({ id: i, name: a.name, day: a.day });
+    });
+  }
+  state.meetings = meetings;
+
+  // Populate Step 1 textareas
+  var dayMap = {Mon:'mtgMon',Tue:'mtgTue',Wed:'mtgWed',Thu:'mtgThu',Fri:'mtgFri'};
+  DAYS.forEach(function(day) {
+    var lines = [];
+    meetings.forEach(function(mtg) {
+      if (mtg.day === day) lines.push(mtg.name);
+    });
+    document.getElementById(dayMap[day]).value = lines.join('\n');
+  });
+
+  // Render members
+  renderMembers();
+
+  // Show Step 1
+  showStep(1);
+  toast('Setup loaded — add or remove meetings, then Continue →', 'success');
+}
+
+/* History sidebar: reload a past run into the wizard */
+function reloadHistSetup(i) {
+  var hist = getHist();
+  if (!hist[i]) return;
+  reloadSetup(hist[i]);
+  toggleHist();
+}
+
+/* History sidebar: reshuffle a past run directly */
+function reshuffleHist(i) {
+  var hist = getHist();
+  if (!hist[i]) return;
+  R = hist[i];
+  histIndex = i;
+  reshuffleFromR();
+}
 
 /* ──── JSON Export/Import ──── */
 function expJSON() {

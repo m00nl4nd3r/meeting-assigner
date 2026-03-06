@@ -10,6 +10,10 @@
 - **Last edited tracking** — Every edit stamps `R.lastEdited` with an ISO timestamp. Shown in the results metadata bar, in the copy/export output header, and as a green dot on history entries.
 - **Result metadata bar** — Shows generated date, last edited date, meeting counts, and active history index below the action buttons.
 - **Drag-and-drop import** — Drop `.json` files directly onto the import zone in the history sidebar.
+- **Reshuffle** — Re-run the algorithm with the same team, meetings, and Step 2 config but a fresh random shuffle. Available on Step 3 and on each history entry.
+- **Edit Setup & Reassign** — Load a previous run's team and meetings back into the Step 1 wizard. Add or remove meetings, change members, adjust flags — then walk through Step 2 and regenerate. All Step 2 config (availability, PTO, pins, flags) is preserved.
+- **History action buttons** — Each history entry now has View, Edit Setup, and Reshuffle buttons for quick access without loading first.
+- **Setup persistence in results** — `R` now stores `originalMeetings` and `savedS2` so the full setup can be reconstructed for reshuffle and reload.
 
 ### Changed
 - History entries now show "edited" date and a green dot indicator when they've been modified after generation.

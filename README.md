@@ -11,6 +11,8 @@ A weekly meeting role assignment tool for Concierge Security Teams. Fairly distr
 - **Internal Meetings** — Flag meetings that need no role assignment (listed only)
 - **Even-Spread Algorithm** — Fair ceiling enforcement, total-first balancing, role equity
 - **Pin & Edit** — Lock members to roles, edit assignments after generation
+- **Reshuffle** — Re-run the algorithm with the same setup but a fresh shuffle, from results or history
+- **Edit Setup & Reassign** — Load any past run back into the wizard, add/remove meetings, then regenerate
 - **Retroactive Editing** — Load any past result from history, edit it, changes save back
 - **Last Edited Tracking** — Every edit timestamped; shown in results, copy output, and history
 - **JSON Backup & Import** — Export single results or full history. Import via file, drag-drop, or paste
@@ -95,3 +97,11 @@ MIT — see [LICENSE](LICENSE)
 ## Retroactive Editing
 
 When you load a past result from history, any edits you make (via the ✏️ button on assignment cards) save back to that same history entry — no duplicates are created. Every edit stamps a `lastEdited` timestamp that appears in the results bar, in copied/exported text, and as a green dot on the history entry.
+
+## Reshuffle & Edit Setup
+
+**Reshuffle** — Click 🔄 Reshuffle on the results page (or on any history entry) to re-run the algorithm with the exact same team, meetings, and Step 2 config. The random shuffle is different each time, so you'll get a fresh distribution.
+
+**Edit Setup & Reassign** — Click ✏️ Edit Setup to load a run's team and meetings back into the Step 1 wizard. From there you can add new meetings, remove old ones, change team members, or adjust role mode — then walk through Step 2 and regenerate. All Step 2 config (availability, PTO, pins, CT/Solo/Internal flags) is carried over from the original run.
+
+This is the best way to **add meetings retroactively**: load the previous week's setup, add the new meetings to the textareas, and regenerate.

@@ -788,6 +788,11 @@ function generateAssignments() {
 
   if (errors.length) errors.forEach(function(e) { toast(e, 'error'); });
 
+  // Restore original input order — algorithm shuffles for fairness but output must be chronological
+  var idOrder = {};
+  state.meetings.forEach(function(mtg, idx) { idOrder[mtg.id] = idx; });
+  assignments.sort(function(a, b) { return (idOrder[a.id] || 0) - (idOrder[b.id] || 0); });
+
   var today = new Date();
   R = {
     id: 'r_' + Date.now(), date: today.toISOString().slice(0,10),
@@ -1178,7 +1183,34 @@ function saveBackToHist() {
     renderHist();
   } catch(e) {}
 }
-function loadHist(i) { var h = getHist(); if (!h[i]) return; R = h[i]; histIndex = i; updCal(); renderResults(); showStep(3); toggleHist(); toast('Loaded history #' + (i+1) + ' — edits will save back','success'); }
+function loadHist(i) {
+  var h = getHist(); if (!h[i]) return;
+  R = h[i]; histIndex = i;
+  normalizeAssignmentOrder();
+  updCal(); renderResults(); showStep(3); toggleHist();
+  toast('Loaded history #' + (i+1) + ' — edits will save back','success');
+}
+
+/* Ensure assignments are always in chronological input order.
+   Uses originalMeetings ID order if available, falls back to day order. */
+function normalizeAssignmentOrder() {
+  if (!R || !R.assignments || R.assignments.length < 2) return;
+  if (R.originalMeetings && R.originalMeetings.length) {
+    var idOrder = {};
+    R.originalMeetings.forEach(function(mtg, idx) { idOrder[mtg.id] = idx; });
+    R.assignments.sort(function(a, b) {
+      var oA = idOrder[a.id] !== undefined ? idOrder[a.id] : 9999;
+      var oB = idOrder[b.id] !== undefined ? idOrder[b.id] : 9999;
+      return oA - oB;
+    });
+  } else {
+    // Fallback: sort by day order, preserve within-day order
+    var dayOrder = {Mon:0,Tue:1,Wed:2,Thu:3,Fri:4};
+    R.assignments.sort(function(a, b) {
+      return (dayOrder[a.day]||0) - (dayOrder[b.day]||0);
+    });
+  }
+}
 function toggleHist() { document.getElementById('histPanel').classList.toggle('open'); document.getElementById('histOverlay').classList.toggle('open'); }
 function showClearModal() { document.getElementById('modalOverlay').classList.add('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
@@ -1278,7 +1310,12 @@ function reloadSetup(result) {
     meetings = JSON.parse(JSON.stringify(result.originalMeetings));
   } else if (result.assignments) {
     // Reconstruct from assignments (older results without originalMeetings)
-    result.assignments.forEach(function(a, i) {
+    // Sort by day order to approximate original input order
+    var dayOrder = {Mon:0,Tue:1,Wed:2,Thu:3,Fri:4};
+    var sorted = result.assignments.slice().sort(function(a, b) {
+      return (dayOrder[a.day]||0) - (dayOrder[b.day]||0);
+    });
+    sorted.forEach(function(a, i) {
       meetings.push({ id: i, name: a.name, day: a.day });
     });
   }
@@ -1387,7 +1424,9 @@ function processJSONImport(text) {
       if (hist.length > 50) hist = hist.slice(0, 50);
       try { localStorage.setItem('meetingHistory', JSON.stringify(hist)); } catch(e) {}
       renderHist();
-      R = data; histIndex = 0; updCal(); renderResults(); showStep(3);
+      R = data; histIndex = 0;
+      normalizeAssignmentOrder();
+      updCal(); renderResults(); showStep(3);
       toast('Imported assignment from ' + (data.date||'unknown date'), 'success');
     } else {
       toast('Invalid JSON format — expected backup or assignment', 'error');

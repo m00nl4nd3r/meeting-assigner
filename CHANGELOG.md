@@ -20,6 +20,9 @@
 - History cap raised to 50 for imports (20 for new generations).
 - `clearHist()` resets `histIndex`.
 
+### Fixed
+- **Meeting order preservation** — assignments are now sorted back to original input order after the algorithm's random shuffle. `normalizeAssignmentOrder()` is called on every load path (history, JSON import) to guarantee chronological order in rendering, copy output, .txt export, and .ics export. Older results without `originalMeetings` fall back to day-order sorting.
+
 ## [5.1.0] — 2026-03-05
 
 ### Added

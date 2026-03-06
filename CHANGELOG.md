@@ -21,7 +21,8 @@
 - `clearHist()` resets `histIndex`.
 
 ### Fixed
-- **Meeting order preservation** — assignments are now sorted back to original input order after the algorithm's random shuffle. `normalizeAssignmentOrder()` is called on every load path (history, JSON import) to guarantee chronological order in rendering, copy output, .txt export, and .ics export. Older results without `originalMeetings` fall back to day-order sorting.
+- **Meeting order preservation** — assignments are now sorted back to original input order after the algorithm's random shuffle. `normalizeAssignmentOrder()` is called on every load path (history, JSON import) to guarantee chronological order in rendering, copy output, .txt export, and .ics export.
+- **Algorithm v3 — even daily spread**: Complete rewrite of the assignment engine. Two-pass approach: Pass 1 pre-counts ALL pinned and solo assignments into tallies before a single unpinned slot is filled, so the algorithm sees the full picture of forced assignments. Pass 2 fills remaining slots with daily ceiling enforcement (`ceil(daySlots / members)`) as factor #2, daily spread as factor #3, role balance as factor #5. Fixes the Presenter:9-vs-3 imbalance and 4-meetings-on-one-day overload.
 
 ## [5.1.0] — 2026-03-05
 

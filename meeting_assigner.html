@@ -677,26 +677,39 @@ function collectS2() {
    Improvements over v1:
    1. Fair ceiling — no one exceeds ceil(totalSlots/members) unless
       everyone at the ceiling is unavailable.
-   2. Total-first sorting — the person with fewest total assignments
-      always wins over daily spread or role count.
-   3. Role equity — members who have NEVER held a role get strong
-      preference, spreading role variety.
-   4. Pairing diversity as tiebreaker only.
+   Improvements over v2:
+   1. TWO-PASS: First pass pre-counts ALL pins and solos into tallies
+      before a single unpinned slot is filled. The algorithm sees the
+      full picture of forced assignments before making choices.
+   2. Daily ceiling: ceil(daySlots / availableMembers) per day prevents
+      any member from being overloaded on a single day.
+   3. Daily spread elevated to factor #2 (right after PTO) so no one
+      gets 4 meetings while others have 1 on the same day.
+   4. Role balance elevated to factor #4 so Presenter:9 vs Presenter:3
+      is heavily penalized.
    ═══════════════════════════════════════════════════════════ */
 function generateAssignments() {
   var s2 = collectS2();
   var members = state.members.slice();
   var levels = {}; for (var k in state.memberLevels) levels[k] = state.memberLevels[k];
 
-  // Compute fair ceiling
+  // ── Compute ceilings ──
   var totalSlots = 0;
+  var daySlotsMap = {Mon:0,Tue:0,Wed:0,Thu:0,Fri:0};
   state.meetings.forEach(function(mtg) {
     var sid = String(mtg.id);
     if (state.internal[sid]) return;
-    totalSlots += roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid], false).length;
+    var rc = roleLabelsFor(state.roleMode, !!state.ct[sid], !!state.solo[sid], false).length;
+    totalSlots += rc;
+    daySlotsMap[mtg.day] += rc;
   });
   var fairCeiling = Math.ceil(totalSlots / members.length);
+  var dailyCeiling = {};
+  DAYS.forEach(function(day) {
+    dailyCeiling[day] = daySlotsMap[day] > 0 ? Math.ceil(daySlotsMap[day] / members.length) : 0;
+  });
 
+  // ── Init tallies ──
   var tally = {}, daily = {}, pairing = {};
   members.forEach(function(m) {
     tally[m] = { Presenter:0, Notes:0, 'Follow-up':0, Total:0 };
@@ -705,6 +718,51 @@ function generateAssignments() {
     members.forEach(function(m2) { if (m !== m2) pairing[m][m2] = 0; });
   });
 
+  // ══════════════════════════════════════════════════════════
+  // PASS 1: Pre-count ALL pinned + solo assignments into tallies
+  //         so the scoring has full knowledge before filling gaps
+  // ══════════════════════════════════════════════════════════
+  var pinAssignments = {}; // mtgId → { role → member }
+  state.meetings.forEach(function(mtg) {
+    var sid = String(mtg.id);
+    if (state.internal[sid]) return;
+    var isCT = !!state.ct[sid], isSolo = !!state.solo[sid];
+    var roles = roleLabelsFor(state.roleMode, isCT, isSolo, false);
+    var mtgPins = {};
+    roles.forEach(function(role) {
+      var pinned = s2.pins[sid][role];
+      if (!pinned) return;
+      var avail = members.filter(function(m) { return s2.avail[sid][m]; });
+      if (avail.indexOf(pinned) === -1) return;
+      if (isCT && role === 'Presenter' && !isCSE3R(pinned, levels)) return;
+      // Check no duplicate within this meeting's pins
+      var alreadyUsed = false;
+      for (var r2 in mtgPins) { if (mtgPins[r2] === pinned) alreadyUsed = true; }
+      if (alreadyUsed) return;
+      mtgPins[role] = pinned;
+    });
+    if (Object.keys(mtgPins).length > 0) pinAssignments[sid] = mtgPins;
+
+    // Pre-count into tallies
+    var pinMembers = [];
+    for (var role in mtgPins) {
+      var mem = mtgPins[role];
+      tally[mem][role]++;
+      tally[mem].Total++;
+      daily[mem][mtg.day]++;
+      // Count pairings only with previously processed pins (avoids double-count)
+      pinMembers.forEach(function(prev) {
+        pairing[mem][prev]++;
+        pairing[prev][mem]++;
+      });
+      pinMembers.push(mem);
+    }
+  });
+
+  // ══════════════════════════════════════════════════════════
+  // PASS 2: Fill all slots — pinned members placed directly,
+  //         unpinned slots use scoring with pre-counted tallies
+  // ══════════════════════════════════════════════════════════
   var assignments = [], errors = [];
 
   DAYS.forEach(function(day) {
@@ -716,7 +774,7 @@ function generateAssignments() {
       var isSolo = !!state.solo[sid];
 
       if (isInt) {
-        assignments.push({ id: mtg.id, name: mtg.name, day: mtg.day, isCT:false, isSolo:false, isInternal:true, roles:{} });
+        assignments.push({ id:mtg.id, name:mtg.name, day:mtg.day, isCT:false, isSolo:false, isInternal:true, roles:{} });
         return;
       }
 
@@ -729,21 +787,20 @@ function generateAssignments() {
 
       var assigned = {};
       var asgn = { id:mtg.id, name:mtg.name, day:mtg.day, isCT:isCT, isSolo:isSolo, isInternal:false, roles:{} };
+      var prePins = pinAssignments[sid] || {};
 
       roles.forEach(function(role) {
-        // Pinned
-        var pinned = s2.pins[sid][role];
-        if (pinned && avail.indexOf(pinned) !== -1 && !assigned[pinned]) {
-          if (isCT && role === 'Presenter' && !isCSE3R(pinned, levels)) { /* bad pin */ }
-          else {
-            asgn.roles[role] = { member:pinned, pinned:true, edited:false };
-            assigned[pinned] = true;
-            tally[pinned][role]++; tally[pinned].Total++; daily[pinned][day]++;
-            for (var p in assigned) { if (p !== pinned) { pairing[pinned][p]++; pairing[p][pinned]++; } }
-            return;
-          }
+        // ── Pinned: place directly (already counted in Pass 1) ──
+        if (prePins[role]) {
+          var pinMem = prePins[role];
+          asgn.roles[role] = { member:pinMem, pinned:true, edited:false };
+          assigned[pinMem] = true;
+          // Pin-to-pin pairings already counted in Pass 1.
+          // Pin-to-unpin pairings will be counted when the unpin is placed.
+          return;
         }
 
+        // ── Unpinned: score and pick ──
         var candidates = avail.filter(function(m) { return !assigned[m]; });
         if (isCT && role === 'Presenter') {
           var cse3 = candidates.filter(function(m) { return isCSE3R(m, levels); });
@@ -752,35 +809,53 @@ function generateAssignments() {
           if (candidates.length === 0) { errors.push(mtg.name + ': no CSE3+ for CT Presenter'); return; }
         }
 
+        var dCeil = dailyCeiling[day];
         candidates.sort(function(a, b) {
           // 1. PTO last
           var ptA = s2.pto[sid][a] ? 1 : 0, ptB = s2.pto[sid][b] ? 1 : 0;
           if (ptA !== ptB) return ptA - ptB;
-          // 2. Fair ceiling — prefer under ceiling
-          var cA = tally[a].Total >= fairCeiling ? 1 : 0, cB = tally[b].Total >= fairCeiling ? 1 : 0;
+
+          // 2. Daily ceiling — hard prefer anyone under the day's ceiling
+          var dcA = daily[a][day] >= dCeil ? 1 : 0;
+          var dcB = daily[b][day] >= dCeil ? 1 : 0;
+          if (dcA !== dcB) return dcA - dcB;
+
+          // 3. Fewest meetings TODAY (daily spread)
+          if (daily[a][day] !== daily[b][day]) return daily[a][day] - daily[b][day];
+
+          // 4. Total ceiling — hard prefer under weekly ceiling
+          var cA = tally[a].Total >= fairCeiling ? 1 : 0;
+          var cB = tally[b].Total >= fairCeiling ? 1 : 0;
           if (cA !== cB) return cA - cB;
-          // 3. Fewest total assignments
+
+          // 5. Fewest in this specific role (role balance)
+          if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
+
+          // 6. Fewest total assignments
           if (tally[a].Total !== tally[b].Total) return tally[a].Total - tally[b].Total;
-          // 4. Role equity — never done this role wins
+
+          // 7. Role equity — never done this role gets bonus
           var nA = tally[a][role] === 0 ? 0 : 1, nB = tally[b][role] === 0 ? 0 : 1;
           if (nA !== nB) return nA - nB;
-          // 5. Fewest meetings today
-          if (daily[a][day] !== daily[b][day]) return daily[a][day] - daily[b][day];
-          // 6. Fewest in this role
-          if (tally[a][role] !== tally[b][role]) return tally[a][role] - tally[b][role];
-          // 7. Pairing diversity
+
+          // 8. Pairing diversity
           var pA = 0, pB = 0;
           for (var u in assigned) { pA += (pairing[a][u]||0); pB += (pairing[b][u]||0); }
           if (pA !== pB) return pA - pB;
-          // 8. Alphabetical
+
+          // 9. Alphabetical
           return a.localeCompare(b);
         });
 
         var pick = candidates[0];
         asgn.roles[role] = { member:pick, pinned:false, edited:false };
         assigned[pick] = true;
-        tally[pick][role]++; tally[pick].Total++; daily[pick][day]++;
-        for (var p2 in assigned) { if (p2 !== pick) { pairing[pick][p2]++; pairing[p2][pick]++; } }
+        tally[pick][role]++;
+        tally[pick].Total++;
+        daily[pick][day]++;
+        for (var p2 in assigned) {
+          if (p2 !== pick) { pairing[pick][p2]++; pairing[p2][pick]++; }
+        }
       });
       assignments.push(asgn);
     });

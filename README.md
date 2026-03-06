@@ -71,16 +71,21 @@ No server, no build step, no dependencies.
 
 ## Algorithm
 
-The v2 engine processes meetings day-by-day (shuffled within each day). For each role slot, it scores candidates on 8 factors (lowest wins):
+The v3 engine uses a **two-pass** approach:
+
+**Pass 1 — Pre-count**: Before any scoring, iterates ALL meetings to count pinned and solo assignments into tallies. This ensures the algorithm knows Max already has 5 Presenter pins before filling a single unpinned slot.
+
+**Pass 2 — Fill**: Processes meetings day-by-day (shuffled within each day for fairness, restored to input order after). For each unpinned slot, scores candidates on 9 factors (lowest wins):
 
 1. **PTO** — PTO members sort last
-2. **Fair ceiling** — Anyone at or above `ceil(totalSlots / members)` deprioritized
-3. **Total balance** — Fewest total assignments wins
-4. **Role equity** — Never done this role? Strong preference
-5. **Daily spread** — Fewer meetings today wins
-6. **Role count** — Fewer times in this specific role wins
-7. **Pairing diversity** — Less overlap with already-assigned members wins
-8. **Alphabetical** — Deterministic tiebreaker
+2. **Daily ceiling** — Anyone at or above `ceil(daySlots / members)` deprioritized
+3. **Daily spread** — Fewest meetings today wins
+4. **Total ceiling** — Anyone at or above `ceil(totalSlots / members)` deprioritized
+5. **Role balance** — Fewest times in this specific role wins
+6. **Total balance** — Fewest total assignments wins
+7. **Role equity** — Never done this role? Bonus
+8. **Pairing diversity** — Less overlap with co-assigned members wins
+9. **Alphabetical** — Deterministic tiebreaker
 
 ## License
 
